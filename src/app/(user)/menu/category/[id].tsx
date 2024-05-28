@@ -7,6 +7,7 @@ import CategoryItemList from "@/src/components/main-page/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
 import MainHeader from "@/src/components/MainHeader";
 import HeaderLink from "@/src/components/HeaderLink";
+import {ICategoryItem} from "@/src/types";
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 export default function categoryId() {
@@ -43,7 +44,7 @@ export default function categoryId() {
         return <Text>Wallet Not Found</Text>
     }
 
-    const [filteredData, setFilteredData] = useState([]);
+    const [filteredData, setFilteredData] = useState<ICategoryItem>([]);
     const handleFilteredData = (data:[]) => {
         setFilteredData(data);
     };
@@ -52,7 +53,7 @@ export default function categoryId() {
         <ScrollView style={styles.container}>
             <Stack.Screen options={{
                 headerShown:true,
-                header: () => <HeaderLink/>,
+                header: () => <HeaderLink title="Главная" link="/"/>,
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
 

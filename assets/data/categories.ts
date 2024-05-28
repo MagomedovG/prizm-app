@@ -1,3 +1,5 @@
+export const defaultLogo = 'https://grovo.ru/wp-content/uploads/2020/12/maxresdefault.jpg'
+export const defaultImage = 'https://photogora.ru/img/product/thumb/4897/5d2efa2ce25635320511549050122246.jpg'
 export const categories = [
     {
         id:1,
@@ -6,18 +8,19 @@ export const categories = [
         items:[
             {
                 id:1,
-                name:"Зеленое яблоко",
-                image:"https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRgjaBnJo10PPftSwn62Ccu45MDk09fHvf0XyApSGv1Z86Ch0cvF8iViSf10IVOj-rSkCfw7KWSgg&usqp=CAE",
-                logo:'',
+                name:"Зеленое яблоко1",
+                image:"https://fastly.4sqi.net/img/general/600x600/137815901_IbykYB7yXn3sedMZvjxCKGUmulri6O03kEmhQ-i7Dzs.jpg",
+                logo:'https://grovo.ru/wp-content/uploads/2020/12/maxresdefault.jpg',
                 rating:'',
-                adress:'',
-                description:'',
+                adress:'Ленина, напротив кфс',
+                subtitle:'Продуктовый гипермаркет',
+                description:'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные',
                 sale:5 //%
 
             },
             {
                 id:2,
-                name:"Магнит",
+                name:"Магнит2",
                 image:"https://cdn5.vedomosti.ru/crop/image/2019/1g/w1ybx/original-15ji.jpg?height=609&width=914",
                 logo:'',
                 rating:'',
@@ -29,9 +32,10 @@ export const categories = [
                 id:3,
                 name:"Пятерочка",
                 image:"https://habrastorage.org/getpro/moikrug/uploads/company/547/526/299/logo/medium_f5152dd0b3edfd6d1e46a99cde6e1400.jpeg",
-                logo:'',
+                logo:'https://cs9.pikabu.ru/post_img/2020/05/27/12/1590612788148730458.png',
                 rating:'',
                 adress:'',
+                subtitle:'Продуктовый гипермаркет - пятерочка',
                 description:'',
                 sale:5 //%
             },
@@ -42,6 +46,7 @@ export const categories = [
                 logo:'',
                 rating:'',
                 adress:'',
+                subtitle:'Продуктовый гипермаркет - супермаркет',
                 description:'',
                 sale:5 //%
             },
@@ -52,6 +57,7 @@ export const categories = [
                 logo:'',
                 rating:'',
                 adress:'',
+                subtitle:'Продуктовый гипермаркет - супермаркет',
                 description:'',
                 sale:5 //%
             },
@@ -62,12 +68,14 @@ export const categories = [
                 logo:'',
                 rating:'',
                 adress:'',
+                subtitle:'Продуктовый гипермаркет - супермаркет',
                 description:'',
                 sale:5 //%
             },
             {
                 id:7,
                 name:"Супермаркет",
+                subtitle:'Продуктовый гипермаркет - супермаркет',
                 image:"https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRgjaBnJo10PPftSwn62Ccu45MDk09fHvf0XyApSGv1Z86Ch0cvF8iViSf10IVOj-rSkCfw7KWSgg&usqp=CAE"
             },
             {
@@ -365,3 +373,49 @@ export const categories = [
     },
 
 ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // [
+    // {
+    //     id:1,
+    //     image:'https://photogora.ru/img/product/thumb/4897/5d2efa2ce25635320511549050122246.jpg',
+    //     name:'Супермаркеты',
+    //     items:[
+    //         {
+    //             id:1,
+    //             name:"Зеленое яблоко1",
+    //             image:"https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRgjaBnJo10PPftSwn62Ccu45MDk09fHvf0XyApSGv1Z86Ch0cvF8iViSf10IVOj-rSkCfw7KWSgg&usqp=CAE",
+    //             logo:'https://grovo.ru/wp-content/uploads/2020/12/maxresdefault.jpg',
+    //             rating:'',
+    //             adress:'Ленина, напротив кфс',
+    //             subtitle:'Продуктовый гипермаркет',
+    //             description:'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные',
+    //             sale:5 //%
+    //
+    //         },
+    //         {
+    //             id:2,
+    //             name:"Магнит2",
+    //             image:"https://cdn5.vedomosti.ru/crop/image/2019/1g/w1ybx/original-15ji.jpg?height=609&width=914",
+    //             logo:'',
+    //             rating:'',
+    //             adress:'',
+    //             description:'',
+    //             sale:5 //%
+    //         }
+    //     ]
+    // }
+    // ]

@@ -32,8 +32,8 @@ export default function CategoryItemList ({categoryList, title, isBonus}:Categor
                 data={categoryList}
                 style={styles.flatlist}
                 renderItem={({item}) =>
-                <Link href={`${segments[0]}/menu/category/${item.id}`} asChild>
-                       <Pressable style={styles.itemContainer}>
+                <Link href={`${segments[0]}/menu/category-item/${item.id}`} asChild>
+                       <Pressable style={styles.itemContainer} onPress={() => {console.log(item, item.id)}}>
                             <Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>
                            <Text style={styles.text}>{item.name}</Text>
                        </Pressable>

@@ -9,9 +9,9 @@ export type ICategory = {
   id: number;
   image: string | null;
   name: string;
-  item:[]
+  items:ICategoryItemList[]
 };
-type IcategoryItemList ={
+export type ICategoryItemList ={
   image?: string | null;
   name?: string;
   id:number,
@@ -19,10 +19,11 @@ type IcategoryItemList ={
   rating?:number,
   adress?:string,
   description?:string,
-  sale?:number
+  sale?:number,
+  subtitle?: string
 }
 export type ICategoryItem = {
-  items: IcategoryItemList
+  items: ICategoryItemList
 
 };
 
