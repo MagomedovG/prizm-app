@@ -1,40 +1,66 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions} from "react-native";
+import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, ScrollView} from "react-native";
 import {Colors} from "@/constants/Colors";
 import {ICategory} from "@/src/types";
-import {Link, useSegments} from "expo-router";
+import {Link, useRouter, useSegments} from "expo-router";
 import wallet from "@/assets/data/wallet";
 import SearchInput from "@/src/components/SearchInput";
-import {useEffect, useState} from "react";
-
+import React, {useEffect, useState} from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
 
 type CategoryListProps = {
     title?:string,
-    categories: ICategory[]
+    categories: ICategory[] | any,
+    isInput?:boolean,
+    isAdmin?:boolean,
+    linkButton?:string
 }
-export default function CategoryList ({categories, title}:CategoryListProps) {
+export default function CategoryList ({categories, title, isInput, isAdmin, linkButton}:CategoryListProps) {
     const segments = useSegments();
     console.log(segments);
-    const [filteredData, setFilteredData] = useState([]);
+    const router = useRouter()
+    const [filteredData, setFilteredData] = useState<any>([]);
+    const {theme} = useCustomTheme()
+
     useEffect(() => {
         setFilteredData(categories); // Обновление данных при изменении пропсов
     }, [categories]);
     const handleFilteredData = (data:[]) => {
         setFilteredData(data);
     };
+    const handleAdminPage = () => {
+        router.push(`${linkButton}`)
+    }
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            <SearchInput data={categories} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
+            {isInput && <SearchInput data={categories} onFilteredData={handleFilteredData} placeholder="Поиск"/>}
+            {/*<Text style={styles.title}>{title}</Text>*/}
+            <View style={styles.titleButton}>
+                <Text style={[styles.title, !isAdmin ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
+                {isAdmin && (<Pressable onPress={handleAdminPage}
+                                        style={[styles.button, theme === 'purple' ? {backgroundColor: '#5B1FB2'} : {backgroundColor: '#32933C'}, {borderColor: '#41146D'}]}>
+                    <Text style={{color: 'white', textAlign: 'center'}}>
+                        Добавить
+                    </Text>
+                </Pressable>)}
+            </View>
+
             <FlatList
                 data={filteredData}
-                style={styles.flatlist}
+                // style={styles.flatlist}
                 renderItem={({item}) =>
                     <Link href={`${segments[0]}/menu/category/${item.id}`} asChild>
                         <Pressable style={styles.itemContainer}>
-                            <Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>
-                            <Text style={styles.text}>{item.name}</Text>
+
+                            <View style={{width:'100%',display:'flex', flexDirection:'row', justifyContent:'space-between', padding:16}}>
+                                <Text style={styles.text}>{item.name}</Text>
+                                <Ionicons name="cafe-sharp" size={24} color="black" />
+                                {/*<Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>*/}
+
+                            </View>
+
                         </Pressable>
                     </Link>
                 }
@@ -50,21 +76,31 @@ export default function CategoryList ({categories, title}:CategoryListProps) {
 const styles = StyleSheet.create({
     flatlist:{
         // width: '100%',
-        flex:1
+        // flex:1
     },
     container: {
         width: '100%',
-        flex:1,
-        marginBottom:50
+        height:'100%',
+        // flex:1,
+        overflow:'scroll',
+        marginBottom:300,
+        // backgroundColor:'#000'
+
         // aspectRatio:1
     },
     itemContainer: {
-        width: ITEM_WIDTH,
+        // width: '100%',
         // margin: 5,
         // padding: 10,
+        display:'flex',
+        flexDirection:'row',
+        alignItems:'center',
         backgroundColor: 'white',
-        height:167,
-        position:'relative',
+        height:80,
+        borderRadius:13,
+        borderWidth:1,
+        borderColor:'rgba(0,0,0,0.1)',
+        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4
     },
     image: {
         // width: '100%',
@@ -76,15 +112,33 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        marginVertical: 10
+        marginBottom: 16
     },
     text:{
-        position:'absolute',
-        bottom:10,
-        left:11,
-        right:11,
-        fontSize:12
-    }
+        // position:'absolute',
+        // bottom:10,
+        // left:11,
+        // right:11,
+        fontSize:16,
+        fontWeight:'medium'
+    },
+    purpleBackground:{
+        backgroundColor:'#5C2389'
+    },
+    titleButton:{
+        display:'flex',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'space-between',
+        marginBottom:19
+    },
+    button:{
+        borderRadius:33,
+        // width:'30%',
+        borderWidth:1,
+        paddingVertical:10,
+        paddingHorizontal:20
+    },
 });
 
 

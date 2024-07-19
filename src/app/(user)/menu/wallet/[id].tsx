@@ -1,11 +1,12 @@
 import React from 'react';
-import {Text, View, Image, StyleSheet, Button, TextInput, Clipboard, Alert} from "react-native";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {Text, View, Image, StyleSheet, Button, TextInput, Clipboard, Alert, Pressable, ScrollView} from "react-native";
+import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import { useCart } from "@/src/providers/CartProvider";
 import wallets from "@/assets/data/wallet";
 import UIButton from "@/src/components/UIButton";
 
 import { AntDesign } from '@expo/vector-icons';
+import HeaderLink from "@/src/components/HeaderLink";
 // import * as Clipboard from 'expo-clipboard';
 
 export default function walletId() {
@@ -25,58 +26,72 @@ export default function walletId() {
 
     return (
         <View style={{ position: 'relative', flex: 1 }}>
+            <Stack.Screen options={{
+                headerShown: false,
+                header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
+            }} />
             <View style={styles.container}>
-                <Stack.Screen options={{ title: wallet?.name }} />
+
                 <Text style={styles.name}>{wallet.name}</Text>
                 <Image
                     source={{ uri: wallet.qr }}
                     style={styles.image}
                 />
-                <Text style={styles.link}>{wallet.link}</Text>
+                {/*<Text style={styles.link}>{wallet.link}</Text>*/}
             </View>
-            <TextInput
-                style={styles.input}
-                editable={false}
-                placeholder={wallet.prizm}
-                value={wallet.prizm}
-            />
-            <View style={styles.copyButtonContainer}>
+            <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                <TextInput
+                    style={styles.input}
+                    editable={false}
+                    placeholder={wallet.prizm}
+                    value={wallet.prizm}
+                />
+                <View style={styles.copyButtonContainer}>
+                    <AntDesign name="copy1" size={15} color="#262626" />
+                </View>
+            </Pressable>
 
-                <Text onPress={copyToClipboard} style={styles.copyButton}>Скопировать</Text>
-                <AntDesign name="copy1" size={15} color="#262626" />
-            </View>
 
-            <UIButton text='Готово' />
+            <UIButton text={wallet.isAdmin ? 'Перевести PZM' : 'Ок'} isAdminWallet={true}/>
+            {wallet.isAdmin && <Pressable style={styles.adminLink}>
+                <Link href={'/(admin)/'}>
+                    Перейти в панель администратора
+                </Link>
+            </Pressable>}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    copyButtonContainer:{
+    pressable: {
+        position: 'relative',
         marginHorizontal: 42,
-        display:'flex',
-        flexDirection:'row',
-        alignItems:'center',
-        gap:5
+        marginBottom: 20,
     },
-    copyButton:{
-        color:'#262626',
-
-        fontSize:16
+    copyButtonContainer: {
+        position: 'absolute',
+        right: 10,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     input: {
         borderWidth: 1,
         borderColor: 'gray',
-        padding: 25,
-        marginTop: 5,
-        marginBottom: 20,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
         backgroundColor: '#EFEFEF',
         borderRadius: 5,
         color: '#707070',
-        marginHorizontal: 42
+    },
+    adminLink:{
+        marginLeft:50,
+        position:'absolute',
+        bottom:40
     },
     name: {
-        marginVertical: 50,
+        marginVertical: 13,
         fontSize: 30,
         marginTop: 80
     },
@@ -89,9 +104,16 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         padding: 10,
+        marginVertical:28
     },
     image: {
-        width: '90%',
-        aspectRatio: 1
+        width: '75%',
+        marginHorizontal: 42,
+        aspectRatio: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 5,
     },
 });

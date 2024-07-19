@@ -10,15 +10,16 @@ import HeaderLink from "@/src/components/HeaderLink";
 import {ICategoryItem} from "@/src/types";
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
-export default function categoryId() {
-    const router = useRouter()
+export default function BuisnessAdminPage() {
+    // const router = useRouter()
 
 
 
-    const {addItem} = useCart()
+    // const {addItem} = useCart()
 
-    const { id } = useLocalSearchParams()
+    // const { id } = useLocalSearchParams()
 
+    const id = '1'
 
     const category = categories.find(c => c.id.toString() === id)
 
@@ -31,14 +32,7 @@ export default function categoryId() {
         }
     };
 
-    // const addToCart = () => {
-    //     if (!product) {
-    //         return
-    //     }
-    //     add-item(product, selectedSize)
-    //     router.push('/(user)/cart')
-    //     // console.warn('Adding to cart', selectedSize)
-    // }
+
 
     if (!category){
         return <Text>Wallet Not Found</Text>
@@ -53,12 +47,12 @@ export default function categoryId() {
         <ScrollView style={styles.container}>
             <Stack.Screen options={{
                 headerShown:false,
-                header: () => <HeaderLink title="Главная" link="/(user)/menu"/>,
+                header: () => <HeaderLink title="Главная" link="/"/>,
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
 
             <SearchInput data={category.items} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
-            <CategoryItemList categoryList={filteredData} title={category.name} isBonus={true}/>
+            <CategoryItemList categoryList={filteredData} title={category.name} isBonus={false} isAdmin={true} buttonLink='menu/buisness/add-business/'/>
         </ScrollView>
 
 
@@ -71,8 +65,8 @@ const styles = StyleSheet.create({
         flexDirection:'column',
         width: ITEM_WIDTH,
         paddingHorizontal: 10,
-        paddingTop: 36,
-        paddingBottom:50,
+        paddingVertical: 50,
+        // marginBottom:50,
         alignSelf: 'center',
     },
     title: {

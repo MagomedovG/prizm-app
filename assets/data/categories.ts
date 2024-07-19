@@ -1,5 +1,40 @@
 export const defaultLogo = 'https://grovo.ru/wp-content/uploads/2020/12/maxresdefault.jpg'
 export const defaultImage = 'https://photogora.ru/img/product/thumb/4897/5d2efa2ce25635320511549050122246.jpg'
+export const adminCategories = [
+    {
+        id:1,
+        path:'categories',
+        name:'Категории'
+    },
+    {
+        id:2,
+        path:'buisness',
+        name:'Бизнесы'
+    },
+    {
+        id:3,
+        path:'fonds',
+        name:'Фонды'
+    },
+]
+export const adminFonds = [
+    {
+        id:1,
+        name:"Инсан",
+    },
+    // {
+    //     id:1,
+    //     name:"Инсан",
+    // },
+    {
+        id:2,
+        name:"Аманат",
+    },
+    {
+        id:3,
+        name:"Фонд",
+    }
+]
 export const categories = [
     {
         id:1,
@@ -15,7 +50,47 @@ export const categories = [
                 adress:'Ленина, напротив кфс',
                 subtitle:'Продуктовый гипермаркет',
                 description:'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные',
-                sale:5 //%
+                sale:5,
+                feedbacks:[
+                    {
+                        id:1,
+                        mark:3,
+                        date:'1 апреля',
+                        author_name:"PeachBlossom534",
+                        text:'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные'
+                    },
+                    {
+                        id:2,
+                        mark:2,
+                        date:'67 апреля',
+                        author_name:"PeachyGirl",
+                        text:'Зеленоесные'
+
+                    },
+                    {
+                        id:3,
+                        mark:5,
+                        date:'67 апреля',
+                        author_name:"Prizm",
+                        text:'Vozvrat'
+
+                    },
+                    {
+                        id:4,
+                        mark:5,
+                        date:'67 апреля',
+                        author_name:"Ali",
+                        text:'Климат холдинг'
+                    },
+                    {
+                        id:5,
+                        mark:5,
+                        date:'67 апреля',
+                        author_name:"Gamzat",
+                        text:'MAgomedov'
+
+                    }
+                ]
 
             },
             {
@@ -390,12 +465,12 @@ export const categories = [
 
     // [
     // {
-    //     id:1,
+    //     [id]:1,
     //     image:'https://photogora.ru/img/product/thumb/4897/5d2efa2ce25635320511549050122246.jpg',
     //     name:'Супермаркеты',
     //     items:[
     //         {
-    //             id:1,
+    //             [id]:1,
     //             name:"Зеленое яблоко1",
     //             image:"https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRgjaBnJo10PPftSwn62Ccu45MDk09fHvf0XyApSGv1Z86Ch0cvF8iViSf10IVOj-rSkCfw7KWSgg&usqp=CAE",
     //             logo:'https://grovo.ru/wp-content/uploads/2020/12/maxresdefault.jpg',
@@ -407,7 +482,7 @@ export const categories = [
     //
     //         },
     //         {
-    //             id:2,
+    //             [id]:2,
     //             name:"Магнит2",
     //             image:"https://cdn5.vedomosti.ru/crop/image/2019/1g/w1ybx/original-15ji.jpg?height=609&width=914",
     //             logo:'',

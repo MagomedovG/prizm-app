@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import UIButton from '@/src/components/UIButton';
 import {Colors} from '../../constants/Colors';
 import {Link, Redirect, Stack, useRouter} from 'expo-router';
-import {supabase} from "@/src/lib/supabase";
+import {borderColor} from "@/assets/data/colors";
+// import {supabase} from "@/src/lib/supabase";
 
 const SignInScreen = () => {
     const [prizm, setPrizm] = useState<string>('');
@@ -12,7 +13,7 @@ const SignInScreen = () => {
     const router = useRouter()
     async function signInWithEmail () {
         console.log(prizm);
-        if(prizm === '1'){
+        if (prizm === '1'){
             router.push('/(user)/')
         }
         // console.warn('dd')
@@ -57,6 +58,7 @@ const styles = StyleSheet.create({
         fontSize:35,
         textAlign:"center",
         marginBottom: 44,
+        borderColor: borderColor
     },
     input: {
         borderWidth: 1,

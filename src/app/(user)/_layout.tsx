@@ -6,8 +6,8 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {Pressable} from "react-native";
 import {FontAwesome} from "@expo/vector-icons";
-import {useAuth} from "@/src/providers/AuthProvider";
-import {supabase} from "@/src/lib/supabase";
+// import {useAuth} from "@/src/providers/AuthProvider";
+// import {supabase} from "@/src/lib/supabase";
 import UIButton from "@/src/components/UIButton";
 
 export default function TabLayout() {

@@ -1,10 +1,13 @@
-const wallets = [
+import {IWallet} from "@/src/types";
+
+const wallets:IWallet[] = [
         {
             id: 1,
             name: 'Мой кошелек',
             qr: 'https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg',
             prizm: 'PRIZM- 12312312-12312312-1231',
-            link:'https://example.com'
+            link:'https://example.com',
+            isAdmin:true
         },
         {
             id: 2,

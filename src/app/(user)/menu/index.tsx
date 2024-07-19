@@ -3,25 +3,30 @@ import {Link, Stack} from 'expo-router';
 import {View, FlatList, ActivityIndicator, Text, Pressable, ScrollView} from "react-native";
 import {StyleSheet} from "react-native";
 import {Colors} from '@/constants/Colors'
-import React from "react";
+import React, {useEffect} from "react";
 
 import wallets from "@/assets/data/wallet";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
 import {categories} from "@/assets/data/categories";
 import MainHeader from "@/src/components/MainHeader";
+import {LinearGradient} from "expo-linear-gradient";
+import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function MenuScreen() {
-
-    // const {data:products, error,  isLoading} = useProductList()
-
-    // if (isLoading){
-    //     return <ActivityIndicator/>
+    const { theme } = useCustomTheme();
+    // useEffect(()=>{
+        // const getName = async () => {
+        //     const userName = await AsyncStorage.getItem('userName')
+        //     const walletName = await AsyncStorage.getItem('walletAddress')
+        //     console.log(userName, walletName)
+        // }
+        // getName()
     // }
-    // if (error){
-    //     return <Text>Failed to fetch product</Text>
-    // }
+    //     , [theme])
+
     return (
-        <View style={{paddingTop: 165,flex:1}}>
+        <View>
             <Stack.Screen
                 options={{
                     // title: 'mm',
@@ -29,24 +34,42 @@ export default function MenuScreen() {
                     header: () => <MainHeader />,
 
             }} />
-            <ScrollView style={styles.container}>
-                <View style={styles.walletContainer}>
-                    <Text style={styles.walletTitle}>Кошельки</Text>
+            <View>
+
+            </View>
+            {/*<LinearGradient*/}
+            {/*    colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}*/}
+            {/*    start={{ x: 1, y: 0 }}*/}
+            {/*    end={{ x: 0, y: 0 }}*/}
+            {/*>*/}
+            {/*    <MainHeader/>*/}
+            {/**/}
+            {/*</LinearGradient>*/}
+            <View>
+                <LinearGradient
+                    colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
+                    start={{ x: 1, y: 0 }}
+                    end={{ x: 0, y: 0 }}
+                    style={styles.walletContainer}
+                >
+                    <Text style={[styles.walletTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>Кошельки</Text>
                     <FlatList
                         data={wallets}
-                        renderItem={({item}) => <WalletItem wallet={item}/>}
-                        contentContainerStyle={{gap:25}}
+                        renderItem={({ item }) => <WalletItem wallet={item} />}
+                        contentContainerStyle={{ gap: 8 }}
                         style={styles.flatlist}
                         keyExtractor={(item) => item.id.toString()}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
+
                     />
-                </View>
-                <CategoryList categories={categories} title="Кэшбек у партнеров"/>
-            </ScrollView>
-            {/*<View>*/}
-            {/*    <Text>yyy</Text>*/}
-            {/*</View>*/}
+                </LinearGradient>
+
+                <ScrollView style={styles.container}>
+                    <CategoryList categories={categories} title="Кэшбек у партнеров" isInput={true}/>
+                </ScrollView>
+            </View>
+
 
 
         </View>
@@ -55,9 +78,11 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
     container:{
         backgroundColor: 'white',
-        padding:16,
-        height:'100%',
-        // borderRadius: 20
+        paddingHorizontal:16,
+        // flex: 1,
+        // display:'flex',
+        // flexDirection:'column',
+        // alignSelf: 'center',
     },
     image:{
         width:"100%",
@@ -73,9 +98,11 @@ const styles = StyleSheet.create({
     },
     walletContainer:{
         backgroundColor:'#D9D9D9',
-        padding:25,
-        borderRadius:17,
-        marginBottom:15
+        paddingHorizontal:25,
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+        // marginBottom:15,
+        // paddingTop:163
         // height:'50%'
     },
     walletTitle:{
@@ -87,5 +114,12 @@ const styles = StyleSheet.create({
     flatlist:{
         // display:'flex',
         // flexDirection:'row',
-    }
+        // flex:1
+    },
+    whiteText:{
+        color:'white'
+    },
+    blackText:{
+        color:'black'
+    },
 })

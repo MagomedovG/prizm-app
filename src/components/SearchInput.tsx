@@ -28,12 +28,13 @@ const SearchInput = ({ data, onFilteredData, placeholder }) => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
             >
                 <View style={styles.container}>
-                    <Feather name="search" size={24} color="gray" />
+                    <Feather name="search" size={18} color="gray" />
                     <TextInput
                         style={styles.input}
                         placeholder={placeholder}
                         value={query}
                         onChangeText={setQuery}
+                        placeholderTextColor='#8C8C8C'
                     />
                 </View>
             </KeyboardAvoidingView>
@@ -48,16 +49,18 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 14,
+        marginVertical: 20,
         borderRadius: 50,
         paddingHorizontal: 10,
-        backgroundColor: '#6B6B6B',
+        borderWidth:1,
+        borderColor:'#DCDCDC',
+        backgroundColor: 'white',
     },
     input: {
         height: 40,
         padding: 12,
         width: '90%',
-        color: '#fff', // Добавьте это, если хотите, чтобы текст был белым
+        color: '#8C8C8C', // Добавьте это, если хотите, чтобы текст был белым
     },
 });
 

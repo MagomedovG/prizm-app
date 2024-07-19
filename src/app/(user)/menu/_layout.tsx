@@ -4,7 +4,7 @@ import {FontAwesome} from "@expo/vector-icons";
 import {Colors} from "@/constants/Colors";
 import React from "react";
 import UIButton from "@/src/components/UIButton";
-import {supabase} from "@/src/lib/supabase";
+// import {supabase} from "@/src/lib/supabase";
 
 export default function MenuStack (){
     return (

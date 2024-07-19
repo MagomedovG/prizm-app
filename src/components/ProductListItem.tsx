@@ -17,8 +17,8 @@ export default function ProductListItem ({product}:ProductListItemProps) {
                 <Text style={styles.price}>₽{product.price} за литр</Text>
             {/*<Link*/}
             {/*    href={{*/}
-            {/*        pathname: "/user/[id]",*/}
-            {/*        params: { id: 'bacon' }*/}
+            {/*        pathname: "/user/[[id]]",*/}
+            {/*        params: { [id]: 'bacon' }*/}
             {/*    }}>*/}
             {/*    View user*/}
             {/*</Link>*/}

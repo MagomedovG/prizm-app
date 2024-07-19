@@ -9,7 +9,7 @@ export type ICategory = {
   id: number;
   image: string | null;
   name: string;
-  items:ICategoryItemList[]
+  items:ICategoryItemList[],
 };
 export type ICategoryItemList ={
   image?: string | null;
@@ -20,7 +20,9 @@ export type ICategoryItemList ={
   adress?:string,
   description?:string,
   sale?:number,
-  subtitle?: string
+  subtitle?: string,
+  feedbacks?:[]
+
 }
 export type ICategoryItem = {
   items: ICategoryItemList
