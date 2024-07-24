@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
-const MainHeader = () => {
+const MainHeader = ({ onWalletPress }) => {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
@@ -25,6 +25,10 @@ const MainHeader = () => {
 
         fetchHiddenState();
     }, []);
+
+    const handleWalletPress = () => {
+        onWalletPress(true);
+    };
 
     const toggleHidden = async () => {
         try {
@@ -45,7 +49,9 @@ const MainHeader = () => {
         >
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 7.5 }}>
-                    <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
+                    <Pressable onPress={handleWalletPress}>
+                        <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
+                    </Pressable>
                     <Pressable onPress={toggleHidden}>
                         <Feather name="eye" size={15} color={theme === 'purple' ? 'white' : 'black'} />
                     </Pressable>

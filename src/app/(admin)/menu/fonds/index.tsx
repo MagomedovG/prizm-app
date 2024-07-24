@@ -19,7 +19,7 @@ const FondAdminPage = () => {
             {/*<Text style={styles.title}>{category.name}</Text>*/}
 
             {/*<SearchInput data={category.items} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>*/}
-            <CategoryList categories={adminFonds} title='Фонды' linkButton={'/menu/fonds/add-fond/'} isAdmin={true}/>
+            <CategoryList categories={adminFonds} title='Фонды' linkButton={'/menu/fonds/add-fond/'} isAdminFond={true}/>
         </ScrollView>
     );
 };

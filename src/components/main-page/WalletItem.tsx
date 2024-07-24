@@ -57,7 +57,8 @@ const styles = StyleSheet.create({
         fontWeight:'medium',
         marginTop:5,
         marginBottom:10,
-        width:'100%'
+        width:'100%',
+        textAlign:'center'
     },
     price:{
         color: Colors.light.tint

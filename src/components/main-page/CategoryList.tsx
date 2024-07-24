@@ -14,10 +14,10 @@ type CategoryListProps = {
     title?:string,
     categories: ICategory[] | any,
     isInput?:boolean,
-    isAdmin?:boolean,
-    linkButton?:string
+    isAdminFond?:boolean,
+    linkButton?:string,
 }
-export default function CategoryList ({categories, title, isInput, isAdmin, linkButton}:CategoryListProps) {
+export default function CategoryList ({categories, title, isInput, isAdminFond, linkButton}:CategoryListProps) {
     const segments = useSegments();
     console.log(segments);
     const router = useRouter()
@@ -38,8 +38,8 @@ export default function CategoryList ({categories, title, isInput, isAdmin, link
             {isInput && <SearchInput data={categories} onFilteredData={handleFilteredData} placeholder="Поиск"/>}
             {/*<Text style={styles.title}>{title}</Text>*/}
             <View style={styles.titleButton}>
-                <Text style={[styles.title, !isAdmin ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
-                {isAdmin && (<Pressable onPress={handleAdminPage}
+                <Text style={[styles.title, !isAdminFond ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
+                {isAdminFond && (<Pressable onPress={handleAdminPage}
                                         style={[styles.button, theme === 'purple' ? {backgroundColor: '#5B1FB2'} : {backgroundColor: '#32933C'}, {borderColor: '#41146D'}]}>
                     <Text style={{color: 'white', textAlign: 'center'}}>
                         Добавить
@@ -51,7 +51,7 @@ export default function CategoryList ({categories, title, isInput, isAdmin, link
                 data={filteredData}
                 // style={styles.flatlist}
                 renderItem={({item}) =>
-                    <Link href={`${segments[0]}/menu/category/${item.id}`} asChild>
+                    <Link href={!isAdminFond ? `${segments[0]}/menu/category/${item.id}` : `(admin)/menu/fonds/edit-fond/${item.id}`} asChild>
                         <Pressable style={styles.itemContainer}>
 
                             <View style={{width:'100%',display:'flex', flexDirection:'row', justifyContent:'space-between', padding:16}}>
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'space-between',
-        marginBottom:19
+        // marginBottom:19
     },
     button:{
         borderRadius:33,

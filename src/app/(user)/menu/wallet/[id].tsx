@@ -21,7 +21,7 @@ export default function walletId() {
 
     const copyToClipboard = () => {
         Clipboard.setString(wallet.prizm);
-        Alert.alert('Кошелек скопирован!','');
+        Alert.alert('Кошелек скопирован!',wallet.prizm);
     };
 
     return (
@@ -40,12 +40,13 @@ export default function walletId() {
                 {/*<Text style={styles.link}>{wallet.link}</Text>*/}
             </View>
             <Pressable onPress={copyToClipboard} style={styles.pressable}>
-                <TextInput
-                    style={styles.input}
-                    editable={false}
-                    placeholder={wallet.prizm}
-                    value={wallet.prizm}
-                />
+                {/*<TextInput*/}
+                {/*    style={styles.input}*/}
+                {/*    editable={false}*/}
+                {/*    placeholder={wallet.prizm}*/}
+                {/*    value={wallet.prizm}*/}
+                {/*/>*/}
+                <Text style={styles.input}>{wallet.prizm}</Text>
                 <View style={styles.copyButtonContainer}>
                     <AntDesign name="copy1" size={15} color="#262626" />
                 </View>
@@ -54,7 +55,7 @@ export default function walletId() {
 
             <UIButton text={wallet.isAdmin ? 'Перевести PZM' : 'Ок'} isAdminWallet={true}/>
             {wallet.isAdmin && <Pressable style={styles.adminLink}>
-                <Link href={'/(admin)/'}>
+                <Link href={'/(admin)/'} style={{textAlign:'center'}}>
                     Перейти в панель администратора
                 </Link>
             </Pressable>}
@@ -86,9 +87,13 @@ const styles = StyleSheet.create({
         color: '#707070',
     },
     adminLink:{
-        marginLeft:50,
+        // marginHorizontal:50,
         position:'absolute',
-        bottom:40
+        bottom:40,
+        right:0,
+        left:0,
+        width:'100%',
+        // textAlign:'center'
     },
     name: {
         marginVertical: 13,

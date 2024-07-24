@@ -25,7 +25,7 @@ const CategoriesAdminPage = () => {
 
                 }} />
             <ScrollView style={styles.containers}>
-                <CategoryList categories={categories} title="Категории" isInput={false}/>
+                <CategoryList categories={categories} title="Категории" isInput={false} isAdmin={true}/>
             </ScrollView>
             <UIButton text='Добавить категорию' onPress={() => router.push(`menu/categories/add-item/`)}/>
         </View>
