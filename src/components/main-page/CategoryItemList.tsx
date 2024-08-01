@@ -15,9 +15,10 @@ type CategoryListProps = {
     title?: string,
     isBonus?:boolean,
     isAdmin?:boolean,
-    buttonLink?:string
+    buttonLink?:string,
+    onWalletPress?:any
 }
-export default function CategoryItemList ({categoryList, title, isBonus, isAdmin, buttonLink}:CategoryListProps) {
+export default function CategoryItemList ({categoryList, title, isBonus, isAdmin, buttonLink,onWalletPress}:CategoryListProps) {
     const segments = useSegments();
     const router = useRouter()
     console.log(segments);
@@ -25,15 +26,22 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
     const handleAdminPage = () => {
         router.push(`${buttonLink}`)
     }
-
+    const handleWalletPress = () => {
+        onWalletPress(true);
+    };
     return (
         <View style={styles.container}>
             {isBonus
                 &&
-                <View style={[styles.bonus, theme === 'purple' ? styles.purpleBackground : styles.greenBackground]}>
+                <Pressable onPress={handleWalletPress} style={[styles.bonus, theme === 'purple' ? styles.purpleBackground : styles.greenBackground]}>
                     <Entypo name="info-with-circle" size={24} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
-                    <Text style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>Как получить бонусы?</Text>
-                </View> }
+                    {/*<Pressable onPress={handleWalletPress}>*/}
+                        <Text  style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>
+                            Как получить бонусы?
+                        </Text>
+
+                    {/*</Pressable>*/}
+                </Pressable> }
             <View style={styles.titleButton}>
                 <Text style={[styles.title, !isAdmin ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
                 {isAdmin && (<Pressable onPress={handleAdminPage}

@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
-const MainHeader = ({ onWalletPress }) => {
+const MainHeader = ({ onWalletPress }:any) => {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
@@ -69,18 +69,18 @@ const MainHeader = ({ onWalletPress }) => {
             <View style={styles.headerList}>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '***' : 'B : 17350 pzm'}
+                        {isHidden ? '****' : 'B : 17350 pzm'}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '***' : 'P : 0.00073 pzm'}
+                        {isHidden ? '****' : 'P : 0.00073 pzm'}
                     </Text>
                 </View>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '***' : '1 pzm = 1.00 руб'}
+                        {isHidden ? '****' : '1 pzm = 1.00 руб'}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '***' : 'баланс = 17350 руб'}
+                        {isHidden ? '****' : 'баланс = 17350 руб'}
                     </Text>
                 </View>
             </View>

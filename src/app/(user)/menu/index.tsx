@@ -10,6 +10,7 @@ import {
     Dimensions,
     Platform
 } from "react-native";
+import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
 import React, { useEffect, useState } from "react";
@@ -22,6 +23,10 @@ import MainHeader from "@/src/components/MainHeader";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
+import CookieManager, { Cookies } from '@react-native-cookies/cookies';
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight =
     Platform.OS === "ios"
@@ -34,13 +39,48 @@ export default function MenuScreen() {
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
     const { asyncTheme, changeTheme } = useAsyncTheme();
+    // const [categories, setCategories] = useState(null)
+
+    // useEffect(() => {
+    //     async function getData() {
+    //         try {
+    //             CookieManager.getAll(true)
+    //                 .then((cookies) => {
+    //                     console.log('CookieManager.getAll =>', cookies);
+    //                 });
+    //             // const cookies = await Cookies.get(apiUrl);
+    //             // const csrfToken = cookies['csrftoken'];
+    //             const response = await fetch(
+    //                     `http://127.0.0.1:8000/api/v1/categories/`,
+    //                 {
+    //                     credentials: "include",
+    //                     // headers: {
+    //                     //     "X-CSRFToken": `${csrfToken}`,
+    //                     // },
+    //                 }
+    //             );
+    //             const data = await response.json();
+    //             console.log(response);
+    //             setCategories(data);
+    //             if (!response.ok){
+    //                 console.log(response);
+    //             }
+    //
+    //         } catch (error) {
+    //             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+    //             // console.log(response);
+    //         }
+    //     }
+    //
+    //     getData();
+    // }, []);
 
     const handleWalletPress = (value: boolean) => {
         setIsModal(value);
     };
 
     const hideModal = () => {
-        console.log('hide');
+        setIsModal(false);
     };
 
     return (
@@ -55,8 +95,8 @@ export default function MenuScreen() {
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isModal}
-                onSwipeComplete={() => setIsModal(false)}
-                onBackdropPress={() => setIsModal(false)}
+                onSwipeComplete={hideModal}
+                onBackdropPress={hideModal}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -64,6 +104,7 @@ export default function MenuScreen() {
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
+
             >
                 <Pressable style={styles.centeredView} onPress={hideModal}>
                     <Pressable style={styles.modalView} onPress={() => {}}>
@@ -110,7 +151,15 @@ export default function MenuScreen() {
                         end={{ x: 0, y: 0 }}
                         style={styles.walletContainer}
                     >
-                        <Text style={[styles.walletTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>Кошельки</Text>
+                        <View style={{display:'flex', width:'100%', flexDirection:'row', justifyContent:'space-between', alignItems:'center',marginBottom: 15}}>
+                            <Text style={[styles.walletTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>Кошельки</Text>
+                            <Pressable
+                                onPress={handleWalletPress}
+                                       // style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center',}}
+                            >
+                                <View><Entypo name="dots-three-horizontal" size={22} color={theme === 'purple' ? 'white' : 'black'} /></View>
+                            </Pressable>
+                        </View>
                         <FlatList
                             data={wallets}
                             renderItem={({ item }) => <WalletItem wallet={item} />}
@@ -201,7 +250,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: '#323232',
         fontWeight: '600',
-        marginBottom: 15,
+
     },
     flatlist: {},
     whiteText: {

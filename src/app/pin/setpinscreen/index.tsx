@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     pinDot: (filled:any) => ({
         width: 16,
         height: 16,
-        margin: 4,
+        marginHorizontal: 12,
         borderRadius: 8,
         backgroundColor: filled ? '#6F1AEC' : 'transparent',
         borderWidth: 2,
