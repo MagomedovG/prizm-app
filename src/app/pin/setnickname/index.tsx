@@ -12,8 +12,8 @@ const SetNickName = () => {
 
     useEffect(()=> {
         const getAsyncName = async () => {
-            const userName = await AsyncStorage.getItem('userNames');
-            const walletName = await AsyncStorage.getItem('walletAddresss');
+            const userName = await AsyncStorage.getItem('userNamess');
+            const walletName = await AsyncStorage.getItem('walletAddressss');
             if (userName && walletName) {
                 router.replace('/(user)')
             }
@@ -24,7 +24,7 @@ const SetNickName = () => {
 
     useEffect(()=> {
         const getAsyncName = async () => {
-            const userName = await AsyncStorage.getItem('userNames');
+            const userName = await AsyncStorage.getItem('userNamess');
             setAsyncName(userName);
             if (userName) {
                 setIsNameSet(true);
@@ -37,12 +37,12 @@ const SetNickName = () => {
     const setNickName = async () => {
         if (!isNameSet) {
             console.log(isNameSet);
-            await AsyncStorage.setItem('userNames', name);
+            await AsyncStorage.setItem('userNamess', name);
             setIsNameSet(true);
             console.log(isNameSet);
             Alert.alert('Имя пользователя сохранено');
         } else {
-            await AsyncStorage.setItem('walletAddresss', name);
+            await AsyncStorage.setItem('walletAddressss', name);
             Alert.alert('Адрес кошелька сохранен');
             router.replace('/(user)/menu');
         }
@@ -69,11 +69,14 @@ const SetNickName = () => {
                     />
                 </View>
             </View>
-            <Pressable style={styles.createWallet} onPress={createwallet}>
-                <Text style={{color:'#B6B6B6'}}>
-                    Хочу создать кошелек
-                </Text>
-            </Pressable>
+            {
+                isNameSet && <Pressable style={styles.createWallet} onPress={createwallet}>
+                    <Text style={{color:'#B6B6B6'}}>
+                        Хочу создать кошелек
+                    </Text>
+                </Pressable>
+            }
+
             <UIButton text='Ок' onPress={setNickName}/>
         </View>
     );

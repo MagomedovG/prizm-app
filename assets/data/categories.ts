@@ -44,7 +44,7 @@ export const categories = [
             {
                 id:1,
                 name:"Зеленое яблоко1",
-                image:"https://fastly.4sqi.net/img/general/600x600/137815901_IbykYB7yXn3sedMZvjxCKGUmulri6O03kEmhQ-i7Dzs.jpg",
+                image:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNmEPnw4UD8aNYLORbFiMxNUEiupgT39v00w&s",
                 logo:'https://grovo.ru/wp-content/uploads/2020/12/maxresdefault.jpg',
                 rating:'',
                 adress:'Ленина, напротив кфс',

@@ -18,12 +18,14 @@ import Modal from "react-native-modal";
 import wallets from "@/assets/data/wallet";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
-import { categories } from "@/assets/data/categories";
+// import { categories } from "@/assets/data/categories";
 import MainHeader from "@/src/components/MainHeader";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import CookieManager, { Cookies } from '@react-native-cookies/cookies';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -39,49 +41,56 @@ export default function MenuScreen() {
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
     const { asyncTheme, changeTheme } = useAsyncTheme();
-    // const [categories, setCategories] = useState(null)
+    const [isChatModal, setIsChatModal] = useState(false);
+    const [categories, setCategories] = useState(null)
 
-    // useEffect(() => {
-    //     async function getData() {
-    //         try {
-    //             CookieManager.getAll(true)
-    //                 .then((cookies) => {
-    //                     console.log('CookieManager.getAll =>', cookies);
-    //                 });
-    //             // const cookies = await Cookies.get(apiUrl);
-    //             // const csrfToken = cookies['csrftoken'];
-    //             const response = await fetch(
-    //                     `http://127.0.0.1:8000/api/v1/categories/`,
-    //                 {
-    //                     credentials: "include",
-    //                     // headers: {
-    //                     //     "X-CSRFToken": `${csrfToken}`,
-    //                     // },
-    //                 }
-    //             );
-    //             const data = await response.json();
-    //             console.log(response);
-    //             setCategories(data);
-    //             if (!response.ok){
-    //                 console.log(response);
-    //             }
-    //
-    //         } catch (error) {
-    //             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-    //             // console.log(response);
-    //         }
-    //     }
-    //
-    //     getData();
-    // }, []);
+    useEffect(() => {
+        async function getData() {
+            try {
+                // CookieManager.getAll(true)
+                //     .then((cookies) => {
+                //         console.log('CookieManager.getAll =>', cookies);
+                //     });
+                // const cookies = await Cookies.get(apiUrl);
+                // const csrfToken = cookies['csrftoken'];
+                const response = await fetch(
+                        `${apiUrl}/api/v1/categories`,
+                    // {
+                        // credentials: "include",
+                        // headers: {
+                        //     "X-CSRFToken": `${csrfToken}`,
+                        // },
+                    // }
+                );
+                const data = await response.json();
+                console.log(data);
+                setCategories(data);
+                if (!response.ok){
+                    console.log(response);
+                }
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+                // console.log(response);
+            }
+        }
+
+        getData();
+    }, []);
 
     const handleWalletPress = (value: boolean) => {
         setIsModal(value);
+    };
+    const handleChatPress = (value: boolean) => {
+        setIsChatModal(value);
     };
 
     const hideModal = () => {
         setIsModal(false);
     };
+    const hideChatModal = () => {
+        setIsChatModal(false)
+    }
 
     return (
         <View style={{ flex: 1 }}>
@@ -140,10 +149,44 @@ export default function MenuScreen() {
                     </Pressable>
                 </Pressable>
             </Modal>
+            <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                animationIn={'slideInUp'}
+                isVisible={isChatModal}
+                onSwipeComplete={hideChatModal}
+                onBackdropPress={hideChatModal}
+                animationInTiming={200}
+                animationOut='slideOutDown'
+                animationOutTiming={500}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.modal}
+
+            >
+                <Pressable style={styles.centeredView} onPress={hideChatModal}>
+                    <Pressable style={[styles.modalView, {padding:0}]} onPress={() => {}}>
+                        <View style={styles.chatModalView}>
+                            <AntDesign name="youtube" size={23} color="black" />
+                            <Text>YouTube</Text>
+                        </View>
+                        <View  style={styles.chatModalView}>
+                            <FontAwesome5 name="whatsapp" size={23} color="black" />
+                            <Text>WhatsApp</Text>
+                        </View>
+                        <View style={[styles.chatModalView,{borderBottomWidth: 0}]}>
+                            <FontAwesome5 name="telegram-plane" size={23} color="black" />
+                            <Text>Telegram</Text>
+                        </View>
+
+                    </Pressable>
+                </Pressable>
+            </Modal>
 
             <View style={{ flex: 1 }} >
                 {isModal && <View style={styles.overlay} />}
-                <MainHeader onWalletPress={handleWalletPress} />
+                <MainHeader onChatPress={handleChatPress} />
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -205,6 +248,16 @@ const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
         justifyContent: 'flex-end',
+    },
+    chatModalView:{
+        display:'flex',
+        flexDirection:"row",
+        justifyContent:'center',
+        alignItems:'center',
+        gap:15,
+        paddingVertical:17,
+        borderBottomColor:'#D7D7D7',
+        borderBottomWidth:1
     },
     modalView: {
         backgroundColor: 'white',

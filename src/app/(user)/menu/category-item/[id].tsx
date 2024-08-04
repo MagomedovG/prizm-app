@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, View, Image, StyleSheet, Pressable, TextInput, Button, ScrollView, Dimensions} from "react-native";
 import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
 import {useCart} from "@/src/providers/CartProvider";
@@ -12,6 +12,8 @@ import {ICategory, ICategoryItemList} from "@/src/types";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {LinearGradient} from "expo-linear-gradient";
 import {lightColor} from "@/assets/data/colors";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 const { width } = Dimensions.get('window');
 // import ICategoryItemLi
 const ITEM_WIDTH = width - 25;
@@ -19,31 +21,64 @@ export default function categoryId() {
     const router = useRouter()
     const {theme} = useCustomTheme()
     const { id } = useLocalSearchParams()
+    const [business, setBusiness] = useState(null)
     const categoryId = Number(id)
     const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
 
     if (!category){
         return <Text>Wallet Not Found</Text>
     }
-    console.log(category.items[categoryId-1])
+    useEffect(() => {
+        async function getData() {
+            try {
+                // CookieManager.getAll(true)
+                //     .then((cookies) => {
+                //         console.log('CookieManager.getAll =>', cookies);
+                //     });
+                // const cookies = await Cookies.get(apiUrl);
+                // const csrfToken = cookies['csrftoken'];
+                const response = await fetch(
+                    `${apiUrl}/api/v1/business/${id}/`,
+                    // {
+                    // credentials: "include",
+                    // headers: {
+                    //     "X-CSRFToken": `${csrfToken}`,
+                    // },
+                    // }
+                );
+                const data = await response.json();
+                console.log(data);
+                setBusiness(data);
+                if (!response.ok){
+                    console.log(response);
+                }
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error);
+                // console.log(response);
+            }
+        }
+
+        getData();
+    }, []);
 
     // const categoryItem: ICategoryItemList = category.items.find(item => item.[id] === categoryId);
     const categoryItem: ICategoryItemList = category.items[categoryId - 1]
     const segments = useSegments();
     return (
-        <ScrollView style={{ flex:1}}>
-            <Image style={{width:'100%',aspectRatio:1,minHeight:260, maxHeight:289, position:'absolute', top: 0}} source={{uri:categoryItem.image}} />
+        <ScrollView style={{ }}>
+            <Image style={{width:'100%',aspectRatio:1,minHeight:260, maxHeight:289, position:'absolute', top: 0}} source={{uri:business?.images[0] ? `${apiUrl}${business?.images[0]}` : defaultLogo}} />
 
             <ScrollView style={styles.container}>
                 <Stack.Screen options={{
                     headerShown:false,
-                    header: () => <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${category.id}`} emptyBackGround={false}/>,
+                    // header: () => <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${category.id}`} emptyBackGround={false}/>,
                 }}/>
 
                 <View>
                     {/*<Image source={{uri:category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo}}/>*/}
                     <View style={styles.sale}>
-                        <Text style={styles.saleText}>Кэшбек {categoryItem.sale}%</Text>
+                        <Text style={styles.saleText}>Кэшбек {business?.cashback_size}%</Text>
                     </View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -52,20 +87,22 @@ export default function categoryId() {
                         style={styles.cart}
                     >
                         <Image
-                            source={{uri:category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo}}
+                            source={{uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
                             style={styles.cartLogo}/>
                         <View style={styles.cartInfo}>
-                            <Text style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{categoryItem.name}</Text>
-                            <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{categoryItem.subtitle}</Text>
+                            <View>
+                                <Text style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.title}</Text>
+                                <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.description}</Text>
+                            </View>
                             <View style={styles.cartSaleContainer}>
                                 <AntDesign name="star" size={24} color={theme === 'purple' ? 'white' : '#070907'} />
-                                <Text style={[{color:'white', marginLeft:7, marginRight:17}, theme === 'purple' ? styles.purpleText : styles.greenText]}>4.5</Text>
-                                <Link href={`${segments[0]}/menu/category-item/feedback/${categoryId}`} style={theme === 'purple' ? styles.purpleText : styles.greenText}>Отзывы</Link>
+                                <Text style={[{fontSize:15,color:'white', marginLeft:7, marginRight:17}, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.ratings_number}</Text>
+                                <Link href={`${segments[0]}/menu/category-item/feedback/${business?.id}`} style={[theme === 'purple' ? styles.purpleText : styles.greenText, {fontSize:15,textDecorationLine:'underline', paddingBottom:2}]}>Отзывы</Link>
                             </View>
                         </View>
                     </LinearGradient>
                     <Text style={styles.subTitle}>Адрес:</Text>
-                    <Text style={styles.text}>{categoryItem?.adress}</Text>
+                    <Text style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text>
                     <Text style={styles.subTitle}>Как получить кэшбек</Text>
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
@@ -86,7 +123,7 @@ export default function categoryId() {
                     </View>
                     <Text style={styles.subTitle}>О партнере</Text>
                     <Text style={styles.text}>
-                        {categoryItem?.description}
+                        {business?.description}
                     </Text>
                 </View>
 
@@ -127,11 +164,11 @@ const styles = StyleSheet.create({
         justifyContent:'center'
     },
     subTitle:{
-        marginTop:52,
+        marginTop:30,
         marginBottom:9,
         color:'#323232',
         fontSize:20,
-        fontWeight:800
+        fontWeight:'bold'
     },
     text:{
         fontSize:16,
@@ -144,7 +181,13 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     cartInfo:{
-        maxWidth:'70%'
+        maxWidth:'70%',
+        display:'flex',
+        justifyContent:'space-between',
+        // height:'100%',
+        flexDirection:'column',
+        height:85,
+        paddingBottom:3
     },
     cartSubtitle:{
         color:'white',
@@ -177,16 +220,18 @@ const styles = StyleSheet.create({
         backgroundColor:'white',
         paddingHorizontal:18,
         paddingVertical:9,
-        width:127,
+        // minWidth:127,
+        // maxWidth:136,
         textAlign:'center',
         borderRadius:10,
         marginTop:73,
-        marginBottom:10
+        marginBottom:10,
+        alignSelf: 'flex-start'
     },
     saleText:{
         color:'#000',
         fontSize:16,
-        fontWeight:600
+        fontWeight:'bold'
     },
     container: {
         flex: 1,

@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
-const MainHeader = ({ onWalletPress }:any) => {
+const MainHeader = ({ onChatPress }:any) => {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
@@ -26,8 +26,8 @@ const MainHeader = ({ onWalletPress }:any) => {
         fetchHiddenState();
     }, []);
 
-    const handleWalletPress = () => {
-        onWalletPress(true);
+    const handleChatPress = () => {
+        onChatPress(true);
     };
 
     const toggleHidden = async () => {
@@ -48,20 +48,28 @@ const MainHeader = ({ onWalletPress }:any) => {
             style={styles.headerContainer}
         >
             <View style={styles.headerTitleContainer}>
-                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 7.5 }}>
-                    <Pressable onPress={handleWalletPress}>
+                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 7.5 }}>
+                    <Pressable
+                        // onPress={handleChatPress}
+                    >
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
                     </Pressable>
-                    <Pressable onPress={toggleHidden}>
+                    <Pressable onPress={toggleHidden} style={{marginBottom:4}}>
                         <Feather name="eye" size={15} color={theme === 'purple' ? 'white' : 'black'} />
                     </Pressable>
                 </View>
 
                 <View style={styles.headerProfileGroup}>
-                    <Pressable style={styles.headerPitopi} onPress={() => changeTheme('purple')}>
+                    <Pressable
+                        style={styles.headerPitopi}
+                        // onPress={() => changeTheme('purple')}
+                    >
                         <Text>Обменник</Text>
                     </Pressable>
-                    <Pressable style={styles.headerPitopi} onPress={() => changeTheme('green')}>
+                    <Pressable
+                        style={styles.headerPitopi}
+                        onPress={handleChatPress}
+                    >
                         <Text>Чаты</Text>
                     </Pressable>
                 </View>

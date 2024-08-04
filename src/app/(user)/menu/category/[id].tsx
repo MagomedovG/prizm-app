@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Text,
     View,
@@ -23,6 +23,8 @@ import {LinearGradient} from "expo-linear-gradient";
 import Modal from "react-native-modal";
 import {lightColor} from "@/assets/data/colors";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
@@ -34,7 +36,7 @@ const deviceHeight =
         );
 export default function categoryId() {
     const router = useRouter()
-
+    const [categoryList, setCategoryList] = useState(null)
     const [isModal, setIsModal] = useState(false);
     const {theme} = useCustomTheme()
 
@@ -51,6 +53,40 @@ export default function categoryId() {
 
 
     const category = categories.find(c => c.id.toString() === id)
+
+    useEffect(() => {
+        async function getData() {
+            try {
+                // CookieManager.getAll(true)
+                //     .then((cookies) => {
+                //         console.log('CookieManager.getAll =>', cookies);
+                //     });
+                // const cookies = await Cookies.get(apiUrl);
+                // const csrfToken = cookies['csrftoken'];
+                const response = await fetch(
+                    `${apiUrl}/api/v1/categories/${id}/get-businesses`,
+                    // {
+                    // credentials: "include",
+                    // headers: {
+                    //     "X-CSRFToken": `${csrfToken}`,
+                    // },
+                    // }
+                );
+                const data = await response.json();
+                console.log(data);
+                setCategoryList(data);
+                if (!response.ok){
+                    console.log(response);
+                }
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+                // console.log(response);
+            }
+        }
+
+        getData();
+    }, []);
 
     const copyTextToClipboard = async () => {
         try {
@@ -87,7 +123,7 @@ export default function categoryId() {
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
 
-            <SearchInput data={category.items} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
+            <SearchInput data={categoryList} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
             <CategoryItemList categoryList={filteredData} title={category.name} isBonus={true} onWalletPress={handleWalletPress} />
             <Modal
                 deviceWidth={deviceWidth}

@@ -17,7 +17,7 @@ const CreateWallet = () => {
     };
     const copySidToClipboard = () => {
         Clipboard.setString(sid);
-        Alert.alert('Сид-фраза скопирована!','');
+        Alert.alert('Парольная фраза скопирована!','');
     };
 
     return (
@@ -52,10 +52,10 @@ const CreateWallet = () => {
                         <AntDesign name="copy1" size={15} color="#262626" />
                     </View>
                 </Pressable>
-                <Text style={{marginLeft:9}}>Обязательно сохраните сид-фразу! Ее нельзя
+                <Text style={{marginLeft:9}}>Обязательно сохраните парольную фразу! Ее нельзя
                     будет получить еще раз.</Text>
             </View>
-            <UIButton text='Я сохранил сид-фразу' onPress={()=>{console.log('ss')}}/>
+            <UIButton text='Я сохранил парольную фразу' onPress={()=>{console.log('ss')}}/>
         </View>
     );
 };
@@ -77,7 +77,8 @@ const styles = StyleSheet.create({
     label:{
         color:'#B6B6B6',
         fontSize:14,
-        marginLeft:9
+        marginLeft:9,
+        marginBottom:2
     },
     createWallet:{
         marginHorizontal:42,

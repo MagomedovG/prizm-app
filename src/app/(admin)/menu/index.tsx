@@ -1,6 +1,6 @@
 
 import {Link, router, Stack, useRouter} from 'expo-router';
-import {View, FlatList, ActivityIndicator, Text, TextInput, Pressable} from "react-native";
+import {View, FlatList, ActivityIndicator, Text, TextInput, Pressable, ScrollView} from "react-native";
 import {StyleSheet} from "react-native";
 import {Colors} from '@/constants/Colors'
 import ProductListItem from "@/src/components/ProductListItem";
@@ -23,7 +23,7 @@ export default function MenuScreen() {
     //     router.push(`/(admin)/menu/${[id]}`)
     // }
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
 
             <FlatList
                 data={adminCategories}
@@ -48,7 +48,7 @@ export default function MenuScreen() {
                 <Text style={{fontSize:20, fontWeight:'bold'}}>124</Text>
             </View>
 
-        </View>
+        </ScrollView>
     );
 }
 const styles = StyleSheet.create({

@@ -6,16 +6,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useRouter } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import UIButton from '@/src/components/UIButton';
+import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
 const { width } = Dimensions.get('window');
 const MARGIN_PIN = width / 14;
-
 const SetPinScreen = () => {
     const router = useRouter();
     const [storedPinHash, setStoredPinHash] = useState(null);
     const [pin, setPin] = useState('');
     const [confirming, setConfirming] = useState(false);
     const [initialPin, setInitialPin] = useState('');
+    const { theme } = useCustomTheme();
+
+
 
     // Хэширование PIN-кода
     const hashPin = async (inputPin) => {
@@ -113,7 +116,7 @@ const SetPinScreen = () => {
                 </Text>
                 <View style={styles.pinDisplay}>
                     {Array(5).fill().map((_, i) => (
-                        <View key={i} style={styles.pinDot(pin.length > i)} />
+                        <View key={i} style={styles.pinDot(pin.length > i,theme)} />
                     ))}
                 </View>
                 <View style={styles.pinButtons}>
@@ -146,14 +149,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 24,
     },
-    pinDot: (filled:any) => ({
+    pinDot: (filled:any, theme) => ({
         width: 16,
         height: 16,
         marginHorizontal: 12,
         borderRadius: 8,
-        backgroundColor: filled ? '#6F1AEC' : 'transparent',
+        backgroundColor: filled && theme === 'purple'  ? '#6F1AEC' : filled && theme === 'green' ? "#32933C" :  'transparent',
         borderWidth: 2,
-        borderColor: '#6F1AEC',
+        borderColor: theme === 'purple' ? '#6F1AEC' : "#32933C",
     }),
     pinButtons: {
         flexDirection: 'row',

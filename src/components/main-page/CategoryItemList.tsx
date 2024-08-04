@@ -6,6 +6,7 @@ import wallet from "@/assets/data/wallet";
 import { Entypo } from '@expo/vector-icons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import React from "react";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
@@ -43,7 +44,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                     {/*</Pressable>*/}
                 </Pressable> }
             <View style={styles.titleButton}>
-                <Text style={[styles.title, !isAdmin ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
+                <Text style={[styles.title, !isAdmin ? {marginBottom: 0} : {marginBottom: 0}]}>{title}</Text>
                 {isAdmin && (<Pressable onPress={handleAdminPage}
                             style={[styles.button, theme === 'purple' ? {backgroundColor: '#5B1FB2'} : {backgroundColor: '#32933C'}, {borderColor: '#41146D'}]}>
                     <Text style={{color: 'white', textAlign: 'center'}}>
@@ -58,10 +59,10 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                 renderItem={({item}) =>
                 <Link href={`${segments[0]}/menu/category-item/${item.id}`} asChild>
                        <Pressable style={styles.itemContainer} onPress={() => {console.log(item, item.id)}}>
-                            <Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>
-                           <Text style={styles.text}>{item.name}</Text>
+                            <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/>
+                           <Text style={styles.text}>{item.title}</Text>
                            <View style={styles.saleContainer}>
-                               <Text style={styles.sale}>{item?.sale}%</Text>
+                               <Text style={styles.sale}>{item?.cashback_size}%</Text>
                            </View>
 
                        </Pressable>
@@ -110,11 +111,11 @@ const styles = StyleSheet.create({
         fontWeight:600
     },
     bonus:{
-        height:40,
+        height:44,
         display:'flex',
         paddingLeft:15,
         flexDirection:'row',
-        gap:20,
+        gap:8,
         alignItems:'center',
         borderRadius:11,
         marginBottom: 30,
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
         borderColor:'#898989'
     },
     title: {
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: '600',
 
     },
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
         // right:11,
         marginTop:5,
         marginLeft:7,
-        fontSize:14,
+        fontSize:15,
         fontWeight:'medium'
     },
 });

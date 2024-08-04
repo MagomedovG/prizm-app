@@ -51,11 +51,15 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                 data={filteredData}
                 // style={styles.flatlist}
                 renderItem={({item}) =>
-                    <Link href={!isAdminFond ? `${segments[0]}/menu/category/${item.id}` : `(admin)/menu/fonds/edit-fond/${item.id}`} asChild>
+                    <Link
+                        href={!isAdminFond ? `${segments[0]}/menu/category/${item.id}` : `(admin)/menu/fonds/edit-fond/${item.id}`}
+                        asChild
+                        // style={{width:'100%'}}
+                    >
                         <Pressable style={styles.itemContainer}>
 
                             <View style={{width:'100%',display:'flex', flexDirection:'row', justifyContent:'space-between', padding:16}}>
-                                <Text style={styles.text}>{item.name}</Text>
+                                <Text style={styles.text}>{item.title}</Text>
                                 <Ionicons name="cafe-sharp" size={24} color="black" />
                                 {/*<Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>*/}
 
@@ -68,6 +72,8 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                 keyExtractor={(item) => item.id.toString()} // Добавляем keyExtractor для уникальности
                 contentContainerStyle={{gap:10}}
                 columnWrapperStyle={{gap:10}}
+                horizontal={false}
+
             />
         </View>
     );
@@ -75,7 +81,8 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
 
 const styles = StyleSheet.create({
     flatlist:{
-        // width: '100%',
+        flexDirection:'column',
+        width: '100%',
         // flex:1
     },
     container: {
