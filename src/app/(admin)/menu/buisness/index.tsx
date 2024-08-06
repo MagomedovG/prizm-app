@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, View, Image, StyleSheet, Pressable, TextInput, Button, ScrollView, Dimensions} from "react-native";
 import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import {useCart} from "@/src/providers/CartProvider";
-import {categories} from "@/assets/data/categories";
+// import {categories} from "@/assets/data/categories";
 import CategoryItemList from "@/src/components/main-page/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
 import MainHeader from "@/src/components/MainHeader";
@@ -10,10 +10,33 @@ import HeaderLink from "@/src/components/HeaderLink";
 import {ICategoryItem} from "@/src/types";
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export default function BuisnessAdminPage() {
     // const router = useRouter()
 
+    const [buisnesses, setBuisnesses] = useState(null)
+    useEffect(() => {
+        async function getData() {
+            try {
+                const response = await fetch(
+                    `${apiUrl}/api/v1/business`,
+                );
+                const data = await response.json();
+                console.log(data);
+                setBuisnesses(data);
+                if (!response.ok){
+                    console.log(response);
+                }
 
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+                // console.log(response);
+            }
+        }
+
+        getData();
+    }, []);
 
     // const {addItem} = useCart()
 
@@ -21,7 +44,7 @@ export default function BuisnessAdminPage() {
 
     const id = '1'
 
-    const category = categories.find(c => c.id.toString() === id)
+    // const category = categories.find(c => c.id.toString() === id)
 
     const copyTextToClipboard = async () => {
         try {
@@ -34,9 +57,9 @@ export default function BuisnessAdminPage() {
 
 
 
-    if (!category){
-        return <Text>Wallet Not Found</Text>
-    }
+    // if (!category){
+    //     return <Text>Wallet Not Found</Text>
+    // }
 
     const [filteredData, setFilteredData] = useState<ICategoryItem>([]);
     const handleFilteredData = (data:[]) => {
@@ -51,8 +74,8 @@ export default function BuisnessAdminPage() {
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
 
-            <SearchInput data={category.items} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
-            <CategoryItemList categoryList={filteredData} title={category.name} isBonus={false} isAdmin={true} buttonLink='menu/buisness/add-business/'/>
+            <SearchInput data={buisnesses} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
+            <CategoryItemList categoryList={filteredData} title={'Бизнесы'} isBonus={false} isAdmin={true} buttonLink='menu/buisness/add-business/'/>
         </ScrollView>
 
 

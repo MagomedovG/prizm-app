@@ -185,8 +185,6 @@ export default function categoryId() {
                                     <Text style={styles.text}>Кэшбэк начислится мгновенно</Text>
                                 </View>
                             </View>
-
-
                         </View>
                     </Pressable>
                 </Pressable>

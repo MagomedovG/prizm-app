@@ -1,9 +1,9 @@
 export type IWallet = {
   id: number;
-  qr: string | null;
-  name: string;
-  prizm: number | string;
-  link: string;
+  logo: string | null;
+  title: string;
+  prizm_wallet: number | string;
+  link?: string;
   isAdmin?:boolean;
 };
 export type ICategory = {

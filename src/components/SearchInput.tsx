@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-const DismissKeyboard = ({ children }) => (
+const DismissKeyboard = ({ children }:any) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         {children}
     </TouchableWithoutFeedback>
 );
 
-const SearchInput = ({ data, onFilteredData, placeholder }) => {
+const SearchInput = ({ data, onFilteredData, placeholder }:any) => {
     const [query, setQuery] = useState('');
 
     useEffect(() => {
         if (query) {
-            const filtered = data.filter(item => item.name.toLowerCase().includes(query.toLowerCase()));
+            const filtered = data.filter((item:any) => item.name.toLowerCase().includes(query.toLowerCase()));
             onFilteredData(filtered);
         } else {
             onFilteredData(data);

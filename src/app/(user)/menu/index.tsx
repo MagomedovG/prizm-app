@@ -15,7 +15,7 @@ import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
 import React, { useEffect, useState } from "react";
 import Modal from "react-native-modal";
-import wallets from "@/assets/data/wallet";
+// import wallets from "@/assets/data/wallet";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
 // import { categories } from "@/assets/data/categories";
@@ -26,6 +26,7 @@ import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import CookieManager, { Cookies } from '@react-native-cookies/cookies';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import {IWallet} from "@/src/types";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -43,24 +44,13 @@ export default function MenuScreen() {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isChatModal, setIsChatModal] = useState(false);
     const [categories, setCategories] = useState(null)
+    const [wallets, setWallets] = useState<IWallet | null>(null)
 
     useEffect(() => {
         async function getData() {
             try {
-                // CookieManager.getAll(true)
-                //     .then((cookies) => {
-                //         console.log('CookieManager.getAll =>', cookies);
-                //     });
-                // const cookies = await Cookies.get(apiUrl);
-                // const csrfToken = cookies['csrftoken'];
                 const response = await fetch(
                         `${apiUrl}/api/v1/categories`,
-                    // {
-                        // credentials: "include",
-                        // headers: {
-                        //     "X-CSRFToken": `${csrfToken}`,
-                        // },
-                    // }
                 );
                 const data = await response.json();
                 console.log(data);
@@ -74,22 +64,33 @@ export default function MenuScreen() {
                 // console.log(response);
             }
         }
+        async function getFunds() {
+            try {
+                const response = await fetch(
+                    `${apiUrl}/api/v1/funds/`,
+                );
+                const data = await response.json();
+                console.log(data);
+                setWallets(data);
+                if (!response.ok){
+                    console.log(response);
+                }
 
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
+                // console.log(response);
+            }
+        }
+        getFunds()
         getData();
     }, []);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const handleWalletPress = (value: boolean) => {
-        setIsModal(value);
+    const toggleModal = () => {
+        setIsModal(!isModal);
     };
-    const handleChatPress = (value: boolean) => {
-        setIsChatModal(value);
-    };
-
-    const hideModal = () => {
-        setIsModal(false);
-    };
-    const hideChatModal = () => {
-        setIsChatModal(false)
+    const toggleChatModal = () => {
+        setIsChatModal(!isChatModal)
     }
 
     return (
@@ -104,8 +105,8 @@ export default function MenuScreen() {
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isModal}
-                onSwipeComplete={hideModal}
-                onBackdropPress={hideModal}
+                onSwipeComplete={toggleModal}
+                onBackdropPress={toggleModal}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -115,8 +116,8 @@ export default function MenuScreen() {
                 style={styles.modal}
 
             >
-                <Pressable style={styles.centeredView} onPress={hideModal}>
-                    <Pressable style={styles.modalView} onPress={() => {}}>
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
                         <Text style={styles.modalText}>Цвет оформления</Text>
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row'}}>
                             <Pressable onPress={() => changeTheme('green')} style={{width:'48%', aspectRatio:1}}>
@@ -135,8 +136,6 @@ export default function MenuScreen() {
                                     style={{borderRadius:10,width:'100%', aspectRatio:1}}
                                 ></LinearGradient>
                             </Pressable>
-
-
                         </View>
 
 
@@ -146,16 +145,16 @@ export default function MenuScreen() {
                         {/*    onPress={hideModal}>*/}
                         {/*    <Text style={styles.textStyle}>Hide Modal</Text>*/}
                         {/*</Pressable>*/}
-                    </Pressable>
-                </Pressable>
+                    </View>
+                </View>
             </Modal>
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isChatModal}
-                onSwipeComplete={hideChatModal}
-                onBackdropPress={hideChatModal}
+                onSwipeComplete={toggleChatModal}
+                onBackdropPress={toggleChatModal}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -165,8 +164,8 @@ export default function MenuScreen() {
                 style={styles.modal}
 
             >
-                <Pressable style={styles.centeredView} onPress={hideChatModal}>
-                    <Pressable style={[styles.modalView, {padding:0}]} onPress={() => {}}>
+                <View style={styles.centeredView}>
+                    <View style={[styles.modalView, {padding:0}]}>
                         <View style={styles.chatModalView}>
                             <AntDesign name="youtube" size={23} color="black" />
                             <Text>YouTube</Text>
@@ -180,13 +179,12 @@ export default function MenuScreen() {
                             <Text>Telegram</Text>
                         </View>
 
-                    </Pressable>
-                </Pressable>
+                    </View>
+                </View>
             </Modal>
 
             <View style={{ flex: 1 }} >
-                {isModal && <View style={styles.overlay} />}
-                <MainHeader onChatPress={handleChatPress} />
+                <MainHeader onChatPress={toggleChatModal} />
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -197,7 +195,7 @@ export default function MenuScreen() {
                         <View style={{display:'flex', width:'100%', flexDirection:'row', justifyContent:'space-between', alignItems:'center',marginBottom: 15}}>
                             <Text style={[styles.walletTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>Кошельки</Text>
                             <Pressable
-                                onPress={handleWalletPress}
+                                onPress={toggleModal}
                                        // style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center',}}
                             >
                                 <View><Entypo name="dots-three-horizontal" size={22} color={theme === 'purple' ? 'white' : 'black'} /></View>
@@ -246,7 +244,7 @@ const styles = StyleSheet.create({
         fontSize:22
     },
     centeredView: {
-        flex: 1,
+        // flex: 1,
         justifyContent: 'flex-end',
     },
     chatModalView:{
@@ -266,7 +264,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop:16,
         paddingBottom:26,
-        // alignItems: 'center',
+        alignItems: 'center',
         shadowColor: '#000',
         width: '100%',
         shadowOffset: {
@@ -311,10 +309,6 @@ const styles = StyleSheet.create({
     },
     blackText: {
         color: 'black',
-    },
-    overlay: {
-        // ...StyleSheet.absoluteFillObject,
-        // backgroundColor: 'rgba(0,0,0,0.5)',
     },
     modal: {
         margin: 0,

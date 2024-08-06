@@ -11,7 +11,7 @@ import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
 
 export default function AdminMenuScreen() {
-    const [password, setPassword] = useState()
+    const [password, setPassword] = useState('')
     const {theme} = useCustomTheme()
     async function signInAdminAccount () {
         console.log(password);

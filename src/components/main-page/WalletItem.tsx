@@ -9,7 +9,7 @@ const { width } = Dimensions.get('window');
 const containerWidth = (width / 3) - 24;
 type WalletItemProps = {
     wallet: IWallet,
-    containerWidth:number
+    containerWidth?:number
 }
 export default function WalletItem ({ wallet, containerWidth }:WalletItemProps) {
     const segments = useSegments()
@@ -18,8 +18,8 @@ export default function WalletItem ({ wallet, containerWidth }:WalletItemProps) 
     return (
         <Link href={`${segments[0]}/menu/wallet/${wallet.id}`} asChild>
             <Pressable style={styles.container}>
-                <Image source={{uri: wallet.qr}} style={styles.image} resizeMode={"contain"}/>
-                <Text style={[styles.title, theme === 'purple' ? styles.whiteText : styles.blackText]}>{wallet.name}</Text>
+                <Image source={{uri: wallet.logo}} style={styles.image} resizeMode={"contain"}/>
+                <Text style={[styles.title, theme === 'purple' ? styles.whiteText : styles.blackText]}>{wallet.title}</Text>
 
             </Pressable>
         </Link>
