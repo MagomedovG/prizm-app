@@ -1,4 +1,4 @@
-import { Link, Stack } from 'expo-router';
+import {Link, Redirect, Stack} from 'expo-router';
 import {
     View,
     FlatList,
@@ -27,6 +27,7 @@ import CookieManager, { Cookies } from '@react-native-cookies/cookies';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {IWallet} from "@/src/types";
+import QRCode from 'react-qr-code';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -44,7 +45,25 @@ export default function MenuScreen() {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isChatModal, setIsChatModal] = useState(false);
     const [categories, setCategories] = useState(null)
-    const [wallets, setWallets] = useState<IWallet | null>(null)
+    const [wallets, setWallets] = useState<IWallet[]>([])
+
+    const addWalletWithQrCodeUrl = (url: string) => {
+        if (url){
+            setWallets((prevWallets) => [
+                {
+                    // id:9999,
+                    // prizm_wallet: url,
+                    // title: 'Мой кошелек'
+                    id: 'user',
+                    title: "Мой кошелек",
+                    prizm_qr_code_url: url
+                },
+                ...prevWallets
+            ]);
+        }
+        console.log(url,'url');
+
+    };
 
     useEffect(() => {
         async function getData() {
@@ -119,7 +138,7 @@ export default function MenuScreen() {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={styles.modalText}>Цвет оформления</Text>
-                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row'}}>
+                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row',width:'100%'}}>
                             <Pressable onPress={() => changeTheme('green')} style={{width:'48%', aspectRatio:1}}>
                                 <LinearGradient
                                     colors={['#BAEAAC', '#E5FEDE']}
@@ -184,7 +203,15 @@ export default function MenuScreen() {
             </Modal>
 
             <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={toggleChatModal} />
+                <MainHeader onChatPress={toggleChatModal} onQrCodeUrlUpdate={addWalletWithQrCodeUrl} />
+                <div style={{ height: "auto", margin: "0 auto", maxWidth: 64, width: "100%" }}>
+                    {/*<QRCode*/}
+                    {/*    size={256}*/}
+                    {/*    style={{ height: "auto", maxWidth: "100%", width: "100%" }}*/}
+                    {/*    value={'ddd'}*/}
+                    {/*    viewBox={`0 0 256 256`}*/}
+                    {/*/>*/}
+                </div>
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -206,9 +233,11 @@ export default function MenuScreen() {
                             renderItem={({ item }) => <WalletItem wallet={item} />}
                             contentContainerStyle={{ gap: 8 }}
                             style={styles.flatlist}
-                            keyExtractor={(item) => item.id.toString()}
+                            keyExtractor={(item) => item.title}
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
+                            // contentContainerStyle={{gap:33}}
+                            // columnWrapperStyle={{gap:6}}
                         />
                     </LinearGradient>
 
@@ -255,7 +284,8 @@ const styles = StyleSheet.create({
         gap:15,
         paddingVertical:17,
         borderBottomColor:'#D7D7D7',
-        borderBottomWidth:1
+        borderBottomWidth:1,
+        width:'100%'
     },
     modalView: {
         backgroundColor: 'white',

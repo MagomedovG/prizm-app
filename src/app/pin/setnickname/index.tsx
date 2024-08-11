@@ -3,12 +3,47 @@ import {StyleSheet, View, Text, TextInput, Alert, Pressable} from "react-native"
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 
 const SetNickName = () => {
     const [name, setName] = useState('');
     const [asyncName, setAsyncName] = useState(null);
     const [isNameSet, setIsNameSet] = useState(false);
     const router = useRouter();
+
+    const postForm = async () => {
+        const username = await asyncStorage.getItem('username')
+        const prizm_wallet = await asyncStorage.getItem('prizm_wallet')
+        const form = {
+            username,
+            prizm_wallet
+        }
+
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/users/get-or-create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error('Ошибка сети');
+            } else {
+                await asyncStorage.setItem('username', data?.username)
+                await asyncStorage.setItem('prizm_wallet', data?.prizm_wallet)
+                await asyncStorage.setItem('is_superuser', data?.is_superuser)
+                await asyncStorage.setItem('user_id', data?.id)
+                console.log('asyncstorage', asyncStorage.getItem('username'),asyncStorage.getItem('prizm_wallet'),asyncStorage.getItem('is_superuser'),asyncStorage.getItem('user_id'))
+            }
+
+            console.log('Успешно создано:', data);
+        } catch (error) {
+            console.error('Ошибка при создании:', error);
+        }
+    };
 
     useEffect(()=> {
         const getAsyncName = async () => {
@@ -24,7 +59,7 @@ const SetNickName = () => {
 
     useEffect(()=> {
         const getAsyncName = async () => {
-            const userName = await AsyncStorage.getItem('userNamess');
+            const userName = await AsyncStorage.getItem('username');
             setAsyncName(userName);
             if (userName) {
                 setIsNameSet(true);
@@ -37,12 +72,13 @@ const SetNickName = () => {
     const setNickName = async () => {
         if (!isNameSet) {
             console.log(isNameSet);
-            await AsyncStorage.setItem('userNamess', name);
+            await AsyncStorage.setItem('username', name);
             setIsNameSet(true);
             console.log(isNameSet);
             Alert.alert('Имя пользователя сохранено');
         } else {
-            await AsyncStorage.setItem('walletAddressss', name);
+            await AsyncStorage.setItem('prizm_wallet', name);
+            postForm()
             Alert.alert('Адрес кошелька сохранен');
             router.replace('/(user)/menu');
         }

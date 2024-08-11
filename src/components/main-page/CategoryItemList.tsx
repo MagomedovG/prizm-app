@@ -10,9 +10,15 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
+type ICategoryList = {
+    id?: number;
+    title?: string;
+    logo?: string;
+    cashback_size?:string;
 
+}
 type CategoryListProps = {
-    categoryList: ICategoryItem,
+    categoryList: ICategoryItem | ICategoryList,
     title?: string,
     isBonus?:boolean,
     isAdmin?:boolean,

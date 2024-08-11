@@ -8,6 +8,8 @@ import UIButton from "@/src/components/UIButton";
 import { AntDesign } from '@expo/vector-icons';
 import HeaderLink from "@/src/components/HeaderLink";
 import {IWallet} from "@/src/types";
+import QRCode from "react-qr-code";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 // import * as Clipboard from 'expo-clipboard';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -15,8 +17,18 @@ export default function walletId() {
     const router = useRouter();
     const { addItem } = useCart();
     const { id } = useLocalSearchParams();
+    console.log(id)
     const [wallet, setWallet] = useState<IWallet | null>(null)
+    // const is_superuser:boolean | string =  asyncStorage.getItem('is_superuser')
     // const wallet = wallets.find(w => w.id.toString() === id);
+
+    const routerTo = () => {
+        if (id === 'user'){
+            router.push('(user)/menu/share-prizm/')
+        } else {
+            router.push('(user)/menu/')
+        }
+    }
 
     // if (!wallet) {
     //     return <Text>Кошелек не найден</Text>;
@@ -26,9 +38,14 @@ export default function walletId() {
 
     useEffect(() => {
         async function getFunds() {
+            const userId = await asyncStorage.getItem('user_id')
+
             try {
                 const response = await fetch(
-                    `${apiUrl}/api/v1/funds/${id}/`,
+                    id !== 'user' ?
+                    `${apiUrl}/api/v1/funds/${id}/`
+                    : `${apiUrl}/api/v1/users/${userId}/`
+                    ,
                 );
                 const data = await response.json();
                 console.log(data);
@@ -60,11 +77,21 @@ export default function walletId() {
             }} />
             <View style={styles.container}>
 
-                <Text style={styles.name}>{wallet?.title}</Text>
-                <Image
-                    source={{ uri: wallet?.logo }}
-                    style={styles.image}
-                />
+                <Text style={styles.name}>{ id === 'user' ? 'Мой кошелек' : wallet?.title}</Text>
+                {wallet?.prizm_qr_code_url &&
+                    <View style={styles.image}>
+                        <QRCode
+                            // size={256}
+                            style={{width: "100%", height: "100%" }}
+                            value={wallet?.prizm_qr_code_url}
+                            level={'M'}
+                            // viewBox={`0 0 256 256`}
+                            // style={styles.image}
+                        />
+                    </View>
+
+                }
+
                 {/*<Text style={styles.link}>{wallet.link}</Text>*/}
             </View>
             <Pressable onPress={copyToClipboard} style={styles.pressable}>
@@ -81,8 +108,8 @@ export default function walletId() {
             </Pressable>
 
 
-            <UIButton text={wallet?.isAdmin ? 'Перевести PZM' : 'Ок'} isAdminWallet={true}/>
-            {wallet?.isAdmin && <Pressable style={styles.adminLink}>
+            <UIButton text={id === 'user'  ? 'Перевести PZM' : 'Назад'} onPress={routerTo} isAdminWallet={true}/>
+            {wallet?.is_superuser && id === 'user' && <Pressable style={styles.adminLink}>
                 <Link href={'/(admin)/'} style={{textAlign:'center'}}>
                     Перейти в панель администратора
                 </Link>
@@ -137,7 +164,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         padding: 10,
-        marginVertical:28
+        marginVertical:28,
+        marginRight:8
     },
     image: {
         width: '75%',
@@ -148,5 +176,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 15,
         elevation: 5,
+        borderRadius:10,
+        borderWidth:17,
+        borderColor:'#fff'
     },
 });

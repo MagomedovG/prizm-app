@@ -7,7 +7,7 @@ import React from "react";
 export default function MenuStack (){
     return (
         <Stack>
-            <Stack.Screen name="index" options={{title:"Заказы"}}/>
+            <Stack.Screen name="index" options={{headerShown:false, title:"Заказы"}}/>
         </Stack>
     )
 }

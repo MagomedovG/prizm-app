@@ -1,10 +1,11 @@
 export type IWallet = {
-  id: number;
-  logo: string | null;
+  id?: number;
+  logo?: string | null;
   title: string;
-  prizm_wallet: number | string;
+  prizm_wallet?: number | string;
   link?: string;
   isAdmin?:boolean;
+  prizm_qr_code_url:string
 };
 export type ICategory = {
   id: number;

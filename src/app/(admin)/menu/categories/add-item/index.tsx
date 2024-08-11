@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, TextInput, Image, Alert, Pressable } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { Stack, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from '@expo/vector-icons';
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
@@ -16,61 +17,6 @@ const AddItem = () => {
     const { id } = useLocalSearchParams();
     const isUpdating = !id;
 
-    const postCategory = async () => {
-        let base64Image = null;
-
-        if (image) {
-            const response = await fetch(image);
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = () => {
-                base64Image = reader.result?.toString().split(',')[1];
-
-                const payload = {
-                    title: name,
-                    logo: base64Image,
-                };
-
-                fetch(`${apiUrl}/api/v1/categories/`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        console.log(data);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
-            };
-        } else {
-            const payload = {
-                title: name,
-            };
-
-            fetch(`${apiUrl}/api/v1/categories/`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    console.log(data);
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        }
-    };
-
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -81,6 +27,70 @@ const AddItem = () => {
 
         if (!result.canceled) {
             setImage(result.assets[0].uri);
+            console.log('result.assets[0].uri', result.assets[0].uri);
+        }
+    };
+
+    const convertToBase64 = async (uri) => {
+        try {
+            const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+            return base64;
+        } catch (error) {
+            console.error('Error converting image to base64:', error);
+            return null;
+        }
+    };
+
+    const createBlobFromBase64 = (base64, mimeType) => {
+        const byteString = atob(base64);
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        for (let i = 0; i < byteString.length; i++) {
+            uint8Array[i] = byteString.charCodeAt(i);
+        }
+
+        return new Blob([arrayBuffer], { type: mimeType });
+    };
+
+    const postCategory = async () => {
+        if (!name) {
+            setErrors('Имя не подходит');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', name);
+
+        if (image) {
+            try {
+                const base64 = await convertToBase64(image);
+                if (base64) {
+                    const mimeType = 'image/png'; // или другой MIME тип в зависимости от изображения
+                    const blob = createBlobFromBase64(base64, mimeType);
+                    formData.append('logo', blob, 'image.png'); // 'image.png' или любое другое имя файла
+                }
+            } catch (error) {
+                console.error('Error handling image:', error);
+            }
+        }
+
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/categories/`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData);
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Success:', data);
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
 

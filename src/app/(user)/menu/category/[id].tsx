@@ -34,11 +34,31 @@ const deviceHeight =
         : require("react-native-extra-dimensions-android").get(
             "REAL_WINDOW_HEIGHT"
         );
+type IBusinesses = {
+    id?: number;
+    title?: string;
+    logo?: string;
+    cashback_size?:string;
+
+}
+type ICategory = {
+    id?: number;
+    title?: string;
+    logo?: string;
+}
+type ICategoryList = {
+
+    businesses:IBusinesses[];
+    category: ICategory;
+}
 export default function categoryId() {
+
     const router = useRouter()
+    const { id } = useLocalSearchParams()
+    const {theme} = useCustomTheme()
+
     const [categoryList, setCategoryList] = useState(null)
     const [isModal, setIsModal] = useState(false);
-    const {theme} = useCustomTheme()
 
     const handleWalletPress = (value: boolean) => {
         setIsModal(value);
@@ -47,12 +67,6 @@ export default function categoryId() {
         setIsModal(false);
     };
 
-    const {addItem} = useCart()
-
-    const { id } = useLocalSearchParams()
-
-
-    const category = categories.find(c => c.id.toString() === id)
 
     useEffect(() => {
         async function getData() {
@@ -106,9 +120,9 @@ export default function categoryId() {
     //     // console.warn('Adding to cart', selectedSize)
     // }
 
-    if (!category){
-        return <Text>Wallet Not Found</Text>
-    }
+    // if (!category){
+    //     return <Text>Wallet Not Found</Text>
+    // }
 
     const [filteredData, setFilteredData] = useState<ICategoryItem>([]);
     const handleFilteredData = (data:[]) => {
@@ -123,8 +137,8 @@ export default function categoryId() {
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
 
-            <SearchInput data={categoryList} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
-            <CategoryItemList categoryList={filteredData} title={category.name} isBonus={true} onWalletPress={handleWalletPress} />
+            <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
+            <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={handleWalletPress} />
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}
@@ -141,8 +155,8 @@ export default function categoryId() {
                 style={styles.modal}
 
             >
-                <Pressable style={styles.centeredView} onPress={hideModal}>
-                    <Pressable style={styles.modalView} onPress={() => {}}>
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
                         {/*<Text style={styles.modalText}>Как получить бонусы?</Text>*/}
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginTop:47}}>
                             <Text style={styles.subTitle}>Как получить бонусы?</Text>
@@ -166,7 +180,7 @@ export default function categoryId() {
 
 
                         </View>
-                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginBottom:96, marginTop:62}}>
+                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginBottom:45, marginTop:62}}>
                             <Text style={styles.subTitle}>Как вывести бонусы?</Text>
                             <View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
@@ -186,8 +200,8 @@ export default function categoryId() {
                                 </View>
                             </View>
                         </View>
-                    </Pressable>
-                </Pressable>
+                    </View>
+                </View>
             </Modal>
         </ScrollView>
 
@@ -215,7 +229,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     centeredView: {
-        flex: 1,
+        // flex: 1,
         justifyContent: 'flex-end',
     },
     container: {

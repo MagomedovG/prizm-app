@@ -4,6 +4,8 @@ import {IWallet, Product} from "@/src/types";
 import {Link, useSegments} from "expo-router";
 import { Dimensions } from 'react-native';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+import QRCode from "react-qr-code";
+import React from "react";
 
 const { width } = Dimensions.get('window');
 const containerWidth = (width / 3) - 24;
@@ -16,9 +18,20 @@ export default function WalletItem ({ wallet, containerWidth }:WalletItemProps) 
     const {theme} = useCustomTheme()
     console.log(segments)
     return (
-        <Link href={`${segments[0]}/menu/wallet/${wallet.id}`} asChild>
+        <Link href={wallet.id ? `${segments[0]}/menu/wallet/${wallet.id}` : '/(user)/menu/'} asChild>
             <Pressable style={styles.container}>
-                <Image source={{uri: wallet.logo}} style={styles.image} resizeMode={"contain"}/>
+                <View style={styles.image}>
+                    <QRCode
+                        size={256}
+                        // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                        value={wallet?.prizm_qr_code_url}
+                        viewBox={`0 0 256 256`}
+                        style={{width:'100%', height:'100%'}}
+                        level={'L'}
+                    />
+                </View>
+
+                {/*<Image source={{uri: wallet.logo}} style={styles.image} resizeMode={"contain"}/>*/}
                 <Text style={[styles.title, theme === 'purple' ? styles.whiteText : styles.blackText]}>{wallet.title}</Text>
 
             </Pressable>
@@ -45,9 +58,11 @@ const styles = StyleSheet.create({
         color:'black'
     },
     image:{
-        width:"100%",
-        aspectRatio:1,
-
+        width:114,
+        // aspectRatio:1,
+        height:114,
+        borderWidth:6,
+        borderColor:'#fff',
         // borderWidth:1,
         borderRadius:10,
         // borderColor: 'black'

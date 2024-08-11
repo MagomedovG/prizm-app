@@ -5,13 +5,64 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-
-const MainHeader = ({ onChatPress }:any) => {
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+type IWallet = {
+    balance_in_pzm:number;
+    balance_in_rub:number;
+    id:number | string;
+    para_balance:number;
+    prizm_to_rub_exchange_rate:number;
+    prizm_wallet:string;
+    username:string;
+}
+type MainHeaderProps = {
+    onChatPress: () => void;
+    onQrCodeUrlUpdate: (url: string) => void;  // Новый пропс для обновления URL
+}
+const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
+    const [info,setInfo] = useState<IWallet | null>(null)
 
     useEffect(() => {
+        async function getData() {
+            const userId = await asyncStorage.getItem('user_id')
+            const username = await asyncStorage.getItem('username')
+            const prizm_wallet = await asyncStorage.getItem('prizm_wallet')
+            const is_superuser = await asyncStorage.getItem('is_superuser')
+            const form = {
+                is_superuser,
+                username,
+                prizm_wallet,
+            }
+            try {
+                const response = await fetch(
+                    `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
+                        // method: 'GET',
+                        // headers: {
+                        //     'Content-Type': 'application/json',
+                        // },
+                        // body: JSON.stringify(form),
+                    }
+                );
+                const data = await response.json();
+
+                console.log(data);
+                setInfo(data);
+                // if (data.prizm_qr_code_url) {
+                    onQrCodeUrlUpdate(data.prizm_qr_code_url);  // Обновляем URL
+                // }
+                if (!response.ok){
+                    console.log(response);
+                }
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
+                // console.log(response);
+            }
+        }
         const fetchHiddenState = async () => {
             try {
                 const hiddenState = await AsyncStorage.getItem('isHidden');
@@ -23,6 +74,7 @@ const MainHeader = ({ onChatPress }:any) => {
             }
         };
 
+        getData()
         fetchHiddenState();
     }, []);
 
@@ -77,18 +129,18 @@ const MainHeader = ({ onChatPress }:any) => {
             <View style={styles.headerList}>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : 'B : 17350 pzm'}
+                        {isHidden ? '****' : `B : ${info?.balance_in_pzm} pzm`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : 'P : 0.00073 pzm'}
+                        {isHidden ? '****' : `P : ${info?.para_balance} pzm`}
                     </Text>
                 </View>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : '1 pzm = 1.00 руб'}
+                        {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate} руб`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : 'баланс = 17350 руб'}
+                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub.toFixed(3)} руб`}
                     </Text>
                 </View>
             </View>
