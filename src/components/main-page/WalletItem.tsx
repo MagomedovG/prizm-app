@@ -13,7 +13,7 @@ type WalletItemProps = {
     wallet: IWallet,
     containerWidth?:number
 }
-export default function WalletItem ({ wallet, containerWidth }:WalletItemProps) {
+export default function WalletItem ({ wallet }:WalletItemProps) {
     const segments = useSegments()
     const {theme} = useCustomTheme()
     console.log(segments)
@@ -22,12 +22,13 @@ export default function WalletItem ({ wallet, containerWidth }:WalletItemProps) 
             <Pressable style={styles.container}>
                 <View style={styles.image}>
                     <QRCode
-                        size={256}
+                        size={containerWidth-12}
                         // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                         value={wallet?.prizm_qr_code_url}
-                        viewBox={`0 0 256 256`}
-                        style={{width:'100%', height:'100%'}}
-                        level={'L'}
+                        // viewBox={`0 0 256 256`}
+                        // size={40}
+                        // style={{width:'100%', height:'100%'}}
+                        // level={'L'}
                     />
                 </View>
 
@@ -58,9 +59,9 @@ const styles = StyleSheet.create({
         color:'black'
     },
     image:{
-        width:114,
-        // aspectRatio:1,
-        height:114,
+        width:'100%',
+        aspectRatio:1,
+        // height:114,
         borderWidth:6,
         borderColor:'#fff',
         // borderWidth:1,

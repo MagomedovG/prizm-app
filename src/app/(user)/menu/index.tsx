@@ -204,14 +204,14 @@ export default function MenuScreen() {
 
             <View style={{ flex: 1 }} >
                 <MainHeader onChatPress={toggleChatModal} onQrCodeUrlUpdate={addWalletWithQrCodeUrl} />
-                <div style={{ height: "auto", margin: "0 auto", maxWidth: 64, width: "100%" }}>
+                {/*<div style={{ height: "auto", margin: "0 auto", maxWidth: 64, width: "100%" }}>*/}
                     {/*<QRCode*/}
                     {/*    size={256}*/}
                     {/*    style={{ height: "auto", maxWidth: "100%", width: "100%" }}*/}
                     {/*    value={'ddd'}*/}
                     {/*    viewBox={`0 0 256 256`}*/}
                     {/*/>*/}
-                </div>
+                {/*</div>*/}
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}

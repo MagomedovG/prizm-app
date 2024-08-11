@@ -140,7 +140,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
                         {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate} руб`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub.toFixed(3)} руб`}
+                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub} руб`}
                     </Text>
                 </View>
             </View>

@@ -1,5 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, Image, StyleSheet, Button, TextInput, Clipboard, Alert, Pressable, ScrollView} from "react-native";
+import {
+    Text,
+    View,
+    Image,
+    StyleSheet,
+    Button,
+    TextInput,
+    Clipboard,
+    Alert,
+    Pressable,
+    ScrollView,
+    Dimensions
+} from "react-native";
 import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import { useCart } from "@/src/providers/CartProvider";
 import wallets from "@/assets/data/wallet";
@@ -12,6 +24,9 @@ import QRCode from "react-qr-code";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 // import * as Clipboard from 'expo-clipboard';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+const { width } = Dimensions.get('window');
+const containerWidth = ((width- 10) * 3 / 4) - 40 ;
 
 export default function walletId() {
     const router = useRouter();
@@ -60,6 +75,7 @@ export default function walletId() {
             }
         }
         getFunds()
+        console.log(containerWidth);
     },[])
 
     const copyToClipboard = () => {
@@ -81,8 +97,8 @@ export default function walletId() {
                 {wallet?.prizm_qr_code_url &&
                     <View style={styles.image}>
                         <QRCode
-                            // size={256}
-                            style={{width: "100%", height: "100%" }}
+                            size={containerWidth}
+                            // style={{width: "100%", height: "100%" }}
                             value={wallet?.prizm_qr_code_url}
                             level={'M'}
                             // viewBox={`0 0 256 256`}
@@ -165,7 +181,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         marginVertical:28,
-        marginRight:8
+        // marginRight:8
     },
     image: {
         width: '75%',
