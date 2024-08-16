@@ -1,139 +1,149 @@
-
-import {Link, router, Stack, useLocalSearchParams, useRouter, useSegments} from 'expo-router';
 import {
     View,
-    FlatList,
-    ActivityIndicator,
     Text,
     TextInput,
-    Pressable,
     ScrollView,
     Image,
-    Dimensions
+    Dimensions,
+    StyleSheet, Alert
 } from "react-native";
-import {StyleSheet} from "react-native";
-import {Colors} from '@/constants/Colors'
-import ProductListItem from "@/src/components/ProductListItem";
-import React, {useEffect, useState} from "react";
-import UIButton from "@/src/components/UIButton";
-import {adminCategories, categories, defaultLogo} from "@/assets/data/categories";
-import {LinearGradient} from "expo-linear-gradient";
-import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+import React, { useEffect, useState } from "react";
+import { AntDesign } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import HeaderLink from "@/src/components/HeaderLink";
-import {AntDesign} from "@expo/vector-icons";
-import {lightColor} from "@/assets/data/colors";
-import {ICategory, ICategoryItemList} from "@/src/types";
+import UIButton from "@/src/components/UIButton";
+import { categories } from "@/assets/data/categories";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import {useLocalSearchParams, useRouter} from "expo-router";
+
 const { width } = Dimensions.get('window');
-// import ICategoryItemLi
 const ITEM_WIDTH = width - 25;
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-
 export default function AddFeedback() {
-    const [number, setNumber] = useState()
-    const [password, setPassword] = useState()
-    const {theme} = useCustomTheme()
     const [text, setText] = useState('');
-    const [business, setBusiness] = useState(null)
+    const [activeStars, setActiveStars] = useState(2);
+    const [business, setBusiness] = useState(null);
+    const { id } = useLocalSearchParams();
 
-    const { id } = useLocalSearchParams()
+    const { theme } = useCustomTheme();
+    // const category = categories.find(c => c.id.toString() === '1');
+    // const categoryItem = category.items[0]; // Update index based on your logic
 
-    const categoryId = Number(id)
-    const category: ICategory = categories.find(c => c.id.toString() === '1');
-    const segments = useSegments();
-    const categoryItem: ICategoryItemList = category.items[categoryId - 1]
     useEffect(() => {
         async function getData() {
             try {
-                // CookieManager.getAll(true)
-                //     .then((cookies) => {
-                //         console.log('CookieManager.getAll =>', cookies);
-                //     });
-                // const cookies = await Cookies.get(apiUrl);
-                // const csrfToken = cookies['csrftoken'];
-                const response = await fetch(
-                    `${apiUrl}/api/v1/business/${id}/`,
-                    // {
-                    // credentials: "include",
-                    // headers: {
-                    //     "X-CSRFToken": `${csrfToken}`,
-                    // },
-                    // }
-                );
+                const response = await fetch(`${apiUrl}/api/v1/business/${id}/`);
                 const data = await response.json();
-                console.log(data);
                 setBusiness(data);
-                if (!response.ok){
-                    console.log(response);
-                }
-
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
-                // console.log(response);
             }
         }
 
         getData();
     }, []);
+    const postComment = async () => {
+        const userId = await asyncStorage.getItem('user_id');
+        const parsedUserId = JSON.parse(userId);
+        console.log(userId,parsedUserId,id,text);
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/feedbacks/`,{
+                method:'POST',
+                headers:{
+                  'Content-Type':'application/json'
+                },
+                body:JSON.stringify({created_by:parsedUserId, business:id, text})
+            })
+            const data = await response.json()
+            if (response.ok){
+                useRouter().push(`(user)/menu/category-item/feedback/${id}`)
+            } else {
+                Alert.alert('Ошибка!','Вы не можете добавить два отзыва в один бизнес');
+            }
 
-    const router = useRouter()
-    // getCategories ([id])  => {
-    //     router.push(`/(admin)/menu/${[id]}`)
-    // }
-    const renderStars = (averageMark: number, markSize: number, color?: string) => {
-        const fullStars = Math.floor(averageMark);
-        const halfStar = averageMark % 1 >= 0.5 ? 1 : 0;
-        const emptyStars = 5 - fullStars - halfStar;
 
+        } catch (e){
+            console.warn(e)
+        }
+    }
+    const postRating = async (rating: number) => {
+        setActiveStars(rating)
+        const userId = await asyncStorage.getItem('user_id');
+        const parsedUserId = JSON.parse(userId);
+        console.log('userId',userId,'parsedUserId',parsedUserId,'id',id,'text',text, 'rating',rating);
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/ratings/update-or-create/`,{
+                method:'PUT',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({created_by:parsedUserId, business:id, rating_value:rating})
+            })
+            const data = await response.json()
+            if (response.ok){
+                console.log('ok');
+            } else {
+                console.log(data);
+            }
+
+        } catch (e){
+            console.log(e)
+        }
+    }
+
+    const renderStars = (activeStars, markSize, color = 'white', inactiveColor = 'white') => {
         return (
             <View style={styles.starContainer}>
-                {[...Array(fullStars)].map((_, index) => (
-                    <AntDesign key={`full-${index}`} name="star" size={markSize} color={color ? color : 'white'} />
-                ))}
-                {halfStar === 1 && <AntDesign key="half" name="staro" size={markSize} color={color ? color : 'white'} />}
-                {[...Array(emptyStars)].map((_, index) => (
-                    <AntDesign key={`empty-${index}`} name="staro" size={markSize} color={color ? color : 'white'} />
+                {[...Array(5)].map((_, index) => (
+                    <AntDesign
+                        key={`star-${index}`}
+                        name={index < activeStars ? 'star' : 'staro'}
+                        size={markSize}
+                        color={index < activeStars ? color : inactiveColor}
+                        onPress={() => postRating(index + 1)}
+                    />
                 ))}
             </View>
         );
     };
+
     return (
         <>
-            <ScrollView style={{ }}>
-
-
+            <ScrollView style={{}}>
                 <ScrollView style={styles.container}>
-                    <Stack.Screen options={{
-                        headerShown:false,
-                        header: () => <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${category.id}`} emptyBackGround={false}/>,
-                    }}/>
+                    <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${business?.id}`} emptyBackGround={false} />
 
                     <View>
-                        {/*<Image source={{uri:category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo}}/>*/}
-                        {/*<View style={styles.sale}>*/}
-                            {/*<Text style={styles.saleText}>Кэшбек {categoryItem.sale}%</Text>*/}
-                        {/*</View>*/}
-                        <Image style={{width:'100%',aspectRatio:1, maxHeight:140,borderTopRightRadius:15, borderTopLeftRadius:15}} source={{uri:categoryItem.image}} />
+                        <View style={{ maxHeight: 140 }}>
+                            <Image
+                                style={{ width: ITEM_WIDTH - 30, height:ITEM_WIDTH - 80, borderRadius: 15 }}
+                                source={{ uri: business?.logo }}
+                            />
+                        </View>
                         <LinearGradient
                             colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
                             start={{ x: 1, y: 0 }}
                             end={{ x: 0, y: 0 }}
                             style={styles.cart}
                         >
-                            {/*<Image*/}
-                            {/*    source={{uri:category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo}}*/}
-                            {/*    style={styles.cartLogo}/>*/}
                             <View style={styles.cartInfo}>
                                 <View>
-                                    <Text style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.title}</Text>
-                                    <Text style={[styles.cartSubtitle, theme === 'purple' ? {color:'#CACACA'}  : styles.greenText]}>{business?.description}</Text>
+                                    <Text style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>
+                                        {business?.title}
+                                    </Text>
+                                    <Text style={[styles.cartSubtitle, theme === 'purple' ? { color: '#CACACA' } : styles.greenText]}>
+                                        {business?.description}
+                                    </Text>
                                 </View>
-                                <Text style={[{fontSize:16, marginTop:14, marginBottom:23},theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.adress}</Text>
+                                <Text style={[{ fontSize: 16, marginTop: 14, marginBottom: 23 }, theme === 'purple' ? styles.purpleText : styles.greenText]}>
+                                    {business?.adress}
+                                </Text>
                                 <View style={styles.cartSaleContainer}>
-                                    {renderStars(5, 42)}
+                                    {renderStars(activeStars, 42)}
                                 </View>
                             </View>
-
                         </LinearGradient>
                         <Text style={styles.subTitle}>Опишите плюсы и минусы</Text>
                         <View style={styles.textContainer}>
@@ -146,26 +156,22 @@ export default function AddFeedback() {
                                 placeholder="Начните писать отзыв"
                             />
                         </View>
-
                     </View>
-
-
                 </ScrollView>
             </ScrollView>
-            <UIButton text={'Ок'}/>
+            <UIButton text={'Ок'} onPress={postComment}/>
         </>
-
     );
 }
+
 const styles = StyleSheet.create({
-    textContainer:{
+    textContainer: {
         flex: 1,
         justifyContent: 'center',
-        marginTop:5,
-        marginBottom:150
-        // padding: 16,
+        marginTop: 5,
+        marginBottom: 150,
     },
-    textArea:{
+    textArea: {
         height: 178,
         padding: 13,
         backgroundColor: '#f0f0f0',
@@ -173,130 +179,66 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
         textAlignVertical: 'top',
-        fontSize:18
+        fontSize: 18,
+        marginBottom: 160
     },
-    greenText:{
-        color:'#070907'
+    greenText: {
+        color: '#070907'
     },
-    purpleText:{
-        color:'white'
+    purpleText: {
+        color: 'white'
     },
-    purpleCircle:{
-        backgroundColor:'#5C2389',
+    cartSaleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%'
     },
-    greenCircle:{
-        backgroundColor:'#CDF3C2',
+    cartInfo: {
+        width: '100%',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+        paddingBottom: 3
     },
-    purpleCircleText:{
-        color:'white',
-    },
-    greenCircleText:{
-        color:'black',
-    },
-    circle:{
-        borderRadius:50,
-        backgroundColor: lightColor,
-        width:43,
-        height:43,
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center'
-    },
-    subTitle:{
-        marginTop:30,
-        marginBottom:5,
-        color:'#323232',
-        fontSize:22,
-        // fontWeight:'bold'
-    },
-    text:{
-        fontSize:16,
+    cartSubtitle: {
+        color: '#CACACA',
         flexWrap: 'wrap',
         flexShrink: 1,
     },
-    cartSaleContainer:{
-        display:'flex',
-        flexDirection:'row',
-        alignItems:'center',
-        justifyContent:'center',
-        width:'100%'
+    cartTitle: {
+        fontSize: 22,
+        color: 'white',
+        fontWeight: '600',
+        marginBottom: 3
     },
-    cartInfo:{
-        // maxWidth:'70%',
-        width:'100%',
-        display:'flex',
-        justifyContent:'space-between',
-        alignItems:'flex-start',
-        // height:'100%',
-        flexDirection:'column',
-        // height:85,
-        paddingBottom:3
-    },
-    cartSubtitle:{
-        color:'#CACACA',
-        flexWrap: 'wrap',
-        flexShrink: 1,
-    },
-    cartTitle:{
-        fontSize:22,
-        color:'white',
-        fontWeight:600,
-        marginBottom:3
-    },
-    cartLogo:{
-        width:85,
-        height:85,
-        borderRadius:100,
-        objectFit:'cover'
-    },
-    cart:{
-        backgroundColor:'#535353',
-        paddingHorizontal:32,
-        paddingVertical:20,
-        borderBottomLeftRadius:15,
-        borderBottomRightRadius:15,
-        display:'flex',
-        flexDirection:'row',
-        // justifyContent:'space-between',
-        alignItems:'center',
-        gap:32
-    },
-    sale:{
-        backgroundColor:'white',
-        paddingHorizontal:18,
-        paddingVertical:9,
-        minWidth:127,
-        maxWidth:136,
-        textAlign:'center',
-        borderRadius:10,
-        marginTop:73,
-        marginBottom:10,
-    },
-    saleText:{
-        color:'#000',
-        fontSize:16,
-        fontWeight:'bold'
+    cart: {
+        backgroundColor: '#535353',
+        paddingHorizontal: 32,
+        paddingVertical: 20,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 32
     },
     container: {
         flex: 1,
-        display:'flex',
-        flexDirection:'column',
+        flexDirection: 'column',
         width: ITEM_WIDTH,
-        paddingHorizontal: 25,
-        // marginHorizontal:42,
-        position:'relative',
-        marginTop:30,
-        marginBottom:50,
+        paddingHorizontal: 15,
+        marginTop: 30,
+        marginBottom: 50,
         alignSelf: 'center',
     },
-    title: {
-        fontSize: 18,
-        fontWeight: '600',
-        marginVertical: 10
+    subTitle: {
+        marginTop: 30,
+        marginBottom: 5,
+        color: '#323232',
+        fontSize: 22,
     },
     starContainer: {
         flexDirection: 'row',
         marginTop: 5
     }
-})
-
+});

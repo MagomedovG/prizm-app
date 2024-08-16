@@ -9,6 +9,7 @@ import {borderColor} from "@/assets/data/colors";
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
+    const [count,setCount]=useState('')
     const [isNameSet, setIsNameSet] = useState(false);
     const router = useRouter();
 
@@ -33,8 +34,10 @@ const SharePrizm = () => {
                     <TextInput
                         style={styles.input}
                         editable={true}
+                        onChangeText={setCount}
                         placeholder={'Сумма pzm'}
-                        value={wallet}
+                        value={count}
+                        keyboardType={"numeric"}
                         placeholderTextColor='#8C8C8C'
                     />
                 </Pressable>
@@ -44,6 +47,7 @@ const SharePrizm = () => {
                         editable={true}
                         placeholder={'Кошелек получателя'}
                         value={wallet}
+                        onChangeText={setWallet}
                         placeholderTextColor='#8C8C8C'
                     />
                 </Pressable>
@@ -56,6 +60,7 @@ const SharePrizm = () => {
                         style={styles.textArea}
                         editable={true}
                         multiline={true}
+                        onChangeText={setSid}
                         placeholder={'Парольная фраза'}
                         value={sid}
                         placeholderTextColor='#8C8C8C'

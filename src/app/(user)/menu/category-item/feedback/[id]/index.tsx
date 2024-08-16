@@ -6,7 +6,7 @@ import {
     StyleSheet,
     ScrollView,
     Dimensions,
-    FlatList
+    FlatList, RefreshControl, SafeAreaView
 } from "react-native";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCart } from "@/src/providers/CartProvider";
@@ -35,51 +35,52 @@ export default function feedbackId() {
     const router = useRouter();
     const { theme } = useCustomTheme();
     const { id } = useLocalSearchParams();
-    // const categoryId = Number(id);
-    // const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
 
     const [business, setBusiness] = useState(null)
     const [feedbacks, setFeedbacks] = useState(null)
     const [starsCount, setStarsCount] = useState(1)
 
+    const [refreshing, setRefreshing] = React.useState(false);
 
+    async function getFeedbacks() {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/business/${id}/get-feedbacks/`,
+            );
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error("Ошибка при загрузке фидбэков:", response);
+            } else {
+                setFeedbacks(data);
+            }
+        } catch (error) {
+            console.error("Ошибка при загрузке данных фидбэков:", error);
+        }
+    }
+
+    async function getBusiness() {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/business/${id}/`,
+            );
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error("Ошибка при загрузке бизнес данных:", response);
+            } else {
+                setBusiness(data);
+                setStarsCount(data.ratings_number)
+                setRefreshing(false)
+            }
+        } catch (error) {
+            console.error("Ошибка при загрузке данных бизнеса:", error);
+        }
+    }
 
 
     useEffect(() => {
-        async function getFeedbacks() {
-            try {
-                const response = await fetch(
-                    `${apiUrl}/api/v1/business/${id}/get-feedbacks/`,
-                );
-                const data = await response.json();
 
-                if (!response.ok) {
-                    console.error("Ошибка при загрузке фидбэков:", response);
-                } else {
-                    setFeedbacks(data);
-                }
-            } catch (error) {
-                console.error("Ошибка при загрузке данных фидбэков:", error);
-            }
-        }
-
-        async function getBusiness() {
-            try {
-                const response = await fetch(
-                    `${apiUrl}/api/v1/business/${id}/`,
-                );
-                const data = await response.json();
-
-                if (!response.ok) {
-                    console.error("Ошибка при загрузке бизнес данных:", response);
-                } else {
-                    setBusiness(data);
-                    setStarsCount(data.ratings_number)
-                }
-            } catch (error) {
-                console.error("Ошибка при загрузке данных бизнеса:", error);
-            }
-        }
 
         getFeedbacks();
         getBusiness();
@@ -88,6 +89,14 @@ export default function feedbackId() {
     const goToAddFeedBack = () => {
         router.push(`(user)/menu/category-item/feedback/${id}/add-feedback`)
     }
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        getBusiness()
+        getFeedbacks()
+        // setTimeout(() => {
+        //     setRefreshing(false);
+        // }, 2000);
+    }, []);
 
 
     // const categoryItem: ICategoryItemList = category.items[categoryId - 1];
@@ -113,12 +122,21 @@ export default function feedbackId() {
     };
 
     return (
+        // style={styles.cartContainer}
         <>
-            <ScrollView style={styles.cartContainer}>
-                <Stack.Screen options={{
-                    headerShown: false,
-                    header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
-                }} />
+            <Stack.Screen options={{
+                headerShown: false,
+                header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
+            }} />
+            <ScrollView
+                contentContainerStyle={styles.cartContainer}
+                 refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                 }
+            >
                 <View style={styles.cart}>
                     {/*<Image*/}
                     {/*    source={{ uri: category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo }}*/}

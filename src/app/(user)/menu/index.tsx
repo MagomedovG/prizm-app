@@ -8,7 +8,7 @@ import {
     ScrollView,
     Alert,
     Dimensions,
-    Platform
+    Platform, RefreshControl
 } from "react-native";
 import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
@@ -49,7 +49,7 @@ export default function MenuScreen() {
 
     const addWalletWithQrCodeUrl = (url: string) => {
         if (url){
-            setWallets((prevWallets) => [
+            setWallets((prevWallets:any) => [
                 {
                     // id:9999,
                     // prizm_wallet: url,
@@ -62,48 +62,58 @@ export default function MenuScreen() {
             ]);
         }
         console.log(url,'url');
-
     };
 
+     const getData = async () => {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/categories`,
+            );
+            const data = await response.json();
+            console.log(data);
+            setCategories(data);
+            if (!response.ok){
+                console.log(response);
+            }
+            setRefreshing(false)
+
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+            // console.log(response);
+        }
+    }
+
+      const getFunds = async () => {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/funds/`,
+            );
+            const data = await response.json();
+            console.log(data);
+            setWallets(data);
+            if (!response.ok){
+                console.log(response);
+            }
+
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
+            // console.log(response);
+        }
+    }
     useEffect(() => {
-        async function getData() {
-            try {
-                const response = await fetch(
-                        `${apiUrl}/api/v1/categories`,
-                );
-                const data = await response.json();
-                console.log(data);
-                setCategories(data);
-                if (!response.ok){
-                    console.log(response);
-                }
-
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-                // console.log(response);
-            }
-        }
-        async function getFunds() {
-            try {
-                const response = await fetch(
-                    `${apiUrl}/api/v1/funds/`,
-                );
-                const data = await response.json();
-                console.log(data);
-                setWallets(data);
-                if (!response.ok){
-                    console.log(response);
-                }
-
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
-                // console.log(response);
-            }
-        }
         getFunds()
         getData();
     }, []);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        getFunds()
+        getData();
+        // setTimeout(() => {
+        //     setRefreshing(false);
+        // }, 2000);
+    }, []);
 
     const toggleModal = () => {
         setIsModal(!isModal);
@@ -184,20 +194,19 @@ export default function MenuScreen() {
 
             >
                 <View style={styles.centeredView}>
-                    <View style={[styles.modalView, {padding:0}]}>
+                    <View style={[styles.chatModalViewContainer, {padding:0}]}>
                         <View style={styles.chatModalView}>
                             <AntDesign name="youtube" size={23} color="black" />
-                            <Text>YouTube</Text>
+                            <Text style={{fontSize:16, fontWeight:'semibold'}}>YouTube</Text>
                         </View>
                         <View  style={styles.chatModalView}>
                             <FontAwesome5 name="whatsapp" size={23} color="black" />
-                            <Text>WhatsApp</Text>
+                            <Text style={{fontSize:16, fontWeight:'semibold'}}>WhatsApp</Text>
                         </View>
-                        <View style={[styles.chatModalView,{borderBottomWidth: 0}]}>
+                        <View style={[styles.chatModalView,{borderBottomWidth: 0, paddingBottom:29}]}>
                             <FontAwesome5 name="telegram-plane" size={23} color="black" />
-                            <Text>Telegram</Text>
+                            <Text style={{fontSize:16, fontWeight:'semibold'}}>Telegram</Text>
                         </View>
-
                     </View>
                 </View>
             </Modal>
@@ -241,7 +250,15 @@ export default function MenuScreen() {
                         />
                     </LinearGradient>
 
-                    <ScrollView style={styles.container}>
+                    <ScrollView
+                        style={styles.container}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={onRefresh}
+                            />
+                        }
+                    >
                         <CategoryList categories={categories} title="Кэшбек у партнеров" isInput={true} />
                     </ScrollView>
                 </View>
@@ -282,10 +299,28 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         alignItems:'center',
         gap:15,
+        paddingHorizontal: 20,
+        // paddingTop:16,
+        // paddingBottom:26,
         paddingVertical:17,
         borderBottomColor:'#D7D7D7',
         borderBottomWidth:1,
         width:'100%'
+    },
+    chatModalViewContainer:{
+        backgroundColor: 'white',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        width: '100%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     modalView: {
         backgroundColor: 'white',

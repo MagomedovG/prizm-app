@@ -18,7 +18,7 @@ const SetPinScreen = () => {
     const [initialPin, setInitialPin] = useState('');
     const { theme } = useCustomTheme();
 
-
+    // router.push('pin/setnickname')
 
     // Хэширование PIN-кода
     const hashPin = async (inputPin) => {

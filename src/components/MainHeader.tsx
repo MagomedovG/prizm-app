@@ -20,6 +20,7 @@ type MainHeaderProps = {
     onChatPress: () => void;
     onQrCodeUrlUpdate: (url: string) => void;  // Новый пропс для обновления URL
 }
+
 const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
@@ -28,15 +29,17 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
 
     useEffect(() => {
         async function getData() {
-            const userId = await asyncStorage.getItem('user_id')
-            const username = await asyncStorage.getItem('username')
-            const prizm_wallet = await asyncStorage.getItem('prizm_wallet')
-            const is_superuser = await asyncStorage.getItem('is_superuser')
+            const userId =  JSON.parse(await asyncStorage.getItem('user_id'))
+            const username = JSON.parse(await asyncStorage.getItem('username'))
+            const prizm_wallet = JSON.parse(await asyncStorage.getItem('prizm_wallet'))
+            const is_superuser = JSON.parse(await asyncStorage.getItem('is_superuser'))
+
             const form = {
                 is_superuser,
                 username,
                 prizm_wallet,
             }
+            console.log(form, userId)
             try {
                 const response = await fetch(
                     `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
@@ -137,10 +140,10 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
                 </View>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate} руб`}
+                        {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(3) : 0} руб`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub} руб`}
+                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(3) : 0} руб`}
                     </Text>
                 </View>
             </View>
