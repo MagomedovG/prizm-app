@@ -27,6 +27,8 @@ export default function AddFeedback() {
     const [business, setBusiness] = useState(null);
     const { id } = useLocalSearchParams();
 
+    const router = useRouter()
+
     const { theme } = useCustomTheme();
     // const category = categories.find(c => c.id.toString() === '1');
     // const categoryItem = category.items[0]; // Update index based on your logic
@@ -58,7 +60,7 @@ export default function AddFeedback() {
             })
             const data = await response.json()
             if (response.ok){
-                useRouter().push(`(user)/menu/category-item/feedback/${id}`)
+                router.push(`(user)/menu/category-item/feedback/${id}`)
             } else {
                 Alert.alert('Ошибка!','Вы не можете добавить два отзыва в один бизнес');
             }

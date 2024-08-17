@@ -18,10 +18,11 @@ type IWallet = {
 }
 type MainHeaderProps = {
     onChatPress: () => void;
-    onQrCodeUrlUpdate: (url: string) => void;  // Новый пропс для обновления URL
+    onQrCodeUrlUpdate: (url: string) => void;
+    refreshData: boolean;
 }
 
-const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
+const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProps) => {
     const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
@@ -57,6 +58,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
                 // if (data.prizm_qr_code_url) {
                     onQrCodeUrlUpdate(data.prizm_qr_code_url);  // Обновляем URL
                 // }
+                console.log('Mainheader info',data)
                 if (!response.ok){
                     console.log(response);
                 }
@@ -79,7 +81,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate }:MainHeaderProps) => {
 
         getData()
         fetchHiddenState();
-    }, []);
+    }, [refreshData]);
 
     const handleChatPress = () => {
         onChatPress(true);

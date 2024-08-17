@@ -13,7 +13,7 @@ const SearchInput = ({ data, onFilteredData, placeholder }:any) => {
 
     useEffect(() => {
         if (query) {
-            const filtered = data.filter((item:any) => item.name.toLowerCase().includes(query.toLowerCase()));
+            const filtered = data.filter((item:any) => item?.title.toLowerCase().includes(query?.toLowerCase()));
             onFilteredData(filtered);
         } else {
             onFilteredData(data);

@@ -46,31 +46,40 @@ export default function MenuScreen() {
     const [isChatModal, setIsChatModal] = useState(false);
     const [categories, setCategories] = useState(null)
     const [wallets, setWallets] = useState<IWallet[]>([])
+    // useEffect(() => {
+    //     if (wallets.some(wallet => wallet.title !== "Мой кошелек")) {
+    //         addWalletWithQrCodeUrl(wallets);
+    //     }
+    // }, [wallets]);
 
     const addWalletWithQrCodeUrl = (url: string) => {
-        if (url){
-            setWallets((prevWallets:any) => [
-                {
-                    // id:9999,
-                    // prizm_wallet: url,
-                    // title: 'Мой кошелек'
-                    id: 'user',
-                    title: "Мой кошелек",
-                    prizm_qr_code_url: url
-                },
-                ...prevWallets
-            ]);
+        if (url) {
+            setWallets((prevWallets: any) => {
+                const hasWallet = prevWallets.some(wallet => wallet.title === "Мой кошелек");
+                if (!hasWallet) {
+                    return [
+                        {
+                            id: 'user',
+                            title: "Мой кошелек",
+                            prizm_qr_code_url: url
+                        },
+                        ...prevWallets
+                    ];
+                }
+                return prevWallets;
+            });
         }
-        console.log(url,'url');
+        console.log(url, 'url');
     };
+
 
      const getData = async () => {
         try {
             const response = await fetch(
-                `${apiUrl}/api/v1/categories`,
+                `${apiUrl}/api/v1/categories/`,
             );
             const data = await response.json();
-            console.log(data);
+            console.log('categories',data);
             setCategories(data);
             if (!response.ok){
                 console.log(response);
@@ -212,7 +221,7 @@ export default function MenuScreen() {
             </Modal>
 
             <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={toggleChatModal} onQrCodeUrlUpdate={addWalletWithQrCodeUrl} />
+                <MainHeader onChatPress={toggleChatModal} onQrCodeUrlUpdate={addWalletWithQrCodeUrl} refreshData={refreshing}/>
                 {/*<div style={{ height: "auto", margin: "0 auto", maxWidth: 64, width: "100%" }}>*/}
                     {/*<QRCode*/}
                     {/*    size={256}*/}

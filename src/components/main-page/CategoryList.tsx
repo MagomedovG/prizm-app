@@ -7,9 +7,9 @@ import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
-
+const ITEM_HEIGHT = height / 2 -30
 type CategoryListProps = {
     title?:string,
     categories: ICategory[] | any,
@@ -68,10 +68,8 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                         </Pressable>
                     </Link>
                 }
-                numColumns={3} // Указываем количество колонок
-                keyExtractor={(item) => item.id.toString()} // Добавляем keyExtractor для уникальности
+                keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={{gap:10}}
-                columnWrapperStyle={{gap:10}}
                 horizontal={false}
 
             />
@@ -83,22 +81,14 @@ const styles = StyleSheet.create({
     flatlist:{
         flexDirection:'column',
         width: '100%',
-        // flex:1
     },
     container: {
         width: '100%',
-        height:'100%',
-        // flex:1,
+        flex:1,
         overflow:'scroll',
-        marginBottom:300,
-        // backgroundColor:'#000'
-
-        // aspectRatio:1
+        marginBottom:ITEM_HEIGHT,
     },
     itemContainer: {
-        // width: '100%',
-        // margin: 5,
-        // padding: 10,
         display:'flex',
         flexDirection:'row',
         alignItems:'center',
@@ -110,8 +100,6 @@ const styles = StyleSheet.create({
         shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4
     },
     image: {
-        // width: '100%',
-
         objectFit:'cover',
         height: '100%',
         borderRadius: 10,
@@ -122,10 +110,6 @@ const styles = StyleSheet.create({
         marginBottom: 16
     },
     text:{
-        // position:'absolute',
-        // bottom:10,
-        // left:11,
-        // right:11,
         fontSize:16,
         fontWeight:'medium'
     },
@@ -137,11 +121,9 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'space-between',
-        // marginBottom:19
     },
     button:{
         borderRadius:33,
-        // width:'30%',
         borderWidth:1,
         paddingVertical:10,
         paddingHorizontal:20
