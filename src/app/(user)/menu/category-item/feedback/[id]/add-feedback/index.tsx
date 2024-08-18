@@ -60,7 +60,7 @@ export default function AddFeedback() {
             })
             const data = await response.json()
             if (response.ok){
-                router.push(`(user)/menu/category-item/feedback/${id}`)
+                router.replace(`(user)/menu/category-item/feedback/${id}`)
             } else {
                 Alert.alert('Ошибка!','Вы не можете добавить два отзыва в один бизнес');
             }

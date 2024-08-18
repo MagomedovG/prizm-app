@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, Image, StyleSheet, Pressable, TextInput, Button, ScrollView, Dimensions} from "react-native";
+import {
+    Text,
+    View,
+    Image,
+    StyleSheet,
+    Pressable,
+    TextInput,
+    Button,
+    ScrollView,
+    Dimensions,
+    FlatList
+} from "react-native";
 import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
 import {useCart} from "@/src/providers/CartProvider";
 import {categories, defaultLogo} from "@/assets/data/categories";
@@ -13,7 +24,7 @@ import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {LinearGradient} from "expo-linear-gradient";
 import {lightColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
+import Swiper from 'react-native-swiper'
 const { width } = Dimensions.get('window');
 // import ICategoryItemLi
 const ITEM_WIDTH = width - 25;
@@ -31,20 +42,8 @@ export default function categoryId() {
     useEffect(() => {
         async function getData() {
             try {
-                // CookieManager.getAll(true)
-                //     .then((cookies) => {
-                //         console.log('CookieManager.getAll =>', cookies);
-                //     });
-                // const cookies = await Cookies.get(apiUrl);
-                // const csrfToken = cookies['csrftoken'];
                 const response = await fetch(
                     `${apiUrl}/api/v1/business/${id}/`,
-                    // {
-                    // credentials: "include",
-                    // headers: {
-                    //     "X-CSRFToken": `${csrfToken}`,
-                    // },
-                    // }
                 );
                 const data = await response.json();
                 console.log(data);
@@ -55,7 +54,6 @@ export default function categoryId() {
 
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
-                // console.log(response);
             }
         }
 
@@ -66,8 +64,26 @@ export default function categoryId() {
     const categoryItem: ICategoryItemList = category.items[categoryId - 1]
     const segments = useSegments();
     return (
-        <ScrollView style={{ }}>
-            <Image style={{width:'100%',aspectRatio:1,minHeight:260, maxHeight:289, position:'absolute', top: 0}} source={{uri:business?.images[0] ? `${apiUrl}${business?.images[0]}` : defaultLogo}} />
+        <ScrollView style={{ paddingTop:173}}>
+            {/*<Image style={{width:'100%',aspectRatio:1,minHeight:260, maxHeight:289, position:'absolute', top: 0}} source={{uri:business?.images[0] ? `${apiUrl}${business?.images[0]}` : defaultLogo}} />*/}
+                <View style={{width:'100%', position:'absolute', top: -173}}>
+                    {business?.images ?
+                        <Swiper showsButtons={false} showsPagination={false} autoplay={true} style={{minHeight:260,
+                            maxHeight:289}}>
+                            {business?.images?.map((item, index) => (
+                                <View key={index} style={styles.slide}>
+                                    <Image
+                                        style={styles.image}
+                                        source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
+                                    />
+                                </View>
+                            ))}
+                        </Swiper>
+                        : <View/>
+                    }
+                </View>
+
+
 
             <ScrollView style={styles.container}>
                 <Stack.Screen options={{
@@ -76,7 +92,7 @@ export default function categoryId() {
                 }}/>
 
                 <View>
-                    {/*<Image source={{uri:category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo}}/>*/}
+
                     <View style={styles.sale}>
                         <Text style={styles.saleText}>Кэшбек {business?.cashback_size}%</Text>
                     </View>
@@ -101,6 +117,7 @@ export default function categoryId() {
                             </View>
                         </View>
                     </LinearGradient>
+
                     <Text style={styles.subTitle}>Адрес:</Text>
                     <Text style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text>
                     <Text style={styles.subTitle}>Как получить кэшбек</Text>
@@ -224,7 +241,7 @@ const styles = StyleSheet.create({
         // maxWidth:136,
         textAlign:'center',
         borderRadius:10,
-        marginTop:73,
+        // marginTop:73,
         marginBottom:10,
         alignSelf: 'flex-start'
     },
@@ -240,7 +257,7 @@ const styles = StyleSheet.create({
         width: ITEM_WIDTH,
         paddingHorizontal: 10,
         position:'relative',
-        marginTop:100,
+
         marginBottom:50,
         alignSelf: 'center',
     },
@@ -248,5 +265,17 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         marginVertical: 10
-    }
+    },
+    slide: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    image: {
+        width: '100%',
+        // aspectRatio:1,
+        height:'100%'
+        // resizeMode: 'cover',
+    },
+
 })
