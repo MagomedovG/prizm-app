@@ -39,6 +39,8 @@ export default function AddFeedback() {
                 const response = await fetch(`${apiUrl}/api/v1/business/${id}/`);
                 const data = await response.json();
                 setBusiness(data);
+                console.log(data);
+                
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
             }
@@ -121,7 +123,7 @@ export default function AddFeedback() {
                         <View style={{ maxHeight: 140 }}>
                             <Image
                                 style={{ width: ITEM_WIDTH - 30, height:ITEM_WIDTH - 80, borderRadius: 15 }}
-                                source={{ uri: business?.logo }}
+                                source={{ uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
                             />
                         </View>
                         <LinearGradient
