@@ -68,7 +68,7 @@ export default function categoryId() {
             {/*<Image style={{width:'100%',aspectRatio:1,minHeight:260, maxHeight:289, position:'absolute', top: 0}} source={{uri:business?.images[0] ? `${apiUrl}${business?.images[0]}` : defaultLogo}} />*/}
                 <View style={{width:'100%', position:'absolute', top: -173}}>
                     {business?.images ?
-                        <Swiper showsButtons={false} showsPagination={false} autoplay={true} style={{minHeight:260,
+                        <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{minHeight:260,
                             maxHeight:289}}>
                             {business?.images?.map((item, index) => (
                                 <View key={index} style={styles.slide}>
@@ -108,7 +108,7 @@ export default function categoryId() {
                         <View style={styles.cartInfo}>
                             <View>
                                 <Text style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.title}</Text>
-                                <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.description}</Text>
+                                <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.short_description}</Text>
                             </View>
                             <View style={styles.cartSaleContainer}>
                                 <AntDesign name="star" size={24} color={theme === 'purple' ? 'white' : '#070907'} />
@@ -119,12 +119,22 @@ export default function categoryId() {
                     </LinearGradient>
 
                     <Text style={styles.subTitle}>Адрес:</Text>
-                    <Text style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text>
+                    {/* <Link href={} style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text> */}
+                    <Link href={business?.map_url ? business?.map_url : ''} asChild >
+                        <Pressable>
+                            {({pressed}) => (
+                                <View>
+                                    <Text style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text>
+                                </View>
+
+                            )}
+                        </Pressable>
+                    </Link>
                     <Text style={styles.subTitle}>Как получить кэшбек</Text>
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                            <Text style={styles.text}>При отплате покажите qr-код продавцу dw wecwfce fq fsd</Text>
+                            <Text style={styles.text}>При отплате покажите qr-код продавцу</Text>
                         </View>
                         <View style={{width: 1,
                             height: 20,

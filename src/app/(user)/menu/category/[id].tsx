@@ -163,7 +163,7 @@ export default function categoryId() {
                             <View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                                    <Text style={styles.text}>При отплате покажите qr-код продавцу dw wecwfce fq fsd</Text>
+                                    <Text style={styles.text}>При отплате покажите qr-код продавцу</Text>
                                 </View>
                                 <View style={{width: 1,
                                     height: 20,
@@ -185,7 +185,7 @@ export default function categoryId() {
                             <View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                                    <Text style={styles.text}>При отплате покажите qr-код продавцу dw wecwfce fq fsd</Text>
+                                    <Text style={styles.text}>При отплате покажите qr-код продавцу</Text>
                                 </View>
                                 <View style={{width: 1,
                                     height: 20,
@@ -233,13 +233,13 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     container: {
-        flex: 1,
+        // flex: 1,
         display:'flex',
         flexDirection:'column',
         width: ITEM_WIDTH,
         paddingHorizontal: 10,
         paddingTop: 36,
-        paddingBottom:50,
+        // paddingBottom:50,
         alignSelf: 'center',
     },
     title: {

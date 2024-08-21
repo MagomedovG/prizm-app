@@ -41,7 +41,7 @@ export default function walletId() {
         if (id === 'user'){
             router.push('(user)/menu/share-prizm/')
         } else {
-            router.push('(user)/menu/')
+            router.back()
         }
     }
 
@@ -126,9 +126,10 @@ export default function walletId() {
 
             <UIButton text={id === 'user'  ? 'Перевести PZM' : 'Назад'} onPress={routerTo} isAdminWallet={true}/>
             {wallet?.is_superuser && id === 'user' && <Pressable style={styles.adminLink}>
-                <Link href={'/(admin)/'} style={{textAlign:'center'}}>
+            
+            <Text style={{textAlign:'center'}}>
                     Перейти в панель администратора
-                </Link>
+                </Text>
             </Pressable>}
         </View>
     );
