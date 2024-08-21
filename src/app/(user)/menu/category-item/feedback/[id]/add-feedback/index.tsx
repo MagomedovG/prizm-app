@@ -115,7 +115,7 @@ export default function AddFeedback() {
         <>
             <ScrollView style={{}}>
                 <ScrollView style={styles.container}>
-                    <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${business?.id}`} emptyBackGround={false} />
+                    {/* <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${business?.id}`} emptyBackGround={false} /> */}
 
                     <View>
                         <View style={{ maxHeight: 140 }}>

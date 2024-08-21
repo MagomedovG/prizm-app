@@ -18,7 +18,8 @@ import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import UIButton from "@/src/components/UIButton";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
+import { format, parseISO } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
@@ -42,6 +43,16 @@ export default function feedbackId() {
 
     const [refreshing, setRefreshing] = React.useState(false);
 
+    const formatDate = (dateString: string) => {
+        const date = parseISO(dateString);
+    
+        const isCurrentYear = new Date().getFullYear() === date.getFullYear();
+    
+        return isCurrentYear
+            ? format(date, 'd MMMM', { locale: ru })
+            : format(date, 'd MMMM yyyy', { locale: ru }) + ' год';
+    };
+
     async function getFeedbacks() {
         try {
             const response = await fetch(
@@ -54,6 +65,7 @@ export default function feedbackId() {
             } else {
                 setFeedbacks(data);
             }
+            console.log(data)
         } catch (error) {
             console.error("Ошибка при загрузке данных фидбэков:", error);
         }
@@ -177,11 +189,11 @@ export default function feedbackId() {
                         <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', paddingVertical:20, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
                             <View style={{display:'flex', flexDirection:'row', gap:12}} >
                                 <Text style={{ color: 'black' }}>
-                                    {item?.author_name}
+                                    {item?.created_by ? item?.created_by : 'Неизвестный'}
                                 </Text>
                                 <View style={{gap:16,display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center', marginBottom:21}}>
                                     {/*<View>{item.mark && renderStars(item.mark, 22, theme === 'purple' ? '#41146D' : '#32933C') }</View>*/}
-                                    <Text style={{fontSize:14}}>{item?.date}</Text>
+                                    <Text style={{fontSize:14}}>{formatDate(item?.created_at)}</Text>
                                 </View>
                             </View>
 
