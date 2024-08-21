@@ -171,8 +171,8 @@ export default function feedbackId() {
                             {business?.average_rating}
                         </Text>
                         <View style={{display:'flex', flexDirection:'column',justifyContent:'space-between', height:52}}>
-                            <View>{renderStars(starsCount, 20)}</View>
-                            <View><Text style={{fontSize:16, color:'#C0C0C0'}}>{starsCount} оценок</Text></View>
+                            <View>{renderStars(business ? business?.average_rating : 4, 20)}</View>
+                            <View><Text style={{fontSize:16, color:'#C0C0C0'}}>{business?.ratings_number} оценок</Text></View>
                         </View>
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
@@ -187,11 +187,11 @@ export default function feedbackId() {
                     data={feedbacks}
                     renderItem={({ item }) => (
                         <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', paddingVertical:20, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
-                            <View style={{display:'flex', flexDirection:'row', gap:12}} >
-                                <Text style={{ color: 'black' }}>
-                                    {item?.created_by ? item?.created_by : 'Неизвестный'}
+                            <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:21}} >
+                                <Text style={{ color: 'black',fontSize:15, fontWeight:'500'}}>
+                                    {item?.created_by ? 'Неизвестный' : 'Неизвестный'}
                                 </Text>
-                                <View style={{gap:16,display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center', marginBottom:21}}>
+                                <View style={{gap:16,display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
                                     {/*<View>{item.mark && renderStars(item.mark, 22, theme === 'purple' ? '#41146D' : '#32933C') }</View>*/}
                                     <Text style={{fontSize:14}}>{formatDate(item?.created_at)}</Text>
                                 </View>
