@@ -9,7 +9,9 @@ import {
     Button,
     ScrollView,
     Dimensions,
-    Platform
+    Keyboard, 
+    Platform, 
+    KeyboardAvoidingView
 } from "react-native";
 import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import {useCart} from "@/src/providers/CartProvider";
@@ -24,7 +26,7 @@ import Modal from "react-native-modal";
 import {lightColor} from "@/assets/data/colors";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
+import {IBusinessInCategory} from '../../../../types'
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
@@ -34,31 +36,36 @@ const deviceHeight =
         : require("react-native-extra-dimensions-android").get(
             "REAL_WINDOW_HEIGHT"
         );
-type IBusinesses = {
-    id?: number;
-    title?: string;
-    logo?: string;
-    cashback_size?:string;
 
-}
-type ICategory = {
-    id?: number;
-    title?: string;
-    logo?: string;
-}
-type ICategoryList = {
-
-    businesses:IBusinesses[];
-    category: ICategory;
-}
 export default function categoryId() {
 
     const router = useRouter()
     const { id } = useLocalSearchParams()
     const {theme} = useCustomTheme()
 
-    const [categoryList, setCategoryList] = useState(null)
+    const [categoryList, setCategoryList] = useState<IBusinessInCategory | null>(null)
     const [isModal, setIsModal] = useState(false);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
+        setKeyboardHeight(event.endCoordinates.height);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardHeight(0);
+    });
+
+    const containerStyle = {
+        ...styles.container,
+        // marginBottom: keyboardHeight ? ITEM_HEIGHT + keyboardHeight : ITEM_HEIGHT,
+      };
+
+    return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+    };
+    }, []);
 
     const handleWalletPress = (value: boolean) => {
         setIsModal(value);
@@ -124,21 +131,26 @@ export default function categoryId() {
     //     return <Text>Wallet Not Found</Text>
     // }
 
-    const [filteredData, setFilteredData] = useState<ICategoryItem>([]);
-    const handleFilteredData = (data:[]) => {
+    const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
+    const handleFilteredData = (data:any) => {
         setFilteredData(data);
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <KeyboardAvoidingView
+            // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight  : 0}]}
+        >
             <Stack.Screen options={{
                 headerShown:false,
                 header: () => <HeaderLink title="Главная" link="/(user)/menu"/>,
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
-
-            <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
-            <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={handleWalletPress} />
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
+                <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={handleWalletPress} />
+            </ScrollView>
+            
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}
@@ -203,7 +215,7 @@ export default function categoryId() {
                     </View>
                 </View>
             </Modal>
-        </ScrollView>
+        </KeyboardAvoidingView>
 
 
     );
@@ -241,6 +253,7 @@ const styles = StyleSheet.create({
         paddingTop: 36,
         // paddingBottom:50,
         alignSelf: 'center',
+        // overflow: 'scroll'
     },
     title: {
         fontSize: 18,

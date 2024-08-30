@@ -9,8 +9,12 @@ import {
     Button,
     ScrollView,
     Dimensions,
-    FlatList
+    FlatList,
+    Modal
 } from "react-native";
+import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Animated } from 'react-native';
+
 import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
 import {useCart} from "@/src/providers/CartProvider";
 import {categories, defaultLogo} from "@/assets/data/categories";
@@ -19,26 +23,31 @@ import SearchInput from "@/src/components/SearchInput";
 import MainHeader from "@/src/components/MainHeader";
 import HeaderLink from "@/src/components/HeaderLink";
 import { AntDesign } from '@expo/vector-icons';
+import Entypo from '@expo/vector-icons/Entypo';
 import {ICategory, ICategoryItemList} from "@/src/types";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {LinearGradient} from "expo-linear-gradient";
 import {lightColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Swiper from 'react-native-swiper'
-const { width } = Dimensions.get('window');
-// import ICategoryItemLi
+const { width, height } = Dimensions.get('window');
+
 const ITEM_WIDTH = width - 25;
+
 export default function categoryId() {
     const router = useRouter()
     const {theme} = useCustomTheme()
     const { id } = useLocalSearchParams()
     const [business, setBusiness] = useState(null)
-    const categoryId = Number(id)
-    const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
 
-    if (!category){
-        return <Text>Wallet Not Found</Text>
-    }
+    const categoryId = Number(id)
+    // const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
+
+    // if (!category){
+    //     return <Text>Wallet Not Found</Text>
+    // }
     useEffect(() => {
         async function getData() {
             try {
@@ -60,39 +69,60 @@ export default function categoryId() {
         getData();
     }, []);
 
-    // const categoryItem: ICategoryItemList = category.items.find(item => item.[id] === categoryId);
+    const openFullscreen = (index) => {
+        setFullscreenImageIndex(index);
+        setIsFullscreen(true);
+    };
+
+    const closeFullscreen = () => {
+        setIsFullscreen(false);
+    };
+
     const categoryItem: ICategoryItemList = category.items[categoryId - 1]
     const segments = useSegments();
+
+    const [pan] = useState(new Animated.ValueXY());
+
+    const handleGesture = Animated.event(
+        [{ nativeEvent: { translationY: pan.y } }],
+        { useNativeDriver: false }
+    );
+
+    const handleGestureEnd = (event) => {
+        const { translationY } = event.nativeEvent;
+
+        if (translationY > 150) { // чувствительность к свайпу вниз
+            closeFullscreen();
+        } else {
+            pan.setValue({ x: 0, y: 0 });
+        }
+    };
+    
     return (
         <ScrollView style={{ paddingTop:173}}>
-            {/*<Image style={{width:'100%',aspectRatio:1,minHeight:260, maxHeight:289, position:'absolute', top: 0}} source={{uri:business?.images[0] ? `${apiUrl}${business?.images[0]}` : defaultLogo}} />*/}
-                <View style={{width:'100%', position:'absolute', top: -173}}>
-                    {business?.images ?
-                        <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{minHeight:260,
-                            maxHeight:289}}>
-                            {business?.images?.map((item, index) => (
-                                <View key={index} style={styles.slide}>
-                                    <Image
-                                        style={styles.image}
-                                        source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
-                                    />
-                                </View>
-                            ))}
-                        </Swiper>
-                        : <View/>
-                    }
-                </View>
-
-
+            <View style={{width:'100%', position:'absolute', top: -173}}>
+                {business?.images ?
+                    <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{minHeight:260,
+                        maxHeight:289}}>
+                        {business?.images?.map((item, index) => (
+                            <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
+                                <Image
+                                    style={styles.image}
+                                    source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
+                                />
+                            </Pressable>
+                        ))}
+                    </Swiper>
+                    : <View/>
+                }
+            </View>
 
             <ScrollView style={styles.container}>
                 <Stack.Screen options={{
                     headerShown:false,
-                    // header: () => <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${category.id}`} emptyBackGround={false}/>,
                 }}/>
 
                 <View>
-
                     <View style={styles.sale}>
                         <Text style={styles.saleText}>Кэшбек {business?.cashback_size}%</Text>
                     </View>
@@ -111,7 +141,7 @@ export default function categoryId() {
                                 <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.short_description}</Text>
                             </View>
                             <View style={styles.cartSaleContainer}>
-                                <AntDesign name="star" size={24} color={theme === 'purple' ? 'white' : '#070907'} />
+                                <Entypo name="star" size={24} color={theme === 'purple' ? 'white' : '#070907'} />
                                 <Text style={[{fontSize:15,color:'white', marginLeft:7, marginRight:17}, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.ratings_number}</Text>
                                 <Link href={`${segments[0]}/menu/category-item/feedback/${business?.id}`} style={[theme === 'purple' ? styles.purpleText : styles.greenText, {fontSize:15,textDecorationLine:'underline', paddingBottom:2}]}>Отзывы</Link>
                             </View>
@@ -119,14 +149,12 @@ export default function categoryId() {
                     </LinearGradient>
 
                     <Text style={styles.subTitle}>Адрес:</Text>
-                    {/* <Link href={} style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text> */}
                     <Link href={business?.map_url ? business?.map_url : ''} asChild >
                         <Pressable>
                             {({pressed}) => (
                                 <View>
                                     <Text style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text>
                                 </View>
-
                             )}
                         </Pressable>
                     </Link>
@@ -134,7 +162,7 @@ export default function categoryId() {
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                            <Text style={styles.text}>При отплате покажите qr-код продавцу</Text>
+                            <Text style={styles.text}>При оплате покажите qr-код продавцу</Text>
                         </View>
                         <View style={{width: 1,
                             height: 20,
@@ -154,127 +182,139 @@ export default function categoryId() {
                     </Text>
                 </View>
 
-
             </ScrollView>
+
+            <Modal visible={isFullscreen} transparent={true}>
+                <View style={styles.fullscreenContainer}>
+                    <Swiper 
+                        index={fullscreenImageIndex} 
+                        showsButtons={true} 
+                        showsPagination={false} 
+                        loop={false}
+                        style={{ minHeight: 260, maxHeight: 289 }}
+                        nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
+                        prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
+                        >
+                        {business?.images?.map((item, index) => (
+                            <View key={index} style={styles.fullscreenSlide}>
+                                <Image
+                                    style={styles.fullscreenImage}
+                                    source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
+                                />
+                            </View>
+                        ))}
+                    </Swiper>
+                    <Pressable style={styles.closeButton} onPress={closeFullscreen}>
+                        <AntDesign name="close" size={30} color="white" />
+                    </Pressable>
+                </View>
+            </Modal>
         </ScrollView>
-
-
-
     );
 };
+
 const styles = StyleSheet.create({
-    greenText:{
-        color:'#070907'
+    greenText: {
+        color: '#070907'
     },
-    purpleText:{
-        color:'white'
+    purpleText: {
+        color: 'white'
     },
-    purpleCircle:{
-        backgroundColor:'#5C2389',
+    purpleCircle: {
+        backgroundColor: '#5C2389',
     },
-    greenCircle:{
-        backgroundColor:'#CDF3C2',
+    greenCircle: {
+        backgroundColor: '#CDF3C2',
     },
-    purpleCircleText:{
-        color:'white',
+    purpleCircleText: {
+        color: 'white',
     },
-    greenCircleText:{
-        color:'black',
+    greenCircleText: {
+        color: 'black',
     },
-    circle:{
-        borderRadius:50,
+    circle: {
+        borderRadius: 50,
         backgroundColor: lightColor,
-        width:43,
-        height:43,
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center'
+        width: 43,
+        height: 43,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    subTitle:{
-        marginTop:30,
-        marginBottom:9,
-        color:'#323232',
-        fontSize:20,
-        fontWeight:'bold'
+    subTitle: {
+        marginTop: 30,
+        marginBottom: 9,
+        color: '#323232',
+        fontSize: 20,
+        fontWeight: 'bold'
     },
-    text:{
-        fontSize:16,
+    text: {
+        fontSize: 16,
         flexWrap: 'wrap',
         flexShrink: 1,
     },
-    cartSaleContainer:{
-        display:'flex',
-        flexDirection:'row',
-        alignItems:'center'
+    cartSaleContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
     },
-    cartInfo:{
-        maxWidth:'70%',
-        display:'flex',
-        justifyContent:'space-between',
-        // height:'100%',
-        flexDirection:'column',
-        height:85,
-        paddingBottom:3
+    cartInfo: {
+        maxWidth: '70%',
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        height: 85,
+        paddingBottom: 3
     },
-    cartSubtitle:{
-        color:'white',
+    cartSubtitle: {
+        color: 'white',
         flexWrap: 'wrap',
         flexShrink: 1,
     },
-    cartTitle:{
-        fontSize:22,
-        color:'white',
-        fontWeight:600
+    cartTitle: {
+        fontSize: 22,
+        color: 'white',
+        fontWeight: '600'
     },
-    cartLogo:{
-        width:85,
-        height:85,
-        borderRadius:100,
-        objectFit:'cover'
+    cartLogo: {
+        width: 85,
+        height: 85,
+        borderRadius: 100,
+        objectFit: 'cover'
     },
-    cart:{
-        backgroundColor:'#535353',
-        paddingHorizontal:16,
-        paddingVertical:25,
-        borderRadius:15,
-        display:'flex',
-        flexDirection:'row',
-        // justifyContent:'space-between',
-        alignItems:'center',
-        gap:32
+    cart: {
+        backgroundColor: '#535353',
+        paddingHorizontal: 16,
+        paddingVertical: 25,
+        borderRadius: 15,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 32
     },
-    sale:{
-        backgroundColor:'white',
-        paddingHorizontal:18,
-        paddingVertical:9,
-        // minWidth:127,
-        // maxWidth:136,
-        textAlign:'center',
-        borderRadius:10,
-        // marginTop:73,
-        marginBottom:10,
+    sale: {
+        backgroundColor: 'white',
+        paddingHorizontal: 18,
+        paddingVertical: 9,
+        textAlign: 'center',
+        borderRadius: 10,
+        marginBottom: 10,
         alignSelf: 'flex-start'
     },
-    saleText:{
-        color:'#000',
-        fontSize:16,
-        fontWeight:'bold'
+    saleText: {
+        color: '#000',
+        fontSize: 16,
+        fontWeight: 'bold'
     },
     container: {
         flex: 1,
-        display:'flex',
-        flexDirection:'column',
+        display: 'flex',
+        flexDirection: 'column',
         width: ITEM_WIDTH,
         paddingHorizontal: 10,
-        position:'relative',
-
-        marginBottom:50,
+        position: 'relative',
+        marginBottom: 50,
         alignSelf: 'center',
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '600',
-        marginVertical: 10
     },
     slide: {
         flex: 1,
@@ -283,9 +323,39 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        // aspectRatio:1,
-        height:'100%'
-        // resizeMode: 'cover',
+        height: '100%',
     },
-
-})
+    fullscreenContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullscreenSlide: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullscreenImage: {
+        width: width,
+        height: height,
+        resizeMode: 'contain',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 1,
+    },
+    arrowButton: {
+        width: 40,
+        height: 40,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    arrowIcon: {
+        color: 'grey',
+    },
+});

@@ -13,13 +13,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import HeaderLink from "@/src/components/HeaderLink";
 import UIButton from "@/src/components/UIButton";
-import { categories } from "@/assets/data/categories";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import {useLocalSearchParams, useRouter} from "expo-router";
-
+import {categories, defaultLogo} from "@/assets/data/categories";
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import Entypo from '@expo/vector-icons/Entypo';
 
 export default function AddFeedback() {
     const [text, setText] = useState('');
@@ -62,7 +62,7 @@ export default function AddFeedback() {
             })
             const data = await response.json()
             if (response.ok){
-                router.replace(`(user)/menu/category-item/feedback/${id}`)
+                router.back()
             } else {
                 Alert.alert('Ошибка!','Вы не можете добавить два отзыва в один бизнес');
             }
@@ -101,9 +101,9 @@ export default function AddFeedback() {
         return (
             <View style={styles.starContainer}>
                 {[...Array(5)].map((_, index) => (
-                    <AntDesign
+                    <Entypo
                         key={`star-${index}`}
-                        name={index < activeStars ? 'star' : 'staro'}
+                        name={index < activeStars ? 'star' : 'star-outlined'}
                         size={markSize}
                         color={index < activeStars ? color : inactiveColor}
                         onPress={() => postRating(index + 1)}

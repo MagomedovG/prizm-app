@@ -8,18 +8,18 @@ import {
     Dimensions,
     FlatList, RefreshControl, SafeAreaView
 } from "react-native";
+
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCart } from "@/src/providers/CartProvider";
-import { categories, defaultLogo } from "@/assets/data/categories";
+import {  defaultLogo } from "@/assets/data/categories";
 import HeaderLink from "@/src/components/HeaderLink";
-import { AntDesign } from '@expo/vector-icons';
-import { ICategory, ICategoryItemList } from "@/src/types";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import { LinearGradient } from "expo-linear-gradient";
 import UIButton from "@/src/components/UIButton";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import Entypo from '@expo/vector-icons/Entypo';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
@@ -40,6 +40,7 @@ export default function feedbackId() {
     const [business, setBusiness] = useState(null)
     const [feedbacks, setFeedbacks] = useState(null)
     const [starsCount, setStarsCount] = useState(1)
+    const [selectedFilter, setSelectedFilter] = useState('default');
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -58,11 +59,14 @@ export default function feedbackId() {
             const response = await fetch(
                 `${apiUrl}/api/v1/business/${id}/get-feedbacks/`,
             );
-            const data = await response.json();
+            let data = await response.json();
 
             if (!response.ok) {
                 console.error("Ошибка при загрузке фидбэков:", response);
             } else {
+                if (selectedFilter === 'date') {
+                    data = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                }
                 setFeedbacks(data);
             }
             console.log(data)
@@ -99,7 +103,7 @@ export default function feedbackId() {
     }, [id, apiUrl]);
 
     const goToAddFeedBack = () => {
-        router.push(`(user)/menu/category-item/feedback/${id}/add-feedback`)
+        router.push(`/(user)/menu/category-item/feedback/${id}/add-feedback`)
     }
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -110,10 +114,39 @@ export default function feedbackId() {
         // }, 2000);
     }, []);
 
+    const getFeedbackWord = (count:number) => {
+        const lastDigit = count % 10;
+        const lastTwoDigits = count % 100;
+    
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+            return 'отзывов';
+        } else if (lastDigit === 1) {
+            return 'отзыв';
+        } else if (lastDigit >= 2 && lastDigit <= 4) {
+            return 'отзыва';
+        } else if (count===0) {
+            return 'отзывов';
+        } else {
+            return 'отзывов';
+        }
+    };
 
-    // const categoryItem: ICategoryItemList = category.items[categoryId - 1];
-    // const feedbacks: Feedback[] = categoryItem.feedbacks;
-    // const averageMark = feedbacks.reduce((sum, feedback) => sum + (feedback.mark || 0), 0) / feedbacks.length;
+
+    const getRatingWord = (count) => {
+        const lastDigit = count % 10;
+        const lastTwoDigits = count % 100;
+    
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+            return 'оценок';
+        } else if (lastDigit === 1) {
+            return 'оценка';
+        } else if (lastDigit >= 2 && lastDigit <= 4) {
+            return 'оценки';
+        } else {
+            return 'оценок';
+        }
+    };
+    
     const averageMark = 4
     const renderStars = (averageMark: number, markSize: number, color?: string) => {
         const fullStars = Math.floor(averageMark);
@@ -123,15 +156,16 @@ export default function feedbackId() {
         return (
             <View style={styles.starContainer}>
                 {[...Array(fullStars)].map((_, index) => (
-                    <AntDesign key={`full-${index}`} name="star" size={markSize} color={color ? color : 'white'} />
+                    <Entypo key={`full-${index}`} name="star" size={markSize} color={color ? color : 'white'} />
                 ))}
-                {halfStar === 1 && <AntDesign key="half" name="staro" size={markSize} color={color ? color : 'white'} />}
+                {halfStar === 1 && <Entypo key="half" name="star-outlined" size={markSize} color={color ? color : 'white'} />}
                 {[...Array(emptyStars)].map((_, index) => (
-                    <AntDesign key={`empty-${index}`} name="staro" size={markSize} color={color ? color : 'white'} />
+                    <Entypo key={`empty-${index}`} name="star-outlined" size={markSize} color={color ? color : 'white'} />
                 ))}
             </View>
         );
     };
+    
 
     return (
         // style={styles.cartContainer}
@@ -149,13 +183,13 @@ export default function feedbackId() {
                     />
                  }
             >
-                <View style={styles.cart}>
-                    {/*<Image*/}
-                    {/*    source={{ uri: category.items[categoryId - 1].logo ? categoryItem.logo : defaultLogo }}*/}
-                    {/*    style={[styles.cartLogo, {borderColor: theme === 'purple' ? '#957ABC' : '#4D7440', borderWidth:1}]} />*/}
+                <View style={styles.cartHeader}>
+                    <Image
+                       source={{ uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
+                       style={[styles.cartLogo, {borderColor: theme === 'purple' ? '#957ABC' : '#4D7440', borderWidth:1}]} />
                     <View style={styles.cartInfo}>
                         <Text style={styles.cartTitle}>{business?.title}</Text>
-                        <Text style={styles.cartSubtitle}>{business?.description}</Text>
+                        <Text style={styles.cartSubtitle}>{business?.short_description}</Text>
                     </View>
                 </View>
                 <Text style={{fontSize:20}}>Отзывы</Text>
@@ -172,16 +206,25 @@ export default function feedbackId() {
                         </Text>
                         <View style={{display:'flex', flexDirection:'column',justifyContent:'space-between', height:52}}>
                             <View>{renderStars(business ? business?.average_rating : 4, 20)}</View>
-                            <View><Text style={{fontSize:16, color:'#C0C0C0'}}>{business?.ratings_number} оценок</Text></View>
+                            <Text style={{ fontSize: 16, color: '#C0C0C0' }}>
+                                {business?.ratings_number} {getRatingWord(business?.ratings_number)}
+                            </Text>
                         </View>
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
                     <View>{renderStars(5, 42)}</View>
 
                 </LinearGradient>
-                <View style={{borderBottomWidth:1,display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingVertical:20, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
-                    <Text>{feedbacks && feedbacks.length} отзыва</Text>
-                    <Text>По умолчанию</Text>
+                <View style={{
+                        // borderBottomWidth:1,
+                        display:'flex',
+                        flexDirection:'row',
+                        justifyContent:'space-between',
+                        alignItems:'center',
+                        paddingVertical:20, 
+                        borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}
+                    >
+                    <Text>{feedbacks ? feedbacks?.length : ''} {feedbacks ? getFeedbackWord(feedbacks?.length) : ''}</Text>
                 </View>
                 <FlatList
                     data={feedbacks}
@@ -189,7 +232,7 @@ export default function feedbackId() {
                         <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', paddingVertical:20, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
                             <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:21}} >
                                 <Text style={{ color: 'black',fontSize:15, fontWeight:'500'}}>
-                                    {item?.created_by ? 'Неизвестный' : 'Неизвестный'}
+                                    {item?.created_by ? item?.created_by?.username : 'Неизвестный'}
                                 </Text>
                                 <View style={{gap:16,display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
                                     {/*<View>{item.mark && renderStars(item.mark, 22, theme === 'purple' ? '#41146D' : '#32933C') }</View>*/}
@@ -204,8 +247,8 @@ export default function feedbackId() {
                     )}
                     keyExtractor={item => item.id.toString()}
                 />
-
             </ScrollView>
+            
             <UIButton text='Добавить отзыв' onPress={goToAddFeedBack}/>
         </>
 
@@ -213,6 +256,26 @@ export default function feedbackId() {
 };
 
 const styles = StyleSheet.create({
+    pickerWrapper: {
+        borderWidth: 1,
+        // borderColor: theme === 'purple' ? '#41146D' : '#32933C',
+        borderColor:'#32933C',
+
+        borderRadius: 5,
+        overflow: 'hidden',
+        width: 150, // или любая другая подходящая ширина
+        height: 40,
+        justifyContent: 'center',
+    },
+    picker: {
+        height: 40,
+        width: '100%',
+        color: '#32933C'
+        // color: theme === 'purple' ? '#41146D' : '#32933C', // Цвет текста выбранного элемента
+    },
+    pickerItem: {
+        fontSize: 16, // Размер шрифта элементов
+    },
     purpleCircle: {
         backgroundColor: '#5C2389',
     },
@@ -243,7 +306,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     cartInfo: {
-        maxWidth: '70%'
+        width: '60%'
     },
     cartSubtitle: {
         color: '#383838',
@@ -263,6 +326,17 @@ const styles = StyleSheet.create({
     },
     cart: {
         paddingHorizontal: 16,
+        paddingVertical: 25,
+        borderRadius: 15,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent:'space-between',
+        // gap: 32,
+        marginTop: 26
+    },
+    cartHeader:{
+        // paddingHorizontal: 16,
         paddingVertical: 25,
         borderRadius: 15,
         display: 'flex',

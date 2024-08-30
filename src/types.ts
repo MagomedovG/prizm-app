@@ -30,21 +30,18 @@ export type ICategoryItem = {
   items: ICategoryItemList
 
 };
+export interface ICategotyInBusinessInCategory  {
+  id:number
+  title:string
+  logo: string
+  cashback_size:string
+} 
+export interface IBusinessesInBusinessInCategory extends ICategotyInBusinessInCategory  {
+  cashback_size:string
+} 
+export type IBusinessInCategory = {
+  category: ICategotyInBusinessInCategory
+  businesses: IBusinessInCategory[]
+}
 
-
-export const OrderStatusList: OrderStatus[] = [
-  'Новый',
-  'Готовится',
-  'Доставляется',
-  'Доставлен',
-];
-
-export type OrderStatus = 'Новый' | 'Готовится' | 'Доставляется' | 'Доставлен';
-
-
-
-export type Profile = {
-  id: string;
-  group: string;
-};
 

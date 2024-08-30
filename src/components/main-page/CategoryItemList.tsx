@@ -7,18 +7,13 @@ import { Entypo } from '@expo/vector-icons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import React from "react";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import {IBusinessInCategory,ICategotyInBusinessInCategory} from '../../types'
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
-type ICategoryList = {
-    id?: number;
-    title?: string;
-    logo?: string;
-    cashback_size?:string;
 
-}
 type CategoryListProps = {
-    categoryList: ICategoryItem | ICategoryList,
+    categoryList: ICategoryItem | ICategotyInBusinessInCategory | null,
     title?: string,
     isBonus?:boolean,
     isAdmin?:boolean,
@@ -63,14 +58,13 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                 data={categoryList}
                 style={styles.flatlist}
                 renderItem={({item}) =>
-                <Link href={`${segments[0]}/menu/category-item/${item.id}`} asChild>
+                <Link href={`/${segments[0]}/menu/category-item/${item.id}/`} asChild>
                        <Pressable style={styles.itemContainer} onPress={() => {console.log(item, item.id)}}>
                             <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/>
                            <Text style={styles.text}>{item.title ? item.title : 'Без названия'}</Text>
                            <View style={styles.saleContainer}>
                                <Text style={styles.sale}>{item?.cashback_size}%</Text>
                            </View>
-
                        </Pressable>
                    </Link>
             }

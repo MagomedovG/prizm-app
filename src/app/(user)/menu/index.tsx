@@ -46,6 +46,9 @@ export default function MenuScreen() {
     const [isChatModal, setIsChatModal] = useState(false);
     const [categories, setCategories] = useState(null)
     const [wallets, setWallets] = useState<IWallet[]>([])
+
+    const [social, setSocial] = useState(null)
+
     // useEffect(() => {
     //     if (wallets.some(wallet => wallet.title !== "Мой кошелек")) {
     //         addWalletWithQrCodeUrl(wallets);
@@ -73,18 +76,38 @@ export default function MenuScreen() {
     };
 
 
-     const getData = async () => {
+    const getData = async () => {
         try {
             const response = await fetch(
                 `${apiUrl}/api/v1/categories/`,
             );
             const data = await response.json();
-            console.log('categories',data);
+            // console.log('categories',data);
             setCategories(data);
             if (!response.ok){
                 console.log(response);
             }
             setRefreshing(false)
+
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+            // console.log(response);
+        }
+    }
+
+    const getSocialNetworks = async () => {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/social-networks/`,
+            );
+            const data = await response.json();
+            // console.log('categories',data);
+            setSocial(data)
+            if (!response.ok){
+                console.log(response);
+            } else {
+                
+            }
 
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
@@ -204,10 +227,17 @@ export default function MenuScreen() {
             >
                 <View style={styles.centeredView}>
                     <View style={[styles.chatModalViewContainer, {padding:0}]}>
-                        <View style={styles.chatModalView}>
-                            <AntDesign name="youtube" size={23} color="black" />
-                            <Text style={{fontSize:16, fontWeight:'semibold'}}>YouTube</Text>
-                        </View>
+                    <FlatList
+                        data={social}
+                        renderItem={({ item }) => (
+                            <View style={styles.chatModalView}>
+                                <AntDesign name="youtube" size={23} color="black" />
+                                <Text style={{fontSize:16, fontWeight:'semibold'}}>YouTube</Text>
+                            </View>
+                        )}
+                        keyExtractor={item => item.id.toString()}
+                    />
+                        
                         <View  style={styles.chatModalView}>
                             <FontAwesome5 name="whatsapp" size={23} color="black" />
                             <Text style={{fontSize:16, fontWeight:'semibold'}}>WhatsApp</Text>

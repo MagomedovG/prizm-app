@@ -116,7 +116,13 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                     </Pressable>
                 </View>
 
-                <View style={styles.headerProfileGroup}>
+                <View style={[styles.headerProfileGroup, {position:'relative'}]}>
+                    <Text style={{
+                            position:'absolute',
+                            top:-20,
+                            right:0,
+                            color:'white'
+                        }}>{info?.username}</Text>
                     <Pressable
                         style={styles.headerPitopi}
                         // onPress={() => changeTheme('purple')}
@@ -163,7 +169,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: "space-between",
-        marginTop: 29,
+        marginTop: 39,
     },
     headerTitle: {
         fontSize: 22,
