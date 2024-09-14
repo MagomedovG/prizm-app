@@ -10,6 +10,9 @@ import {
     Dimensions,
     Platform, RefreshControl
 } from "react-native";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+
+
 import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
@@ -54,7 +57,7 @@ export default function MenuScreen() {
     //         addWalletWithQrCodeUrl(wallets);
     //     }
     // }, [wallets]);
-
+    
     const addWalletWithQrCodeUrl = (url: string) => {
         if (url) {
             setWallets((prevWallets: any) => {

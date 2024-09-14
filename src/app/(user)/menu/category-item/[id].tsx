@@ -31,6 +31,7 @@ import {lightColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Swiper from 'react-native-swiper'
 const { width, height } = Dimensions.get('window');
+import { IFeedbacks,IBusiness } from '@/src/types';
 
 const ITEM_WIDTH = width - 25;
 
@@ -38,7 +39,7 @@ export default function categoryId() {
     const router = useRouter()
     const {theme} = useCustomTheme()
     const { id } = useLocalSearchParams()
-    const [business, setBusiness] = useState(null)
+    const [business, setBusiness] = useState<IBusiness | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
 
@@ -69,7 +70,7 @@ export default function categoryId() {
         getData();
     }, []);
 
-    const openFullscreen = (index) => {
+    const openFullscreen = (index: number) => {
         setFullscreenImageIndex(index);
         setIsFullscreen(true);
     };
@@ -78,7 +79,7 @@ export default function categoryId() {
         setIsFullscreen(false);
     };
 
-    const categoryItem: ICategoryItemList = category.items[categoryId - 1]
+    // const categoryItem: ICategoryItemList = category.items[categoryId - 1]
     const segments = useSegments();
 
     const [pan] = useState(new Animated.ValueXY());
@@ -88,7 +89,7 @@ export default function categoryId() {
         { useNativeDriver: false }
     );
 
-    const handleGestureEnd = (event) => {
+    const handleGestureEnd = (event:any) => {
         const { translationY } = event.nativeEvent;
 
         if (translationY > 150) { // чувствительность к свайпу вниз
@@ -104,7 +105,7 @@ export default function categoryId() {
                 {business?.images ?
                     <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{minHeight:260,
                         maxHeight:289}}>
-                        {business?.images?.map((item, index) => (
+                        {business?.images?.map((item:any, index:number) => (
                             <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
                                 <Image
                                     style={styles.image}
@@ -195,7 +196,7 @@ export default function categoryId() {
                         nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
                         prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
                         >
-                        {business?.images?.map((item, index) => (
+                        {business?.images?.map((item:any, index:number) => (
                             <View key={index} style={styles.fullscreenSlide}>
                                 <Image
                                     style={styles.fullscreenImage}

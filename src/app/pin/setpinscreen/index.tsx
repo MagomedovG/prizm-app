@@ -23,7 +23,17 @@ const SetPinScreen = () => {
     // Animated values for error shake effect
     const shakeAnimation = useRef(new Animated.Value(0)).current;
 
-    
+    useEffect(()=> {
+        const getAsyncName = async () => {
+            const userName = await AsyncStorage.getItem('username');
+            const walletName = await AsyncStorage.getItem('prizm_wallet');
+            if (!userName && !walletName) {
+                router.replace('/pin/setnickname')
+            }
+        };
+
+        getAsyncName();
+    }, [])
 
     // Хэширование PIN-кода
     const hashPin = async (inputPin) => {
@@ -74,9 +84,9 @@ const SetPinScreen = () => {
             const inputPinHash = await hashPin(inputPin);
             if (inputPinHash === storedPinHash) {
                 router.replace('/(user)/menu');
-                Alert.alert('Доступ разрешен');
+                // Alert.alert('Доступ разрешен');
             } else {
-                Alert.alert('Неправильный PIN');
+                Alert.alert('Неправильный код-пароль');
                 triggerShake();
             }
         }

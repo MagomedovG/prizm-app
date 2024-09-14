@@ -8,9 +8,9 @@ import {
     Dimensions,
     FlatList, RefreshControl, SafeAreaView
 } from "react-native";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useCart } from "@/src/providers/CartProvider";
 import {  defaultLogo } from "@/assets/data/categories";
 import HeaderLink from "@/src/components/HeaderLink";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
@@ -20,7 +20,7 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Entypo from '@expo/vector-icons/Entypo';
-
+import { IFeedbacks,IBusiness } from '@/src/types';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 
@@ -37,10 +37,10 @@ export default function feedbackId() {
     const { theme } = useCustomTheme();
     const { id } = useLocalSearchParams();
 
-    const [business, setBusiness] = useState(null)
-    const [feedbacks, setFeedbacks] = useState(null)
+    const [business, setBusiness] = useState<IBusiness | null>(null)
+    const [feedbacks, setFeedbacks] = useState<IFeedbacks[] | null>(null)
+    const [isMineFeedbacks, setIsMineFeedbacks] = useState<Feedback[]>([])
     const [starsCount, setStarsCount] = useState(1)
-    const [selectedFilter, setSelectedFilter] = useState('default');
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -54,6 +54,20 @@ export default function feedbackId() {
             : format(date, 'd MMMM yyyy', { locale: ru }) + ' год';
     };
 
+    // const userId = await asyncStorage.getItem('user_id');
+    async function getMyFeedback() {
+        try {
+            const userId = await asyncStorage.getItem('user_id');
+            const response = await fetch(
+                `${apiUrl}/api/v1/feedbacks/?created_by=${userId}&business=${id}`,
+            );
+            let data = await response.json();
+            setIsMineFeedbacks(data)
+            
+        } catch (error) {
+            console.error("Ошибка при загрузке данных фидбэков:", error);
+        }
+    }
     async function getFeedbacks() {
         try {
             const response = await fetch(
@@ -64,9 +78,6 @@ export default function feedbackId() {
             if (!response.ok) {
                 console.error("Ошибка при загрузке фидбэков:", response);
             } else {
-                if (selectedFilter === 'date') {
-                    data = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                }
                 setFeedbacks(data);
             }
             console.log(data)
@@ -97,7 +108,7 @@ export default function feedbackId() {
 
     useEffect(() => {
 
-
+        getMyFeedback()
         getFeedbacks();
         getBusiness();
     }, [id, apiUrl]);
@@ -109,9 +120,7 @@ export default function feedbackId() {
         setRefreshing(true);
         getBusiness()
         getFeedbacks()
-        // setTimeout(() => {
-        //     setRefreshing(false);
-        // }, 2000);
+        
     }, []);
 
     const getFeedbackWord = (count:number) => {
@@ -132,7 +141,7 @@ export default function feedbackId() {
     };
 
 
-    const getRatingWord = (count) => {
+    const getRatingWord = (count: any) => {
         const lastDigit = count % 10;
         const lastTwoDigits = count % 100;
     
@@ -202,7 +211,7 @@ export default function feedbackId() {
                     <View style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'space-between', gap:30}}>
                         <Text style={styles.averageMarkText}>
                             {/*{averageMark.toFixed(1)}*/}
-                            {business?.average_rating}
+                            {business?.average_rating ? business.average_rating : 0}
                         </Text>
                         <View style={{display:'flex', flexDirection:'column',justifyContent:'space-between', height:52}}>
                             <View>{renderStars(business ? business?.average_rating : 4, 20)}</View>
@@ -216,7 +225,6 @@ export default function feedbackId() {
 
                 </LinearGradient>
                 <View style={{
-                        // borderBottomWidth:1,
                         display:'flex',
                         flexDirection:'row',
                         justifyContent:'space-between',
@@ -249,7 +257,9 @@ export default function feedbackId() {
                 />
             </ScrollView>
             
-            <UIButton text='Добавить отзыв' onPress={goToAddFeedBack}/>
+            {isMineFeedbacks?.length < 1 && 
+                <UIButton text='Добавить отзыв' onPress={goToAddFeedBack}/>
+            }
         </>
 
     );

@@ -5,6 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+import {useRouter} from "expo-router";
+
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 type IWallet = {
@@ -27,7 +29,15 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
     const [info,setInfo] = useState<IWallet | null>(null)
-
+    const router = useRouter();
+    
+    const logOut = () => {
+        asyncStorage.removeItem('username')
+        asyncStorage.removeItem('prizm_wallet')
+        asyncStorage.removeItem('is_superuser');
+        asyncStorage.removeItem('user_id')
+        router.replace('/pin/setnickname')
+    }
     useEffect(() => {
         async function getData() {
             const userId =  JSON.parse(await asyncStorage.getItem('user_id'))
@@ -125,7 +135,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                         }}>{info?.username}</Text>
                     <Pressable
                         style={styles.headerPitopi}
-                        // onPress={() => changeTheme('purple')}
+                        onPress={logOut}
                     >
                         <Text>Обменник</Text>
                     </Pressable>

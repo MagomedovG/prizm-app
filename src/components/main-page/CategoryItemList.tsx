@@ -8,12 +8,12 @@ import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import React from "react";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {IBusinessInCategory,ICategotyInBusinessInCategory} from '../../types'
-
+// import FastImage from 'react-native-fast-image'
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
 
 type CategoryListProps = {
-    categoryList: ICategoryItem | ICategotyInBusinessInCategory | null,
+    categoryList:  IBusinessInCategory | null,
     title?: string,
     isBonus?:boolean,
     isAdmin?:boolean,
@@ -37,30 +37,26 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                 &&
                 <Pressable onPress={handleWalletPress} style={[styles.bonus, theme === 'purple' ? styles.purpleBackground : styles.greenBackground]}>
                     <Entypo name="info-with-circle" size={24} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
-                    {/*<Pressable onPress={handleWalletPress}>*/}
+                    <Pressable onPress={handleWalletPress}>
                         <Text  style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>
                             Как получить бонусы?
                         </Text>
-
-                    {/*</Pressable>*/}
+                    </Pressable>
                 </Pressable> }
-            <View style={styles.titleButton}>
-                <Text style={[styles.title, !isAdmin ? {marginBottom: 0} : {marginBottom: 0}]}>{title}</Text>
-                {isAdmin && (<Pressable onPress={handleAdminPage}
-                            style={[styles.button, theme === 'purple' ? {backgroundColor: '#5B1FB2'} : {backgroundColor: '#32933C'}, {borderColor: '#41146D'}]}>
-                    <Text style={{color: 'white', textAlign: 'center'}}>
-                        Добавить
-                    </Text>
-                </Pressable>)}
-            </View>
-
             <FlatList
                 data={categoryList}
                 style={styles.flatlist}
                 renderItem={({item}) =>
-                <Link href={`/${segments[0]}/menu/category-item/${item.id}/`} asChild>
+                    <Link href={`/${segments[0]}/menu/category-item/${item.id}/`} asChild>
                        <Pressable style={styles.itemContainer} onPress={() => {console.log(item, item.id)}}>
-                            <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/>
+                            {/* <FastImage
+                                style={styles.image}
+                                source={{
+                                    uri: `${apiUrl}${item.logo}`,
+                                }}
+                                resizeMode={FastImage.resizeMode.contain}
+                            /> */}
+                           {/* <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/>  */}
                            <Text style={styles.text}>{item.title ? item.title : 'Без названия'}</Text>
                            <View style={styles.saleContainer}>
                                <Text style={styles.sale}>{item?.cashback_size}%</Text>

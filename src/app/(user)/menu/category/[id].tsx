@@ -78,20 +78,8 @@ export default function categoryId() {
     useEffect(() => {
         async function getData() {
             try {
-                // CookieManager.getAll(true)
-                //     .then((cookies) => {
-                //         console.log('CookieManager.getAll =>', cookies);
-                //     });
-                // const cookies = await Cookies.get(apiUrl);
-                // const csrfToken = cookies['csrftoken'];
                 const response = await fetch(
                     `${apiUrl}/api/v1/categories/${id}/get-businesses`,
-                    // {
-                    // credentials: "include",
-                    // headers: {
-                    //     "X-CSRFToken": `${csrfToken}`,
-                    // },
-                    // }
                 );
                 const data = await response.json();
                 console.log(data);
@@ -102,34 +90,14 @@ export default function categoryId() {
 
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-                // console.log(response);
             }
         }
 
         getData();
     }, []);
 
-    const copyTextToClipboard = async () => {
-        try {
-            // await navigator.clipboard.writeText((wallet?.prizm).toString());
-            console.log('Текст успешно скопирован в буфер обмена!');
-        } catch (err) {
-            console.error('Ошибка:', err);
-        }
-    };
 
-    // const addToCart = () => {
-    //     if (!product) {
-    //         return
-    //     }
-    //     add-item(product, selectedSize)
-    //     router.push('/(user)/cart')
-    //     // console.warn('Adding to cart', selectedSize)
-    // }
 
-    // if (!category){
-    //     return <Text>Wallet Not Found</Text>
-    // }
 
     const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
     const handleFilteredData = (data:any) => {

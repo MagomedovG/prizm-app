@@ -24,24 +24,53 @@ export type ICategoryItemList ={
   sale?:number,
   subtitle?: string,
   feedbacks?:[]
-
 }
 export type ICategoryItem = {
   items: ICategoryItemList
 
 };
+
+
+
 export interface ICategotyInBusinessInCategory  {
   id:number
   title:string
   logo: string
+} 
+export interface IBusinessesInBusinessInCategory extends ICategotyInBusinessInCategory {
   cashback_size:string
 } 
-export interface IBusinessesInBusinessInCategory extends ICategotyInBusinessInCategory  {
-  cashback_size:string
-} 
-export type IBusinessInCategory = {
+export interface IBusinessInCategory {
   category: ICategotyInBusinessInCategory
   businesses: IBusinessInCategory[]
 }
-
+export type IBusiness = {
+  id:number
+  title:string
+  logo: string
+  description:string
+  short_description:string
+  created_by:number
+  cashback_size:string
+  address:string
+  images:any
+  ratings_number:number
+  average_rating:any
+  map_url:string
+  category: ICategotyInBusinessInCategory
+}
+export type IFeedbacks = {
+  id:number
+  created_at:any
+  created_by:any
+  text:string
+}
+export type IFund = {
+  id:number
+  title:string
+  logo:string
+  prizm_wallet:string
+  prizm_qr_code_url:string
+  is_superuser?:boolean
+}
 

@@ -13,7 +13,6 @@ import {
     Dimensions
 } from "react-native";
 import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
-import { useCart } from "@/src/providers/CartProvider";
 import wallets from "@/assets/data/wallet";
 import UIButton from "@/src/components/UIButton";
 
@@ -24,16 +23,15 @@ import QRCode from "react-qr-code";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 // import * as Clipboard from 'expo-clipboard';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
+import { IFund } from '@/src/types';
 const { width } = Dimensions.get('window');
 const containerWidth = ((width- 10) * 3 / 4) - 40 ;
 
 export default function walletId() {
     const router = useRouter();
-    const { addItem } = useCart();
     const { id } = useLocalSearchParams();
     console.log(id)
-    const [wallet, setWallet] = useState<IWallet | null>(null)
+    const [wallet, setWallet] = useState<IFund | null>(null)
     // const is_superuser:boolean | string =  asyncStorage.getItem('is_superuser')
     // const wallet = wallets.find(w => w.id.toString() === id);
 
@@ -127,9 +125,9 @@ export default function walletId() {
             <UIButton text={id === 'user'  ? 'Перевести PZM' : 'Назад'} onPress={routerTo} isAdminWallet={true}/>
             {wallet?.is_superuser && id === 'user' && <Pressable style={styles.adminLink}>
             
-            <Text style={{textAlign:'center'}}>
-                    Перейти в панель администратора
-                </Text>
+                <Text style={{textAlign:'center'}}>
+                        Перейти в панель администратора
+                    </Text>
             </Pressable>}
         </View>
     );

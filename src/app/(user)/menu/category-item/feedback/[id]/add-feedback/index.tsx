@@ -20,18 +20,19 @@ const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Entypo from '@expo/vector-icons/Entypo';
+import {IBusiness} from '../../../../../../../types'
+
 
 export default function AddFeedback() {
     const [text, setText] = useState('');
     const [activeStars, setActiveStars] = useState(2);
-    const [business, setBusiness] = useState(null);
+    const [business, setBusiness] = useState<IBusiness | null>(null);
     const { id } = useLocalSearchParams();
 
     const router = useRouter()
 
     const { theme } = useCustomTheme();
-    // const category = categories.find(c => c.id.toString() === '1');
-    // const categoryItem = category.items[0]; // Update index based on your logic
+
 
     useEffect(() => {
         async function getData() {
@@ -48,9 +49,10 @@ export default function AddFeedback() {
 
         getData();
     }, []);
+
     const postComment = async () => {
         const userId = await asyncStorage.getItem('user_id');
-        const parsedUserId = JSON.parse(userId);
+        const parsedUserId = userId ? JSON.parse(userId) : null
         console.log(userId,parsedUserId,id,text);
         try {
             const response = await fetch(`${apiUrl}/api/v1/feedbacks/`,{
@@ -64,10 +66,8 @@ export default function AddFeedback() {
             if (response.ok){
                 router.back()
             } else {
-                Alert.alert('Ошибка!','Вы не можете добавить два отзыва в один бизнес');
+                Alert.alert(data.non_field_errors[0]);
             }
-
-
         } catch (e){
             console.warn(e)
         }
@@ -75,7 +75,7 @@ export default function AddFeedback() {
     const postRating = async (rating: number) => {
         setActiveStars(rating)
         const userId = await asyncStorage.getItem('user_id');
-        const parsedUserId = JSON.parse(userId);
+        const parsedUserId = userId ?  await JSON.parse(userId) : null
         console.log('userId',userId,'parsedUserId',parsedUserId,'id',id,'text',text, 'rating',rating);
         try {
             const response = await fetch(`${apiUrl}/api/v1/ratings/update-or-create/`,{
@@ -91,13 +91,12 @@ export default function AddFeedback() {
             } else {
                 console.log(data);
             }
-
         } catch (e){
             console.log(e)
         }
     }
 
-    const renderStars = (activeStars, markSize, color = 'white', inactiveColor = 'white') => {
+    const renderStars = (activeStars:number, markSize:number, color = 'white', inactiveColor = 'white') => {
         return (
             <View style={styles.starContainer}>
                 {[...Array(5)].map((_, index) => (
@@ -142,7 +141,7 @@ export default function AddFeedback() {
                                     </Text>
                                 </View>
                                 <Text style={[{ fontSize: 16, marginTop: 14, marginBottom: 23 }, theme === 'purple' ? styles.purpleText : styles.greenText]}>
-                                    {business?.adress}
+                                    {business?.address}
                                 </Text>
                                 <View style={styles.cartSaleContainer}>
                                     {renderStars(activeStars, 42)}
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0',
         borderColor: '#828282',
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 15,
         textAlignVertical: 'top',
         fontSize: 18,
         marginBottom: 160
