@@ -27,7 +27,8 @@ const SetPinScreen = () => {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
             const walletName = await AsyncStorage.getItem('prizm_wallet');
-            if (!userName && !walletName) {
+            const userId = await AsyncStorage.getItem('user_id');
+            if (!userName && !walletName && !userId) {
                 router.replace('/pin/setnickname')
             }
         };

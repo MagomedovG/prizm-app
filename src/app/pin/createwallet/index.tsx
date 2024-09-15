@@ -5,6 +5,8 @@ import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {AntDesign} from "@expo/vector-icons";
 import Modal from "react-native-modal";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight =
     Platform.OS === "ios"
@@ -12,10 +14,15 @@ const deviceHeight =
         : require("react-native-extra-dimensions-android").get(
             "REAL_WINDOW_HEIGHT"
         );
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 const CreateWallet = () => {
     const [wallet, setWallet] = useState('Кошелек');
     const [sid, setSid] = useState('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation');
     const [isNameSet, setIsNameSet] = useState(false);
+    const [publicKey, setPublicKey] = useState();
+    const [prizmWallet, setPrizmWallet] = useState();
+    const [secretPhrase, setSecretPhrase] = useState();
     const router = useRouter();
     const [isModal, setIsModal] = useState(false);
     const toggleModal = () => {
@@ -29,6 +36,34 @@ const CreateWallet = () => {
         Clipboard.setString(sid);
         Alert.alert('Парольная фраза скопирована!','');
     };
+    useEffect(() => {
+        const createNewWallet = async () => {
+            try {
+                const response = await fetch(`${apiUrl}/api/v1/users/create-new-wallet/`,{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                const data = await response.json()
+                if (response.ok){
+                    setSecretPhrase(data?.secret_phrase)
+                    setPrizmWallet(data?.account_rs)
+                    setPublicKey(data?.public_key)
+                    await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.account_rs))
+                }
+                console.log(data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        createNewWallet()
+    },[])
+
+    const prevScreen = () => {
+        toggleModal()
+        router.back()
+    }
 
     return (
         <View style={styles.container}>
@@ -38,12 +73,24 @@ const CreateWallet = () => {
                     Новый кошелек
                 </Text>
                 <Text style={styles.label}>Адрес нового кошелька</Text>
-                <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 43}]}>
+                <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
                     <TextInput
                         style={styles.input}
                         editable={false}
                         placeholder={'wallet'}
-                        value={wallet}
+                        value={prizmWallet}
+                    />
+                    <View style={[styles.copyButtonContainer, {bottom:0}]}>
+                        <AntDesign name="copy1" size={15} color="#262626" />
+                    </View>
+                </Pressable>
+                <Text style={styles.label}>Публичный ключ</Text>
+                <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
+                    <TextInput
+                        style={styles.input}
+                        editable={false}
+                        placeholder={'wallet'}
+                        value={publicKey}
                     />
                     <View style={[styles.copyButtonContainer, {bottom:0}]}>
                         <AntDesign name="copy1" size={15} color="#262626" />
@@ -52,11 +99,11 @@ const CreateWallet = () => {
                 <Text style={styles.label}>Парольная фраза</Text>
                 <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, {paddingRight:30}]}
                         editable={false}
                         multiline={true}
                         placeholder={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation'}
-                        value={sid}
+                        value={secretPhrase}
                     />
                     <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
                         <AntDesign name="copy1" size={15} color="#262626" />
@@ -87,7 +134,7 @@ const CreateWallet = () => {
                         <Text style={styles.modalText}>Обязательно сохраните сид-фразу! 
                         Ее нельзя будет получить еще раз.</Text>
                         <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:6}}>
-                            <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                            <Pressable onPress={() => prevScreen()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
                                 <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
                             </Pressable>
                             <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>

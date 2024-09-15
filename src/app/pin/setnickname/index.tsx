@@ -1,15 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Alert, Pressable} from "react-native";
-import {Stack, useRouter} from "expo-router";
+import {StyleSheet, View, Text, TextInput, Alert, Pressable, ActivityIndicator} from "react-native";
+import {Stack, useRouter,useLocalSearchParams} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import { useFocusEffect } from '@react-navigation/native';
 const SetNickName = () => {
     const [name, setName] = useState('');
     const [asyncName, setAsyncName] = useState<string | null>(null);
     const [isNameSet, setIsNameSet] = useState<boolean>(false);
+    const [loading, setloading]=useState(false)
     const router = useRouter();
+    const local = useLocalSearchParams()
 
     const postName = async () => {
         try {
@@ -68,6 +71,7 @@ const SetNickName = () => {
                 setIsNameSet(false);
             } else {
                 Alert.alert('Адрес кошелька сохранен');
+                setName('');
                 router.replace('/(user)/menu');
                 await asyncStorage.setItem('username', JSON.stringify(data?.username))
                 await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
@@ -79,16 +83,35 @@ const SetNickName = () => {
             console.log('Успешно создано:', data);
         } catch (error) {
             await AsyncStorage.removeItem('username')
+            await AsyncStorage.removeItem('prizm_wallet')
             setIsNameSet(false);
+            setName('');
             Alert.alert('Такой пары имя - кошелек нет в базе')
             console.error('Ошибка при создании:', error);
         }
     };
+    
+    useFocusEffect(
+        React.useCallback(() => {
+            // Эта функция будет срабатывать каждый раз, когда экран становится активным
+            const getAsyncName = async () => {
+                console.log('Focused Effect')
+                const walletName = await AsyncStorage.getItem('prizm_wallet');
+                if (walletName && isNameSet) {
+                    setName(JSON.parse(walletName));
+                }
+            };
 
+            getAsyncName();
+        }, [isNameSet])
+    );
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
             const walletName = await AsyncStorage.getItem('prizm_wallet');
+            if (isNameSet && walletName){
+                setName(JSON.parse(walletName))
+            }
             if (userName && walletName) {
                 // router.replace('/(user)')
             }
@@ -117,13 +140,14 @@ const SetNickName = () => {
             setName('')
         } else {
             postForm()
-            setName('');
+            
         }
         
     }
     const createwallet = () => {
         router.push('/pin/createwallet');
     }
+
 
     return (
         <View style={styles.container}>
