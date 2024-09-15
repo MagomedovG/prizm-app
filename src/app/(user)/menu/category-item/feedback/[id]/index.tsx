@@ -21,6 +21,7 @@ import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Entypo from '@expo/vector-icons/Entypo';
 import { IFeedbacks,IBusiness } from '@/src/types';
+import PostRating from '@/src/components/PostRating';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 
@@ -221,7 +222,8 @@ export default function feedbackId() {
                         </View>
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
-                    <View>{renderStars(5, 42)}</View>
+                    {/* <View>{renderStars(5, 42)}</View> */}
+                    <PostRating id={id} markSize={42}/>
 
                 </LinearGradient>
                 <View style={{

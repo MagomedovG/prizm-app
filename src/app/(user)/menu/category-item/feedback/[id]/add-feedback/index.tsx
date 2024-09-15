@@ -21,7 +21,7 @@ const ITEM_WIDTH = width - 25;
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Entypo from '@expo/vector-icons/Entypo';
 import {IBusiness} from '../../../../../../../types'
-
+import PostRating from "@/src/components/PostRating";
 
 export default function AddFeedback() {
     const [text, setText] = useState('');
@@ -96,21 +96,21 @@ export default function AddFeedback() {
         }
     }
 
-    const renderStars = (activeStars:number, markSize:number, color = 'white', inactiveColor = 'white') => {
-        return (
-            <View style={styles.starContainer}>
-                {[...Array(5)].map((_, index) => (
-                    <Entypo
-                        key={`star-${index}`}
-                        name={index < activeStars ? 'star' : 'star-outlined'}
-                        size={markSize}
-                        color={index < activeStars ? color : inactiveColor}
-                        onPress={() => postRating(index + 1)}
-                    />
-                ))}
-            </View>
-        );
-    };
+    // const renderStars = (activeStars:number, markSize:number, color = 'white', inactiveColor = 'white') => {
+    //     return (
+    //         <View style={styles.starContainer}>
+    //             {[...Array(5)].map((_, index) => (
+    //                 <Entypo
+    //                     key={`star-${index}`}
+    //                     name={index < activeStars ? 'star' : 'star-outlined'}
+    //                     size={markSize}
+    //                     color={index < activeStars ? color : inactiveColor}
+    //                     onPress={() => postRating(index + 1)}
+    //                 />
+    //             ))}
+    //         </View>
+    //     );
+    // };
 
     return (
         <>
@@ -144,7 +144,7 @@ export default function AddFeedback() {
                                     {business?.address}
                                 </Text>
                                 <View style={styles.cartSaleContainer}>
-                                    {renderStars(activeStars, 42)}
+                                    <PostRating id={id} markSize={42}/>
                                 </View>
                             </View>
                         </LinearGradient>

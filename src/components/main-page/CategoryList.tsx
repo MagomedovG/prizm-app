@@ -85,9 +85,10 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                         >
                             <Pressable style={styles.itemContainer}>
 
-                                <View style={{width:'100%',display:'flex', flexDirection:'row', justifyContent:'space-between', padding:16}}>
+                                <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
                                     <Text style={styles.text}>{item.title}</Text>
-                                    <Ionicons name="cafe-sharp" size={24} color="black" />
+                                    <Image style={styles.image_logo} source={{uri: item?.logo}}/>
+                                    {/* <Ionicons name="cafe-sharp" size={24} color="black" /> */}
                                     {/*<Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>*/}
 
                                 </View>
@@ -158,6 +159,10 @@ const styles = StyleSheet.create({
         paddingVertical:10,
         paddingHorizontal:20
     },
+    image_logo:{
+        width:32,
+        aspectRatio:1
+    }
 });
 
 
