@@ -14,7 +14,6 @@ const UIButton = forwardRef<View | null, ButtonProps>(
     ({isAdminWallet, text, ...pressableProps }, ref) => {
         const { theme } = useCustomTheme();
         const {asyncTheme} = useAsyncTheme()
-        console.log(theme, asyncTheme)
         return (
             <Pressable ref={ref} {...pressableProps} style={[styles.container, theme === 'purple' ? styles.purpleBackground : styles.greenBackground, isAdminWallet && {bottom: 70}]}>
                 <Text style={styles.text}>{text}</Text>

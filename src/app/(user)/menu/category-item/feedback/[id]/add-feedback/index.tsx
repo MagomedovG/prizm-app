@@ -32,20 +32,20 @@ export default function AddFeedback() {
     const router = useRouter()
 
     const { theme } = useCustomTheme();
-
+    async function getData() {
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/business/${id}/`);
+            const data = await response.json();
+            setBusiness(data);
+            console.log(data);
+            
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error);
+        }
+    }
 
     useEffect(() => {
-        async function getData() {
-            try {
-                const response = await fetch(`${apiUrl}/api/v1/business/${id}/`);
-                const data = await response.json();
-                setBusiness(data);
-                console.log(data);
-                
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error);
-            }
-        }
+        
 
         getData();
     }, []);
@@ -96,21 +96,7 @@ export default function AddFeedback() {
         }
     }
 
-    // const renderStars = (activeStars:number, markSize:number, color = 'white', inactiveColor = 'white') => {
-    //     return (
-    //         <View style={styles.starContainer}>
-    //             {[...Array(5)].map((_, index) => (
-    //                 <Entypo
-    //                     key={`star-${index}`}
-    //                     name={index < activeStars ? 'star' : 'star-outlined'}
-    //                     size={markSize}
-    //                     color={index < activeStars ? color : inactiveColor}
-    //                     onPress={() => postRating(index + 1)}
-    //                 />
-    //             ))}
-    //         </View>
-    //     );
-    // };
+    
 
     return (
         <>
@@ -144,7 +130,7 @@ export default function AddFeedback() {
                                     {business?.address}
                                 </Text>
                                 <View style={styles.cartSaleContainer}>
-                                    <PostRating id={id} markSize={42}/>
+                                    <PostRating id={id} markSize={42} refreshBusiness={getData} initialStars={business ? business.average_rating : 0}/>
                                 </View>
                             </View>
                         </LinearGradient>

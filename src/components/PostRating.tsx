@@ -9,6 +9,8 @@ type StarRatingProps = {
   markSize: number;
   color?: string;
   inactiveColor?: string;
+  refreshBusiness: () => void; 
+  initialStars: number;
 };
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,8 +19,9 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   
 
 
-const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', inactiveColor = 'white' }) => {
-    const [activeStars, setActiveStars] = useState<number>(2);
+const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', inactiveColor = 'white',refreshBusiness, initialStars }) => {
+    const [activeStars, setActiveStars] = useState<number>(0);
+    console.log(initialStars)
     const postRating = async (rating: number) => {
         setActiveStars(rating);
         const userId = await AsyncStorage.getItem('user_id');
@@ -40,6 +43,7 @@ const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', 
         const data = await response.json();
         if (response.ok) {
             console.log(data);
+            refreshBusiness()
         } else {
             console.log(data);
         }
@@ -52,9 +56,9 @@ const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', 
         {[...Array(5)].map((_, index) => (
             <Entypo
                 key={`star-${index}`}
-                name={index < activeStars ? 'star' : 'star-outlined'}
+                name={index < (initialStars ? initialStars : activeStars) ? 'star' : 'star-outlined'}
                 size={markSize}
-                color={index < activeStars ? color : inactiveColor}
+                color={index < (initialStars ? initialStars : activeStars) ? color : inactiveColor}
                 onPress={() => postRating(index + 1)}
             />
         ))}

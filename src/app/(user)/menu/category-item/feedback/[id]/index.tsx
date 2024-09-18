@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 
-import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter,useFocusEffect } from "expo-router";
 import {  defaultLogo } from "@/assets/data/categories";
 import HeaderLink from "@/src/components/HeaderLink";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
@@ -106,6 +106,12 @@ export default function feedbackId() {
         }
     }
 
+    useFocusEffect(
+        React.useCallback(() => {
+            getBusiness()
+        }, [])
+    )
+
 
     useEffect(() => {
 
@@ -121,6 +127,7 @@ export default function feedbackId() {
         setRefreshing(true);
         getBusiness()
         getFeedbacks()
+        getMyFeedback()
         
     }, []);
 
@@ -145,7 +152,6 @@ export default function feedbackId() {
     const getRatingWord = (count: any) => {
         const lastDigit = count % 10;
         const lastTwoDigits = count % 100;
-    
         if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
             return 'оценок';
         } else if (lastDigit === 1) {
@@ -223,7 +229,7 @@ export default function feedbackId() {
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
                     {/* <View>{renderStars(5, 42)}</View> */}
-                    <PostRating id={id} markSize={42}/>
+                    <PostRating id={id} markSize={42} refreshBusiness={getBusiness} initialStars={business ? business.average_rating : 0}/>
 
                 </LinearGradient>
                 <View style={{

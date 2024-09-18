@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState,useRef} from 'react';
 import {
     Text,
     View,
@@ -12,9 +12,11 @@ import {
     ScrollView,
     Dimensions
 } from "react-native";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import wallets from "@/assets/data/wallet";
 import UIButton from "@/src/components/UIButton";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AntDesign } from '@expo/vector-icons';
 import HeaderLink from "@/src/components/HeaderLink";
@@ -25,56 +27,103 @@ import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncSto
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { IFund } from '@/src/types';
 const { width } = Dimensions.get('window');
-const containerWidth = ((width- 10) * 3 / 4) - 40 ;
+const containerWidth = width - 34 - 84 ;
 
 export default function walletId() {
+    const [isFocused, setIsFocused]=useState(false)
+    const [isUpdate, setIsUpdate]=useState(false)
     const router = useRouter();
     const { id } = useLocalSearchParams();
     console.log(id)
-    const [wallet, setWallet] = useState<IFund | null>(null)
+    const [wallet, setWallet] = useState<IFund | null>(
+        null
+    )
+    const [prizmWallet, setPrizmWallet] = useState<string>('')
     // const is_superuser:boolean | string =  asyncStorage.getItem('is_superuser')
     // const wallet = wallets.find(w => w.id.toString() === id);
+    const inputRef = useRef(null);
 
+    useEffect(() => {
+        if (isUpdate && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isUpdate]);
+    
     const routerTo = () => {
-        if (id === 'user'){
+        if (isUpdate){
+            setIsUpdate(false);
+        } else if (id === 'user'){
             router.push('(user)/menu/share-prizm/')
         } else {
             router.back()
         }
+        
     }
 
     // if (!wallet) {
     //     return <Text>Кошелек не найден</Text>;
     // }
 
+    async function getFunds() {
+        const userId = await asyncStorage.getItem('user_id')
 
+        try {
+            const response = await fetch(
+                id !== 'user' ?
+                `${apiUrl}/api/v1/funds/${id}/`
+                : `${apiUrl}/api/v1/users/${userId}/`
+                ,
+            );
+            const data = await response.json();
+            console.log(data);
+            setWallet(data);
+            setPrizmWallet(data?.prizm_wallet)
+            if (!response.ok){
+                console.log(response);
+            }
+
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/${id}/`);
+            // console.log(response);
+        }
+    }
 
     useEffect(() => {
-        async function getFunds() {
-            const userId = await asyncStorage.getItem('user_id')
-
-            try {
-                const response = await fetch(
-                    id !== 'user' ?
-                    `${apiUrl}/api/v1/funds/${id}/`
-                    : `${apiUrl}/api/v1/users/${userId}/`
-                    ,
-                );
-                const data = await response.json();
-                console.log(data);
-                setWallet(data);
-                if (!response.ok){
-                    console.log(response);
-                }
-
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/${id}/`);
-                // console.log(response);
-            }
-        }
+       
         getFunds()
-        console.log(containerWidth);
     },[])
+    const updateUserWallet = async () => {
+        const userId = await AsyncStorage.getItem('user_id');
+        const parsedUserId = userId ? JSON.parse(userId) : null;
+
+        try {
+        const response = await fetch(`${apiUrl}/api/v1/users/5/`, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: wallet?.username,
+                prizm_wallet: prizmWallet,
+                prizm_qr_code_url: wallet?.prizm_qr_code_url,
+                is_superuser: wallet?.is_superuser,
+            }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            console.log('ok',data);
+        } else {
+            console.log('neok',data);
+        }
+
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setIsUpdate(false);
+            getFunds()
+
+        }
+    }
 
     const copyToClipboard = () => {
         if (wallet?.prizm_wallet && typeof wallet.prizm_wallet === "string" && wallet) {
@@ -84,14 +133,14 @@ export default function walletId() {
     };
 
     return (
-        <View style={{ position: 'relative', flex: 1 }}>
+        <View style={{ position: 'relative', flex: 1,'overflow':isFocused ? 'scroll' : 'hidden' }}>
             <Stack.Screen options={{
                 headerShown: false,
                 header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
             }} />
-            <View style={styles.container}>
+            <View style={[styles.container, {marginVertical:28}]}>
 
-                <Text style={styles.name}>{ id === 'user' ? 'Мой кошелек' : wallet?.title}</Text>
+                <Text style={[styles.name, {marginTop:isUpdate && isFocused ? 10 : 80}]}>{ id === 'user' ? 'Мой кошелек' : wallet?.title}</Text>
                 {wallet?.prizm_qr_code_url &&
                     <View style={styles.image}>
                         <QRCode
@@ -108,22 +157,46 @@ export default function walletId() {
 
                 {/*<Text style={styles.link}>{wallet.link}</Text>*/}
             </View>
-            <Pressable onPress={copyToClipboard} style={styles.pressable}>
-                {/*<TextInput*/}
-                {/*    style={styles.input}*/}
-                {/*    editable={false}*/}
-                {/*    placeholder={wallet.prizm}*/}
-                {/*    value={wallet.prizm}*/}
-                {/*/>*/}
-                <Text style={styles.input}>{wallet?.prizm_wallet}</Text>
-                <View style={styles.copyButtonContainer}>
-                    <AntDesign name="copy1" size={15} color="#262626" />
+            <View style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent:'center'
+                }}>
+                <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                    <TextInput
+                        ref={inputRef}
+                        style={styles.input}
+                        editable={isUpdate}
+                        // placeholder={wallet?.prizm_wallet}
+                        onChangeText={setPrizmWallet}
+                        // autoFocus={isUpdate}
+                        value={prizmWallet}
+                        onFocus={() => setIsFocused(true)} 
+                        onBlur={() => setIsFocused(false)} 
+                    />
+                    <View style={styles.copyButtonContainer}>
+                        <AntDesign name="copy1" size={15} color="#262626" />
+                    </View>
+                </Pressable>
+               {id === 'user'  && (
+                <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
+                    <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'flex-start'}}>
+                        <Text style={{color:'#262626',marginLeft:5,}}>Редактировать </Text>
+                        <FontAwesome5 name="pencil-alt" size={12} color="#6B6B6B" />
+                    </Pressable>
                 </View>
-            </Pressable>
+                
+               )
+               
+                }
+            </View>
+
+            
 
 
-            <UIButton text={id === 'user'  ? 'Перевести PZM' : 'Назад'} onPress={routerTo} isAdminWallet={true}/>
-            {wallet?.is_superuser && id === 'user' && <Pressable style={styles.adminLink}>
+            <UIButton text={isUpdate ? 'Ок' : id === 'user'  ? 'Перевести PZM' :  'Назад'} onPress={()=> isUpdate ? updateUserWallet() : routerTo()} isAdminWallet={true}/>
+            {wallet?.is_superuser && id === 'user' && !isUpdate && <Pressable style={styles.adminLink}>
             
                 <Text style={{textAlign:'center'}}>
                         Перейти в панель администратора
@@ -136,8 +209,10 @@ export default function walletId() {
 const styles = StyleSheet.create({
     pressable: {
         position: 'relative',
-        marginHorizontal: 42,
-        marginBottom: 20,
+        width: containerWidth + 34,
+        
+        
+        // marginBottom: 20,
     },
     copyButtonContainer: {
         position: 'absolute',
@@ -178,14 +253,15 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: 10,
-        marginVertical:28,
+        // marginHorizontal: 42,
+        // padding: 10,
+        
         // marginRight:8
     },
     image: {
-        width: '75%',
+        // width: '75%',
         marginHorizontal: 42,
-        aspectRatio: 1,
+        // aspectRatio: 1,
         shadowColor: '#000000',
         shadowOffset: { width: 3, height: 3 },
         shadowOpacity: 0.2,

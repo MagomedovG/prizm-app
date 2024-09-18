@@ -69,6 +69,7 @@ export type IFund = {
   id:number
   title:string
   logo:string
+  username?:string
   prizm_wallet:string
   prizm_qr_code_url:string
   is_superuser?:boolean

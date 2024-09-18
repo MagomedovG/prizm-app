@@ -51,6 +51,7 @@ const CreateWallet = () => {
                     setPrizmWallet(data?.account_rs)
                     setPublicKey(data?.public_key)
                     await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.account_rs))
+                    await asyncStorage.setItem('secret_phrase', JSON.stringify(data?.secret_phrase))
                 }
                 console.log(data)
             } catch (error) {
