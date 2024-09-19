@@ -57,7 +57,7 @@ export default function categoryId() {
                 );
                 const data = await response.json();
                 console.log(data);
-                setBusiness(data);
+                setBusiness(data?.business);
                 if (!response.ok){
                     console.log(response);
                 }

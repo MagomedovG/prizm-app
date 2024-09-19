@@ -56,17 +56,20 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                                 }}
                                 resizeMode={FastImage.resizeMode.contain}
                             /> */}
-                           <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/> 
-                           <Text style={styles.text}>{item.title ? item.title : 'Без названия'}</Text>
-                           <View style={styles.saleContainer}>
-                               <Text style={styles.sale}>{item?.cashback_size}%</Text>
-                           </View>
+                            <View style={{position:'relative'}}>
+                                <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/> 
+                                <View style={styles.saleContainer}>
+                                    <Text style={styles.sale}>{item?.cashback_size}%</Text>
+                                </View>
+                            </View>
+                            <Text style={styles.text}>{item.title ? item.title : 'Без названия'}</Text>
+                           
                        </Pressable>
                    </Link>
             }
                 numColumns={2} // Указываем количество колонок
                 keyExtractor={(item) => item.id.toString()} // Добавляем keyExtractor для уникальности
-                contentContainerStyle={{gap:33}}
+                contentContainerStyle={{gap:11}}
                 columnWrapperStyle={{gap:6}}
             />
         </View>
@@ -142,17 +145,19 @@ const styles = StyleSheet.create({
     },
     itemContainer: {
         width: ITEM_WIDTH,
+        // aspectRatio:1,
         // margin: 5,
         // padding: 10,
         backgroundColor: 'white',
-        height:131,
-        position:'relative',
+        // height:131,
+        // position:'relative',
     },
     image: {
         // width: '100%',
-
+        // maxHeight:110,
+        height:110,
         objectFit:'cover',
-        height: '100%',
+        // height: '100%',
         borderRadius: 13,
         borderWidth:1,
         borderColor:'#898989'

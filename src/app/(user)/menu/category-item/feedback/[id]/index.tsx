@@ -41,7 +41,7 @@ export default function feedbackId() {
     const [business, setBusiness] = useState<IBusiness | null>(null)
     const [feedbacks, setFeedbacks] = useState<IFeedbacks[] | null>(null)
     const [isMineFeedbacks, setIsMineFeedbacks] = useState<Feedback[]>([])
-    const [starsCount, setStarsCount] = useState(1)
+    const [starsCount, setStarsCount] = useState(0)
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -89,16 +89,18 @@ export default function feedbackId() {
 
     async function getBusiness() {
         try {
+            const userId = await asyncStorage.getItem('user_id');
+            console.log('feedback-w-rating',`${apiUrl}/api/v1/business/${id}/?rating-created-by=${userId}`)
             const response = await fetch(
-                `${apiUrl}/api/v1/business/${id}/`,
+                `${apiUrl}/api/v1/business/${id}/?rating-created-by=${userId}`,
             );
             const data = await response.json();
 
             if (!response.ok) {
                 console.error("Ошибка при загрузке бизнес данных:", response);
             } else {
-                setBusiness(data);
-                setStarsCount(data.ratings_number)
+                setBusiness(data?.business);
+                setStarsCount(data?.user_rating_value)
                 setRefreshing(false)
             }
         } catch (error) {
@@ -163,7 +165,6 @@ export default function feedbackId() {
         }
     };
     
-    const averageMark = 4
     const renderStars = (averageMark: number, markSize: number, color?: string) => {
         const fullStars = Math.floor(averageMark);
         const halfStar = averageMark % 1 >= 0.5 ? 1 : 0;
@@ -229,7 +230,7 @@ export default function feedbackId() {
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
                     {/* <View>{renderStars(5, 42)}</View> */}
-                    <PostRating id={id} markSize={42} refreshBusiness={getBusiness} initialStars={business ? business.average_rating : 0}/>
+                    <PostRating id={id} markSize={42} refreshBusiness={getBusiness} initialStars={starsCount ? starsCount : 0}/>
 
                 </LinearGradient>
                 <View style={{
@@ -237,7 +238,8 @@ export default function feedbackId() {
                         flexDirection:'row',
                         justifyContent:'space-between',
                         alignItems:'center',
-                        paddingVertical:20, 
+                        // paddingVertical:10, 
+                        paddingTop:20,
                         borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}
                     >
                     <Text>{feedbacks ? feedbacks?.length : ''} {feedbacks ? getFeedbackWord(feedbacks?.length) : ''}</Text>
@@ -245,8 +247,8 @@ export default function feedbackId() {
                 <FlatList
                     data={feedbacks}
                     renderItem={({ item }) => (
-                        <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', paddingVertical:20, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
-                            <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:21}} >
+                        <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
+                            <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:15}} >
                                 <Text style={{ color: 'black',fontSize:15, fontWeight:'500'}}>
                                     {item?.created_by ? item?.created_by?.username : 'Неизвестный'}
                                 </Text>

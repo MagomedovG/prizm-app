@@ -46,13 +46,18 @@ const SetNickName = () => {
 
     const postForm = async () => {
         const username = await asyncStorage.getItem('username')
+        const public_key_hex = await asyncStorage.getItem('public_key_hex')
         const prizm_wallet = name
+        const walletName = await AsyncStorage.getItem('prizm_wallet');
+        const isUpdatedName = walletName ? JSON.parse(walletName) !== name : true
         
         const form = {
             username,
-            prizm_wallet
+            prizm_wallet,
+            public_key_hex: public_key_hex && !isUpdatedName ? JSON.parse(public_key_hex) : null
         }
-
+        
+        console.log(form)
         try {
             console.log(`${apiUrl}/api/v1/users/get-or-create/`)
             console.log(form)
@@ -65,12 +70,12 @@ const SetNickName = () => {
             });
 
             const data = await response.json();
+            
             if (!response.ok) {
                 throw new Error('Ошибка сети');
                 Alert.alert('Такой пары имя - кошелек нет в базе')
                 setIsNameSet(false);
             } else {
-                Alert.alert('Адрес кошелька сохранен');
                 setName('');
                 router.replace('/(user)/menu');
                 await asyncStorage.setItem('username', JSON.stringify(data?.username))
@@ -93,9 +98,7 @@ const SetNickName = () => {
     
     useFocusEffect(
         React.useCallback(() => {
-            // Эта функция будет срабатывать каждый раз, когда экран становится активным
             const getAsyncName = async () => {
-                console.log('Focused Effect')
                 const walletName = await AsyncStorage.getItem('prizm_wallet');
                 if (walletName && isNameSet) {
                     setName(JSON.parse(walletName));

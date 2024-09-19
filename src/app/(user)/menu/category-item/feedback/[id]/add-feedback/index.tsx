@@ -27,6 +27,8 @@ export default function AddFeedback() {
     const [text, setText] = useState('');
     const [activeStars, setActiveStars] = useState(2);
     const [business, setBusiness] = useState<IBusiness | null>(null);
+    const [isMineRating, setIsMineRating] = useState()
+
     const { id } = useLocalSearchParams();
 
     const router = useRouter()
@@ -37,6 +39,7 @@ export default function AddFeedback() {
             const response = await fetch(`${apiUrl}/api/v1/business/${id}/`);
             const data = await response.json();
             setBusiness(data);
+            getMyFeedback()
             console.log(data);
             
         } catch (error) {
@@ -72,31 +75,25 @@ export default function AddFeedback() {
             console.warn(e)
         }
     }
-    const postRating = async (rating: number) => {
-        setActiveStars(rating)
-        const userId = await asyncStorage.getItem('user_id');
-        const parsedUserId = userId ?  await JSON.parse(userId) : null
-        console.log('userId',userId,'parsedUserId',parsedUserId,'id',id,'text',text, 'rating',rating);
+    async function getMyFeedback() {
         try {
-            const response = await fetch(`${apiUrl}/api/v1/ratings/update-or-create/`,{
-                method:'PUT',
-                headers:{
-                    'Content-Type':'application/json'
-                },
-                body:JSON.stringify({created_by:parsedUserId, business:id, rating_value:rating})
-            })
-            const data = await response.json()
+            const userId = await asyncStorage.getItem('user_id');
+            const response = await fetch(
+                `${apiUrl}/api/v1/ratings/?created_by=${userId}&business=${id}`,
+            );
+            const data = await response.json();
             if (response.ok){
-                console.log('ok');
-            } else {
-                console.log(data);
+                setIsMineRating(data[0]?.rating_value)
             }
-        } catch (e){
-            console.log(e)
+            
+            
+        } catch (error) {
+            console.error("Ошибка при загрузке данных фидбэков:", error);
         }
-    }
-
-    
+    }    
+    // useEffect(()=>{
+    //     getMyFeedback()
+    // },[])
 
     return (
         <>
@@ -107,7 +104,7 @@ export default function AddFeedback() {
                     <View>
                         <View style={{ maxHeight: 140 }}>
                             <Image
-                                style={{ width: ITEM_WIDTH - 30, height:ITEM_WIDTH - 80, borderRadius: 15 }}
+                                style={{ width: ITEM_WIDTH - 30, height:ITEM_WIDTH - 80, borderRadius: 15,objectFit: 'cover' }}
                                 source={{ uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
                             />
                         </View>
@@ -130,7 +127,7 @@ export default function AddFeedback() {
                                     {business?.address}
                                 </Text>
                                 <View style={styles.cartSaleContainer}>
-                                    <PostRating id={id} markSize={42} refreshBusiness={getData} initialStars={business ? business.average_rating : 0}/>
+                                    <PostRating id={id} markSize={42} refreshBusiness={getData} initialStars={isMineRating ? isMineRating : 0}/>
                                 </View>
                             </View>
                         </LinearGradient>

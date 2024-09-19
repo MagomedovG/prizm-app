@@ -29,8 +29,12 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
     const [info,setInfo] = useState<IWallet | null>(null)
+    const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
-    
+    // const userId =  asyncStorage.getItem('user_id')
+    const username = asyncStorage.getItem('username')
+    const prizm_wallet = asyncStorage.getItem('prizm_wallet')
+    const is_superuser =  asyncStorage.getItem('is_superuser')
     const logOut = () => {
         asyncStorage.removeItem('username')
         asyncStorage.removeItem('prizm_wallet')
@@ -38,46 +42,55 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
         asyncStorage.removeItem('user_id')
         router.replace('/pin/setnickname')
     }
-    useEffect(() => {
-        async function getData() {
-            const userId =  JSON.parse(await asyncStorage.getItem('user_id'))
-            const username = JSON.parse(await asyncStorage.getItem('username'))
-            const prizm_wallet = JSON.parse(await asyncStorage.getItem('prizm_wallet'))
-            const is_superuser = JSON.parse(await asyncStorage.getItem('is_superuser'))
 
-            const form = {
-                is_superuser,
-                username,
-                prizm_wallet,
-            }
-            console.log(form, userId)
-            try {
-                const response = await fetch(
-                    `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
-                        // method: 'GET',
-                        // headers: {
-                        //     'Content-Type': 'application/json',
-                        // },
-                        // body: JSON.stringify(form),
-                    }
-                );
-                const data = await response.json();
-
-                console.log(data);
-                setInfo(data);
-                // if (data.prizm_qr_code_url) {
-                    onQrCodeUrlUpdate(data.prizm_qr_code_url);  // Обновляем URL
-                // }
-                console.log('Mainheader info',data)
-                if (!response.ok){
-                    console.log(response);
+    async function getData() {
+        try {
+            // const userId = await asyncStorage.getItem('user_id')
+            const response = await fetch(
+                `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
                 }
+            );
+            const data = await response.json();
+            // console.log(data);
+            setInfo(data);
+            onQrCodeUrlUpdate(data.prizm_qr_code_url);  // Обновляем URL
+            // console.log('Mainheader info',data)
+            if (!response.ok){
+                console.log(response);
+            }
 
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
-                // console.log(response);
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
+            // console.log(response);
+        }
+    }
+
+    useEffect(() => {
+        // Получаем userId один раз при монтировании компонента
+        async function fetchUserId() {
+            const storedUserId = await asyncStorage.getItem('user_id');
+            if (storedUserId) {
+                setUserId(storedUserId); 
+            } else {
+                console.error('User ID не найден в asyncStorage');
             }
         }
+
+        fetchUserId();
+    }, []);
+    
+    // useEffect(() => {
+    //     getData();
+
+    //     console.log(1)
+    //     setInterval(getData, 30000);
+
+    //     // Очищаем интервал при размонтировании компонента
+    //     // return () => clearInterval(intervalId);
+    // }, []);
+
+    useEffect(() => {
+        
         const fetchHiddenState = async () => {
             try {
                 const hiddenState = await AsyncStorage.getItem('isHidden');
@@ -150,18 +163,18 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             <View style={styles.headerList}>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `B : ${info?.balance_in_pzm} pzm`}
+                        {isHidden ? '****' : `B = ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `P : ${info?.para_balance} pzm`}
+                        {isHidden ? '****' : `P = ${info?.para_balance ? info?.para_balance : 0.0} pzm`}
                     </Text>
                 </View>
                 <View style={styles.headerListItems}>
-                    <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(3) : 0} руб`}
+                    <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
+                        {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
                     </Text>
-                    <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(3) : 0} руб`}
+                    <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
+                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} руб`}
                     </Text>
                 </View>
             </View>

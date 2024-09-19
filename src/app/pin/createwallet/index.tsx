@@ -20,20 +20,24 @@ const CreateWallet = () => {
     const [wallet, setWallet] = useState('Кошелек');
     const [sid, setSid] = useState('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation');
     const [isNameSet, setIsNameSet] = useState(false);
-    const [publicKey, setPublicKey] = useState();
-    const [prizmWallet, setPrizmWallet] = useState();
-    const [secretPhrase, setSecretPhrase] = useState();
+    const [publicKey, setPublicKey] = useState('');
+    const [prizmWallet, setPrizmWallet] = useState('');
+    const [secretPhrase, setSecretPhrase] = useState('');
     const router = useRouter();
     const [isModal, setIsModal] = useState(false);
     const toggleModal = () => {
         setIsModal(!isModal);
     };
     const copyWalletToClipboard = () => {
-        Clipboard.setString(wallet);
+        Clipboard.setString(prizmWallet);
         Alert.alert('Кошелек скопирован!','');
     };
+    const copyPublicKeyToClipboard = () => {
+        Clipboard.setString(publicKey);
+        Alert.alert('Публичный ключ скопирован!','');
+    };
     const copySidToClipboard = () => {
-        Clipboard.setString(sid);
+        Clipboard.setString(secretPhrase);
         Alert.alert('Парольная фраза скопирована!','');
     };
     useEffect(() => {
@@ -49,9 +53,9 @@ const CreateWallet = () => {
                 if (response.ok){
                     setSecretPhrase(data?.secret_phrase)
                     setPrizmWallet(data?.account_rs)
-                    setPublicKey(data?.public_key)
+                    setPublicKey(data?.public_key_hex)
                     await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.account_rs))
-                    await asyncStorage.setItem('secret_phrase', JSON.stringify(data?.secret_phrase))
+                    await asyncStorage.setItem('public_key_hex', JSON.stringify(data?.public_key_hex))
                 }
                 console.log(data)
             } catch (error) {
@@ -86,7 +90,7 @@ const CreateWallet = () => {
                     </View>
                 </Pressable>
                 <Text style={styles.label}>Публичный ключ</Text>
-                <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
+                <Pressable onPress={copyPublicKeyToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
                     <TextInput
                         style={styles.input}
                         editable={false}
@@ -225,6 +229,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         fontSize:18,
         color: '#000000',
+        paddingRight:32
     },
     inputContainer: {
         width: '100%',

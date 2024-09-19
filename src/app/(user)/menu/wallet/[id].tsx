@@ -95,20 +95,22 @@ export default function walletId() {
     const updateUserWallet = async () => {
         const userId = await AsyncStorage.getItem('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null;
-
+        console.log(`${apiUrl}/api/v1/users/${parsedUserId}/`);
+        
         try {
-        const response = await fetch(`${apiUrl}/api/v1/users/5/`, {
-            method: 'PUT',
+        const response = await fetch(`${apiUrl}/api/v1/users/${parsedUserId}/`, {
+            method: 'PATCH',
             headers: {
             'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: wallet?.username,
                 prizm_wallet: prizmWallet,
-                prizm_qr_code_url: wallet?.prizm_qr_code_url,
-                is_superuser: wallet?.is_superuser,
             }),
         });
+
+        console.log('form',JSON.stringify({
+            prizm_wallet: prizmWallet,
+        }));
         const data = await response.json();
         if (response.ok) {
             console.log('ok',data);
@@ -120,6 +122,7 @@ export default function walletId() {
             console.log(e);
         } finally {
             setIsUpdate(false);
+            console.log('getFunds');
             getFunds()
 
         }
