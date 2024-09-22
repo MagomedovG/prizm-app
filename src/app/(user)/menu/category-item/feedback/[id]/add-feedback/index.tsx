@@ -104,7 +104,7 @@ export default function AddFeedback() {
                     <View>
                         <View style={{ maxHeight: 140 }}>
                             <Image
-                                style={{ width: ITEM_WIDTH - 30, height:ITEM_WIDTH - 80, borderRadius: 15,objectFit: 'cover' }}
+                                style={{ width: ITEM_WIDTH - 30, height:ITEM_WIDTH - 172 - 53, borderTopLeftRadius: 15,borderTopRightRadius: 15,objectFit: 'cover' }}
                                 source={{ uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
                             />
                         </View>

@@ -45,18 +45,19 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
 
     async function getData() {
         try {
-            // const userId = await asyncStorage.getItem('user_id')
+            const userId = await asyncStorage.getItem('user_id')
             const response = await fetch(
                 `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
                 }
             );
             const data = await response.json();
-            // console.log(data);
             setInfo(data);
-            onQrCodeUrlUpdate(data.prizm_qr_code_url);  // Обновляем URL
-            // console.log('Mainheader info',data)
+            onQrCodeUrlUpdate(data.prizm_qr_code_url);  
+            console.log(11)
             if (!response.ok){
                 console.log(response);
+            } else {
+                // console.log('okku',data)
             }
 
         } catch (error) {
@@ -66,7 +67,6 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
     }
 
     useEffect(() => {
-        // Получаем userId один раз при монтировании компонента
         async function fetchUserId() {
             const storedUserId = await asyncStorage.getItem('user_id');
             if (storedUserId) {
@@ -79,15 +79,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
         fetchUserId();
     }, []);
     
-    // useEffect(() => {
-    //     getData();
-
-    //     console.log(1)
-    //     setInterval(getData, 30000);
-
-    //     // Очищаем интервал при размонтировании компонента
-    //     // return () => clearInterval(intervalId);
-    // }, []);
+    
 
     useEffect(() => {
         
@@ -104,6 +96,12 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
 
         getData()
         fetchHiddenState();
+
+        const intervalId = setInterval(() => {
+            getData();
+        }, 30000); 
+
+        return () => clearInterval(intervalId);
     }, [refreshData]);
 
     const handleChatPress = () => {
