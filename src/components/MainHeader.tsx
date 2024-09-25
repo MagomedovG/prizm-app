@@ -93,8 +93,10 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                 console.error('Failed to load hidden state', error);
             }
         };
-
-        getData()
+        setTimeout(()=>{
+            getData()
+        },0)
+        // getData()
         fetchHiddenState();
 
         const intervalId = setInterval(() => {

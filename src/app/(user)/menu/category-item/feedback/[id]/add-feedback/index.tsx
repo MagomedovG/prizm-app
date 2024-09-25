@@ -38,7 +38,7 @@ export default function AddFeedback() {
         try {
             const response = await fetch(`${apiUrl}/api/v1/business/${id}/`);
             const data = await response.json();
-            setBusiness(data);
+            setBusiness(data?.business);
             getMyFeedback()
             console.log(data);
             
@@ -120,7 +120,7 @@ export default function AddFeedback() {
                                         {business?.title}
                                     </Text>
                                     <Text style={[styles.cartSubtitle, theme === 'purple' ? { color: '#CACACA' } : styles.greenText]}>
-                                        {business?.description}
+                                        {business?.short_description}
                                     </Text>
                                 </View>
                                 <Text style={[{ fontSize: 16, marginTop: 14, marginBottom: 23 }, theme === 'purple' ? styles.purpleText : styles.greenText]}>

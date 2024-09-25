@@ -54,8 +54,9 @@ const SetNickName = () => {
         const form = {
             username,
             prizm_wallet,
-            public_key_hex: public_key_hex && !isUpdatedName ? JSON.parse(public_key_hex) : null
-        }
+            ...(public_key_hex && !isUpdatedName && { public_key_hex: JSON.parse(public_key_hex) })
+        };
+        
         
         console.log(form)
         try {
@@ -71,10 +72,14 @@ const SetNickName = () => {
 
             const data = await response.json();
             
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
-                Alert.alert('Такой пары имя - кошелек нет в базе')
+            if (response.status === 400) {
+                console.log('result',data?.username, data?.prizm.wallet )
+                // Alert.alert('Такой пары имя - кошелек нет в базе')
+                // const result = data?.username ? data?.username : data?.prizm.wallet ? data?.prizm.wallet : ''
+                // Alert.alert('result')
                 setIsNameSet(false);
+                throw new Error('Ошибка сети');
+                
             } else {
                 setName('');
                 router.replace('/(user)/menu');
@@ -150,6 +155,17 @@ const SetNickName = () => {
     const createwallet = () => {
         router.push('/pin/createwallet');
     }
+    const handleNameChange = (text: string) => {
+        if (!isNameSet) {
+            const allowedCharsRegex = /^[a-zA-Z0-9._@]*$/;
+            
+            if (allowedCharsRegex.test(text)) {
+                setName(text);
+            }
+        } else {
+            setName(text);
+        }
+    };
 
 
     return (
@@ -163,7 +179,7 @@ const SetNickName = () => {
                     <TextInput
                         placeholder={isNameSet ? "PRIZM-1234-..." : "Имя пользователя"}
                         value={name}
-                        onChangeText={setName}
+                        onChangeText={handleNameChange}
                         style={styles.input}
                         placeholderTextColor="gray"
                     />

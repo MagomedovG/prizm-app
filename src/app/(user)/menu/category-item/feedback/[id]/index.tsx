@@ -110,6 +110,7 @@ export default function feedbackId() {
 
     useFocusEffect(
         React.useCallback(() => {
+            getFeedbacks()
             getBusiness()
         }, [])
     )

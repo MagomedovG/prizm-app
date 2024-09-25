@@ -31,6 +31,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {IWallet} from "@/src/types";
 import QRCode from 'react-qr-code';
+import Loader from '@/src/components/Loader';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -41,7 +42,11 @@ const deviceHeight =
         : require("react-native-extra-dimensions-android").get(
             "REAL_WINDOW_HEIGHT"
         );
-
+type IChats = {
+    whatsapp:string,
+    youtube:string,
+    telegram:string,
+}
 export default function MenuScreen() {
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
@@ -49,14 +54,24 @@ export default function MenuScreen() {
     const [isChatModal, setIsChatModal] = useState(false);
     const [categories, setCategories] = useState(null)
     const [wallets, setWallets] = useState<IWallet[]>([])
+    const [chats, setChats] = useState<IChats | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
-    const [social, setSocial] = useState(null)
-
-    // useEffect(() => {
-    //     if (wallets.some(wallet => wallet.title !== "Мой кошелек")) {
-    //         addWalletWithQrCodeUrl(wallets);
-    //     }
-    // }, [wallets]);
+    async function getChats() {
+        try{
+            const response = await fetch(`${apiUrl}/api/v1/social-networks/`)
+            const data = await response.json();
+            setChats(data)
+            if (response.ok){
+                console.log('data',(data?.whatsapp))
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    useEffect(() => {
+        getChats()
+    }, []);
     
     const addWalletWithQrCodeUrl = (url: string) => {
         if (url) {
@@ -74,8 +89,12 @@ export default function MenuScreen() {
                 }
                 return prevWallets;
             });
+            setTimeout(() => {
+                setIsLoading(false);
+                console.log('500')
+            },500)
+            
         }
-        console.log(url, 'url');
     };
 
 
@@ -98,25 +117,7 @@ export default function MenuScreen() {
         }
     }
 
-    const getSocialNetworks = async () => {
-        try {
-            const response = await fetch(
-                `${apiUrl}/api/v1/social-networks/`,
-            );
-            const data = await response.json();
-            // console.log('categories',data);
-            setSocial(data)
-            if (!response.ok){
-                console.log(response);
-            } else {
-                
-            }
-
-        } catch (error) {
-            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-            // console.log(response);
-        }
-    }
+    
 
       const getFunds = async () => {
         try {
@@ -138,6 +139,10 @@ export default function MenuScreen() {
     useEffect(() => {
         getFunds()
         getData();
+        setTimeout(() => {
+            setIsLoading(false);
+            console.log('2000')
+        },2000)
     }, []);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
@@ -156,6 +161,11 @@ export default function MenuScreen() {
     const toggleChatModal = () => {
         setIsChatModal(!isChatModal)
     }
+
+    if (isLoading){
+        return <Loader />;
+    }
+
 
     return (
         <View style={{ flex: 1 }}>
@@ -229,28 +239,34 @@ export default function MenuScreen() {
 
             >
                 <View style={styles.centeredView}>
-                    <View style={[styles.chatModalViewContainer, {padding:0}]}>
-                    <FlatList
-                        data={social}
-                        renderItem={({ item }) => (
-                            <View style={styles.chatModalView}>
-                                <AntDesign name="youtube" size={23} color="black" />
-                                <Text style={{fontSize:16, fontWeight:'semibold'}}>YouTube</Text>
+                    <View style={[styles.chatModalViewContainer, {padding: 0}]}>
+                        <View style={[styles.chatModalView, {paddingTop:20}]}>
+                        <Link href={chats ? chats?.youtube : '/(user)/menu/'}>
+                            <View style={styles.iconAndTextContainer}>
+                            <AntDesign name="youtube" size={23} color="rgb(234,57,42)" />
+                            <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15, color:'rgb(234,57,42)'}}>YouTube</Text>
                             </View>
-                        )}
-                        keyExtractor={item => item.id.toString()}
-                    />
-                        
-                        <View  style={styles.chatModalView}>
-                            <FontAwesome5 name="whatsapp" size={23} color="black" />
-                            <Text style={{fontSize:16, fontWeight:'semibold'}}>WhatsApp</Text>
+                        </Link>
                         </View>
-                        <View style={[styles.chatModalView,{borderBottomWidth: 0, paddingBottom:29}]}>
-                            <FontAwesome5 name="telegram-plane" size={23} color="black" />
-                            <Text style={{fontSize:16, fontWeight:'semibold'}}>Telegram</Text>
+                        <View style={styles.chatModalView}>
+                        <Link href={chats ? chats?.whatsapp : '/(user)/menu/'}>
+                            <View style={styles.iconAndTextContainer}>
+                            <FontAwesome5 name="whatsapp" size={23} color="rgb(101,208,114)" />
+                            <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15, color:'rgb(101,208,114)'}}>WhatsApp</Text>
+                            </View>
+                        </Link>
+                        </View>
+                        <View style={[styles.chatModalView, {borderBottomWidth: 0, paddingBottom: 29}]}>
+                        <Link href={chats ? chats?.telegram : '/(user)/menu/'}>
+                            <View style={styles.iconAndTextContainer}>
+                            <FontAwesome5 name="telegram-plane" size={23} color="rgb(78,142,229)" />
+                            <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15,color:'rgb(78,142,229)'}}>Telegram</Text>
+                            </View>
+                        </Link>
                         </View>
                     </View>
-                </View>
+                    </View>
+
             </Modal>
 
             <View style={{ flex: 1 }} >
@@ -332,7 +348,7 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:'center',
         alignItems:'center',
-        gap:15,
+        // gap:15,
         paddingHorizontal: 20,
         // paddingTop:16,
         // paddingBottom:26,
@@ -356,6 +372,10 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
     },
+    iconAndTextContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
     modalView: {
         backgroundColor: 'white',
         borderTopLeftRadius: 20,

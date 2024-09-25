@@ -115,6 +115,7 @@ export default function walletId() {
         if (response.ok) {
             console.log('ok',data);
         } else {
+            Alert.alert('Введен некорректный кошелек')
             console.log('neok',data);
         }
 
