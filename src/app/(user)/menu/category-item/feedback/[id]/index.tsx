@@ -183,6 +183,18 @@ export default function feedbackId() {
             </View>
         );
     };
+    function trimTrailingZeros(num) {
+        // Преобразуем число в строку
+        let str = num.toString();
+      
+        // Если число содержит десятичную точку
+        if (str.includes('.')) {
+          // Убираем все лишние нули в конце числа после точки
+          str = str.replace(/\.?0+$/, '');
+        }
+      
+        return str;
+      }
     
 
     return (
@@ -220,7 +232,7 @@ export default function feedbackId() {
                     <View style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'space-between', gap:30}}>
                         <Text style={styles.averageMarkText}>
                             {/*{averageMark.toFixed(1)}*/}
-                            {business?.average_rating ? business.average_rating : 0}
+                            {business?.average_rating ? trimTrailingZeros(business.average_rating) : 0}
                         </Text>
                         <View style={{display:'flex', flexDirection:'column',justifyContent:'space-between', height:52}}>
                             <View>{renderStars(business ? business?.average_rating : 4, 20)}</View>

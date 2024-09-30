@@ -72,11 +72,10 @@ const SetNickName = () => {
 
             const data = await response.json();
             
-            if (response.status === 400) {
-                console.log('result',data?.username, data?.prizm.wallet )
-                // Alert.alert('Такой пары имя - кошелек нет в базе')
-                // const result = data?.username ? data?.username : data?.prizm.wallet ? data?.prizm.wallet : ''
-                // Alert.alert('result')
+            if (!response.ok) {
+                console.log('result',data )
+                const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'
+                Alert.alert(result)
                 setIsNameSet(false);
                 throw new Error('Ошибка сети');
                 
@@ -87,7 +86,7 @@ const SetNickName = () => {
                 await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
                 await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
                 await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
-                console.log('asyncstorage', asyncStorage.getItem('username'),asyncStorage.getItem('prizm_wallet'),asyncStorage.getItem('is_superuser'),asyncStorage.getItem('user_id'))
+                console.log('!result',data )
             }
 
             console.log('Успешно создано:', data);
@@ -96,7 +95,7 @@ const SetNickName = () => {
             await AsyncStorage.removeItem('prizm_wallet')
             setIsNameSet(false);
             setName('');
-            Alert.alert('Такой пары имя - кошелек нет в базе')
+            // Alert.alert('Такой пары имя - кошелек нет в базе')
             console.error('Ошибка при создании:', error);
         }
     };
@@ -141,6 +140,10 @@ const SetNickName = () => {
     }, [isNameSet])
 
     const setNickName = async () => {
+        if (name.length === 0) {
+            return
+        }
+
         if (!isNameSet) {
             console.log(isNameSet);
             setIsNameSet(true);
@@ -154,6 +157,8 @@ const SetNickName = () => {
     }
     const createwallet = () => {
         router.push('/pin/createwallet');
+        
+        
     }
     const handleNameChange = (text: string) => {
         if (!isNameSet) {
@@ -184,6 +189,13 @@ const SetNickName = () => {
                         placeholderTextColor="gray"
                     />
                 </View>
+                {
+                    !isNameSet && (
+                        <Text style={styles.suggest}>
+                            Имя пользователя может содержать только латинские буквы (a-z, A-Z), цифры и символы @, _, .
+                        </Text>
+                    )
+                }
             </View>
             {
                 isNameSet && <Pressable style={styles.createWallet} onPress={createwallet}>
@@ -212,6 +224,7 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingLeft:12,
         width: '100%',
+        fontSize: 16,
     },
     inputContainer: {
         width: '100%',
@@ -231,5 +244,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: 'center',
         fontWeight: 'medium'
+    },
+    suggest: {
+        marginTop:5,
+        marginLeft:5,
+        fontSize: 11,
+        color:'#000',
+        opacity:0.4
     }
 });
