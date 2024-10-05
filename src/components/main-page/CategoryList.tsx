@@ -79,7 +79,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     // style={styles.flatlist}
                     renderItem={({item}) =>
                         <Link
-                            href={!isAdminFond ? `${segments[0]}/menu/category/${item.id}` : `(admin)/menu/fonds/edit-fond/${item.id}`}
+                            href={`${segments[0]}/menu/category/${item.id}`}
                             asChild
                             // style={{width:'100%'}}
                         >

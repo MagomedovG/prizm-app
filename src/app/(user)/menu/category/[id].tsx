@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Text,
     View,
@@ -11,10 +11,12 @@ import {
     Dimensions,
     Keyboard, 
     Platform, 
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    Alert,
+    Clipboard
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
-import {useCart} from "@/src/providers/CartProvider";
 import {categories} from "@/assets/data/categories";
 import CategoryItemList from "@/src/components/main-page/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
@@ -27,9 +29,14 @@ import {lightColor} from "@/assets/data/colors";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {IBusinessInCategory} from '../../../../types'
+import WalletItem from '@/src/components/main-page/WalletItem';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import QRCode from 'react-qr-code';
+import { AntDesign } from '@expo/vector-icons';
+
 const deviceHeight =
     Platform.OS === "ios"
         ? Dimensions.get("window").height
@@ -42,11 +49,22 @@ export default function categoryId() {
     const router = useRouter()
     const { id } = useLocalSearchParams()
     const {theme} = useCustomTheme()
+    const [isQrModal, setIsQrModal] = useState(false);
 
     const [categoryList, setCategoryList] = useState<IBusinessInCategory | null>(null)
     const [isModal, setIsModal] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
-
+    const [prizmWallet, setPrizmWallet] = useState('')
+    
+    const [prizmQrCode, setPrizmQrCode] = useState('') 
+    // const prizmWallet = asyncStorage.getItem('prizm_wallet')
+    const inputRef = useRef(null);
+    const copyToClipboard = () => {
+        if (prizmWallet && typeof prizmWallet === "string" ) {
+            Clipboard.setString(prizmWallet);
+        }
+        Alert.alert('Кошелек скопирован!', prizmWallet)
+    };
     useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
         setKeyboardHeight(event.endCoordinates.height);
@@ -73,8 +91,19 @@ export default function categoryId() {
     const hideModal = () => {
         setIsModal(false);
     };
-
-
+    const openQrModal = () => {
+        setIsModal(false); // Закрываем первую модалку
+        setTimeout(() => setIsQrModal(true), 350); // Открываем QR модалку с задержкой
+        
+    };
+    
+    const closeQrModal = () => {
+        setIsQrModal(false); // Закрываем QR модалку
+        // setTimeout(() => setIsModal(true), 1000); // Открываем первую модалку после задержки
+    };
+    
+    
+    
     useEffect(() => {
         async function getData() {
             try {
@@ -82,7 +111,6 @@ export default function categoryId() {
                     `${apiUrl}/api/v1/categories/${id}/get-businesses`,
                 );
                 const data = await response.json();
-                console.log(data);
                 setCategoryList(data);
                 if (!response.ok){
                     console.log(response);
@@ -92,7 +120,25 @@ export default function categoryId() {
                 console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
             }
         }
-
+        const getWallet = async () => {
+            try {
+                const url = await AsyncStorage.getItem('prizm_wallet');
+                const qr = await AsyncStorage.getItem('prizm_qr_code_url');
+        
+                // Проверяем, нужно ли парсить данные
+                // const parsedUrl = url ? JSON.parse(url) : url;
+                // const parsedQr = qr ? JSON.parse(qr) : qr;
+        
+                console.log('parsedQr', url, 'parsedUrl', url);
+                setPrizmWallet(url || '');
+                setPrizmQrCode(qr || '');
+            } catch (error) {
+                console.error('Ошибка при получении данных из AsyncStorage:', error);
+            }
+        };
+        
+        console.log('parsedQr')
+        getWallet()
         getData();
     }, []);
 
@@ -115,7 +161,7 @@ export default function categoryId() {
             }}/>
             {/*<Text style={styles.title}>{category.name}</Text>*/}
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Найти супермаркет"/>
+                <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Поиск" isCategoryItem/>
                 <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={handleWalletPress} />
             </ScrollView>
             
@@ -126,11 +172,12 @@ export default function categoryId() {
                 isVisible={isModal}
                 onSwipeComplete={hideModal}
                 onBackdropPress={hideModal}
-                animationInTiming={200}
+                animationInTiming={300}
                 animationOut='slideOutDown'
-                animationOutTiming={500}
+                animationOutTiming={200}
                 backdropColor='black'
                 hardwareAccelerated
+                backdropTransitionOutTiming={0}
                 swipeDirection={'down'}
                 style={styles.modal}
 
@@ -138,19 +185,22 @@ export default function categoryId() {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         {/*<Text style={styles.modalText}>Как получить бонусы?</Text>*/}
-                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginTop:47}}>
-                            <Text style={styles.subTitle}>Как получить бонусы?</Text>
+                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginTop:17}}>
+                            <Text style={styles.subTitle}>Как получить кэшбэк?</Text>
                             <View>
-                                <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
+                                <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                                    <Text style={styles.text}>При отплате покажите qr-код продавцу</Text>
-                                </View>
+                                    <Text style={styles.text}>
+                                        При оплате покажите
+                                        <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C'}}> qr-код продавцу</Text>
+                                    </Text>
+                                </Pressable>
                                 <View style={{width: 1,
-                                    height: 20,
+                                    height: 17,
                                     backgroundColor: 'black',
                                     alignSelf: 'flex-start',
-                                    marginVertical: 10,
-                                    marginLeft:21.5
+                                    marginVertical: 5,
+                                    marginLeft:19
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
@@ -160,26 +210,67 @@ export default function categoryId() {
 
 
                         </View>
-                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginBottom:45, marginTop:62}}>
-                            <Text style={styles.subTitle}>Как вывести бонусы?</Text>
+                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginBottom:20, marginTop:32}}>
+                            <Text style={styles.subTitle}>Как вывести кэшбек?</Text>
                             <View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                                    <Text style={styles.text}>При отплате покажите qr-код продавцу</Text>
+                                    <Text style={styles.text}>Перейдите в приложение обменника</Text>
                                 </View>
                                 <View style={{width: 1,
-                                    height: 20,
+                                    height: 17,
                                     backgroundColor: 'black',
                                     alignSelf: 'flex-start',
-                                    marginVertical: 10,
-                                    marginLeft:21.5
+                                    marginVertical: 5,
+                                    marginLeft:19
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                                    <Text style={styles.text}>Кэшбэк начислится мгновенно</Text>
+                                    <Text style={styles.text}>Обменяйте PRIZM на рубли в обменнике</Text>
                                 </View>
                             </View>
                         </View>
+                    </View>
+                </View>
+            </Modal>
+            <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                animationIn={'slideInUp'}
+                isVisible={isQrModal}
+                onSwipeComplete={closeQrModal}
+                onBackdropPress={closeQrModal}
+                animationInTiming={300}
+                animationOut='slideOutDown'
+                animationOutTiming={300}
+                backdropTransitionOutTiming={0}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.qrModal}
+            >
+                <View style={styles.centeredQrView}>
+                    <View style={styles.qrModalView}>
+                        <View style={styles.image}>
+                            <QRCode
+                                size={deviceWidth / 1.8}
+                                value={prizmQrCode}
+                                level={'M'}
+                            />
+                        </View>
+                        <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                            <TextInput
+                                ref={inputRef}
+                                style={styles.input}
+                                editable={false}
+                                // onChangeText={setPrizmWallet}
+                                value={prizmWallet}
+                            />
+                            <View style={styles.copyButtonContainer}>
+                                <AntDesign name="copy1" size={15} color="#262626" />
+                            </View>
+                        </Pressable>
+
                     </View>
                 </View>
             </Modal>
@@ -190,6 +281,43 @@ export default function categoryId() {
 };
 const styles = StyleSheet.create({
     modalText:{},
+    pressable: {
+        position: 'relative',
+        width:deviceWidth / 1.8 + 34
+    },
+    image: {
+        // width: '75%',
+        marginHorizontal: 13,
+        marginBottom:23,
+        // aspectRatio: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 5,
+        borderRadius:10,
+        borderWidth:17,
+        borderColor:'#fff'
+    },
+    copyButtonContainer: {
+        position: 'absolute',
+        right: 10,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // width:'100%'
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        backgroundColor: '#EFEFEF',
+        borderRadius: 5,
+        color: '#707070',
+        width:'100%'
+    },
     modalView: {
         backgroundColor: 'white',
         borderTopLeftRadius: 20,
@@ -207,6 +335,28 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
+    },
+    qrModalView: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        paddingTop:38,
+        paddingBottom:26,
+        alignItems: 'center',
+        shadowColor: '#000',
+        width: '100%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    centeredQrView:{
+        // width:deviceWidth - 60,
+        // width:'100%'
+
     },
     centeredView: {
         // flex: 1,
@@ -231,6 +381,13 @@ const styles = StyleSheet.create({
     modal: {
         margin: 0,
         justifyContent: 'flex-end',
+        zIndex: 2
+    },
+    qrModal:{
+        margin: 0,
+        justifyContent: 'center',
+        alignItems:'center',
+        zIndex:3
     },
     purpleCircleText:{
         color:'white',
@@ -241,8 +398,8 @@ const styles = StyleSheet.create({
     circle:{
         borderRadius:50,
         backgroundColor: lightColor,
-        width:43,
-        height:43,
+        width:38,
+        height:38,
         display:'flex',
         alignItems:'center',
         justifyContent:'center'
@@ -254,10 +411,10 @@ const styles = StyleSheet.create({
     },
     subTitle:{
         // marginTop:62,
-        marginBottom:9,
+        marginBottom:16,
         color:'#323232',
         fontSize:20,
-        fontWeight:'medium'
+        fontWeight:'bold'
     },
     greenText:{
         color:'#070907'

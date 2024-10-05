@@ -183,7 +183,7 @@ export default function feedbackId() {
             </View>
         );
     };
-    function trimTrailingZeros(num) {
+    function trimTrailingZeros(num:string | number) {
         // Преобразуем число в строку
         let str = num.toString();
       
@@ -243,7 +243,7 @@ export default function feedbackId() {
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
                     {/* <View>{renderStars(5, 42)}</View> */}
-                    <PostRating id={id} markSize={42} refreshBusiness={getBusiness} initialStars={starsCount ? starsCount : 0}/>
+                    <PostRating id={id as string} markSize={42} refreshBusiness={getBusiness} initialStars={starsCount ? starsCount : 0}/>
 
                 </LinearGradient>
                 <View style={{
@@ -260,7 +260,7 @@ export default function feedbackId() {
                 <FlatList
                     data={feedbacks}
                     renderItem={({ item }) => (
-                        <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
+                        <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', marginBottom:feedbacks && feedbacks?.length > 5 ? 120 : 0, paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
                             <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:15}} >
                                 <Text style={{ color: 'black',fontSize:15, fontWeight:'500'}}>
                                     {item?.created_by ? item?.created_by?.username : 'Неизвестный'}
@@ -274,6 +274,7 @@ export default function feedbackId() {
                             <Text style={{ color: 'black' }}>
                                 {item?.text}
                             </Text>
+                            
                         </View>
                     )}
                     keyExtractor={item => item.id.toString()}

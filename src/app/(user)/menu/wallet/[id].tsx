@@ -39,13 +39,11 @@ export default function walletId() {
         null
     )
     const [prizmWallet, setPrizmWallet] = useState<string>('')
-    // const is_superuser:boolean | string =  asyncStorage.getItem('is_superuser')
-    // const wallet = wallets.find(w => w.id.toString() === id);
     const inputRef = useRef(null);
 
     useEffect(() => {
         if (isUpdate && inputRef.current) {
-            inputRef.current.focus();
+            inputRef.current?.focus();
         }
     }, [isUpdate]);
     

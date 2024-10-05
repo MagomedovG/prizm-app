@@ -6,8 +6,6 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {Pressable} from "react-native";
 import {FontAwesome} from "@expo/vector-icons";
-// import {useAuth} from "@/src/providers/AuthProvider";
-// import {supabase} from "@/src/lib/supabase";
 import UIButton from "@/src/components/UIButton";
 
 export default function TabLayout() {
@@ -24,7 +22,6 @@ export default function TabLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen name="index" options={{href:null}}/>
-        <Tabs.Screen name="cart"  options={{title: 'Корзина', href:null, headerShown:true}}/>
       <Tabs.Screen
         name="menu"
         options={{
@@ -34,17 +31,6 @@ export default function TabLayout() {
           // headerShown:false,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="orders"
-        options={{
-          title: 'Orders',
-          headerShown:false,
-          tabBarStyle: { display: 'none' },
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'list' : 'list-outline'} color={color} />
           ),
         }}
       />

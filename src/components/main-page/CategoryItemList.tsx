@@ -25,9 +25,9 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
     const router = useRouter()
     console.log(segments);
     const { theme } = useCustomTheme();
-    const handleAdminPage = () => {
-        router.push(`${buttonLink}`)
-    }
+    // const handleAdminPage = () => {
+    //     router.push(`${buttonLink}`)
+    // }
     const handleWalletPress = () => {
         onWalletPress(true);
     };
@@ -39,7 +39,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                     <Entypo name="info-with-circle" size={24} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
                     <Pressable onPress={handleWalletPress}>
                         <Text  style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>
-                            Как получить бонусы?
+                            Как получить и вывести кэшбэк
                         </Text>
                     </Pressable>
                 </Pressable> }
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
         gap:8,
         alignItems:'center',
         borderRadius:11,
-        marginBottom: 30,
+        // marginBottom: 30,
 
     },
     greenText:{
@@ -141,7 +141,8 @@ const styles = StyleSheet.create({
 
     },
     flatlist:{
-        // flex:1
+        // flex:1,
+        paddingTop: 30,
     },
     itemContainer: {
         width: ITEM_WIDTH,

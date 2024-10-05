@@ -186,6 +186,7 @@ export default function MenuScreen() {
                 animationOutTiming={500}
                 backdropColor='black'
                 hardwareAccelerated
+                backdropTransitionOutTiming={0}
                 swipeDirection={'down'}
                 style={styles.modal}
 
@@ -236,7 +237,7 @@ export default function MenuScreen() {
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
-
+                backdropTransitionOutTiming={0}
             >
                 <View style={styles.centeredView}>
                     <View style={[styles.chatModalViewContainer, {padding: 0}]}>

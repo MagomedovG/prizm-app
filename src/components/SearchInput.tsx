@@ -8,12 +8,13 @@ const DismissKeyboard = ({ children }:any) => (
     </TouchableWithoutFeedback>
 );
 
-const SearchInput = ({ data, onFilteredData, placeholder }:any) => {
+const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) => {
     const [query, setQuery] = useState('');
 
     useEffect(() => {
         if (query) {
             const filtered = data.filter((item:any) => 
+                isCategoryItem ? item?.title.toLowerCase().includes(query?.toLowerCase()) :
                 item?.title.toLowerCase().startsWith(query?.toLowerCase())
                 // item?.title.toLowerCase().includes(query?.toLowerCase())
         );

@@ -42,14 +42,29 @@ export default function categoryId() {
     const [business, setBusiness] = useState<IBusiness | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
-
+    const [isExpanded, setIsExpanded] = useState(false);
     const categoryId = Number(id)
+
+    const descr = 'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные'
     // const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
 
     // if (!category){
     //     return <Text>Wallet Not Found</Text>
     // }
+
+    const toggleText = () => {
+        setIsExpanded(!isExpanded);
+    };
+
+    const getDisplayText = (text:string) => {
+        if (isExpanded) {
+            return text;
+        }
+        return text?.length > 150 ? `${text.slice(0, 140)} ` : text;
+    };
+
     useEffect(() => {
+        console.log(descr.length)
         async function getData() {
             try {
                 const response = await fetch(
@@ -100,7 +115,7 @@ export default function categoryId() {
     };
     
     return (
-        <ScrollView style={{ paddingTop:173}}>
+        <ScrollView style={{ paddingTop:173, flex:1}}>
             <View style={{width:'100%', position:'absolute', top: -173}}>
                 {business?.images ?
                     <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{minHeight:260,
@@ -118,12 +133,12 @@ export default function categoryId() {
                 }
             </View>
 
-            <ScrollView style={styles.container}>
+            <View style={styles.container}>
                 <Stack.Screen options={{
                     headerShown:false,
                 }}/>
 
-                <View>
+                <View style={{marginBottom:180}}>
                     <View style={styles.sale}>
                         <Text style={styles.saleText}>Кэшбек {business?.cashback_size}%</Text>
                     </View>
@@ -161,31 +176,40 @@ export default function categoryId() {
                     </Link>
                     <Text style={styles.subTitle}>Как получить кэшбек</Text>
                     <View>
-                        <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
+                        <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                             <Text style={styles.text}>При оплате покажите qr-код продавцу</Text>
                         </View>
                         <View style={{width: 1,
-                            height: 20,
+                            height: 17,
                             backgroundColor: 'black',
                             alignSelf: 'flex-start',
-                            marginVertical: 10,
-                            marginLeft:21.5
+                            marginVertical: 5,
+                            marginLeft:19
                         }}></View>
-                        <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
+                        <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
                             <Text style={styles.text}>Кэшбэк начислится мгновенно</Text>
                         </View>
                     </View>
                     <Text style={styles.subTitle}>О партнере</Text>
                     <Text style={styles.text}>
-                        {business?.description}
+                    {/* {business?.description} */}
+                        {/* {descr} */}
+                        {business && getDisplayText(business?.description)}
+                        {business && business?.description?.length > 150 && !isExpanded && (
+                            <Pressable onPress={toggleText}>
+                                <Text style={[styles.text, {height:17, fontWeight:'bold'}]}> еще...</Text>
+                            </Pressable>
+                        )}
                     </Text>
+                    
+                    
                 </View>
 
-            </ScrollView>
+            </View>
 
-            <Modal visible={isFullscreen} transparent={true}>
+            <Modal visible={isFullscreen} transparent={true} >
                 <View style={styles.fullscreenContainer}>
                     <Swiper 
                         index={fullscreenImageIndex} 
@@ -236,8 +260,8 @@ const styles = StyleSheet.create({
     circle: {
         borderRadius: 50,
         backgroundColor: lightColor,
-        width: 43,
-        height: 43,
+        width: 38,
+        height: 38,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Pressable, Text, View, StyleSheet } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +8,7 @@ import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {useRouter} from "expo-router";
 
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import { useFocusEffect } from '@react-navigation/native';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 type IWallet = {
     balance_in_pzm:number;
@@ -52,6 +53,8 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             );
             const data = await response.json();
             setInfo(data);
+            await AsyncStorage.setItem('prizm_qr_code_url', data.prizm_qr_code_url)
+            await AsyncStorage.setItem('prizm_wallet', data.prizm_wallet)
             onQrCodeUrlUpdate(data.prizm_qr_code_url);  
             console.log(11)
             if (!response.ok){
@@ -79,32 +82,33 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
         fetchUserId();
     }, []);
     
-    
-
-    useEffect(() => {
-        
-        const fetchHiddenState = async () => {
-            try {
-                const hiddenState = await AsyncStorage.getItem('isHidden');
-                if (hiddenState !== null) {
-                    setIsHidden(JSON.parse(hiddenState));
-                }
-            } catch (error) {
-                console.error('Failed to load hidden state', error);
+    const fetchHiddenState = async () => {
+        try {
+            const hiddenState = await AsyncStorage.getItem('isHidden');
+            if (hiddenState !== null) {
+                setIsHidden(JSON.parse(hiddenState));
             }
-        };
-        setTimeout(()=>{
-            getData()
-        },0)
-        // getData()
-        fetchHiddenState();
+        } catch (error) {
+            console.error('Failed to load hidden state', error);
+        }
+    };
 
-        const intervalId = setInterval(() => {
-            getData();
-        }, 30000); 
-
-        return () => clearInterval(intervalId);
-    }, [refreshData]);
+    useFocusEffect(
+        useCallback(() => {
+            const fetchData = () => {
+                getData();
+                fetchHiddenState();
+            };
+    
+            fetchData(); 
+    
+            const intervalId = setInterval(() => {
+                getData();
+            }, 30000); 
+    
+            return () => clearInterval(intervalId); 
+        }, [refreshData])
+    );
 
     const handleChatPress = () => {
         onChatPress(true);
@@ -163,18 +167,18 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             <View style={styles.headerList}>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `B = ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
+                        {isHidden ? '****' : `B : ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `P = ${info?.para_balance ? info?.para_balance : 0.0} pzm`}
+                        {isHidden ? '****' : `P : ${info?.para_balance ? info?.para_balance : 0.0} pzm`}
                     </Text>
                 </View>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
-                        {isHidden ? '****' : `1 pzm = ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
+                        {isHidden ? '****' : `1 pzm : ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
-                        {isHidden ? '****' : `баланс = ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} руб`}
+                        {isHidden ? '****' : `баланс : ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} руб`}
                     </Text>
                 </View>
             </View>
@@ -187,6 +191,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0,
         width: '100%',
         padding: 25,
+        paddingBottom: 20
     },
     headerTitleContainer: {
         display: 'flex',
@@ -223,10 +228,11 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: "space-between",
+        gap:5
     },
     headerListItem: {
         color: 'white',
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: 'bold',
     },
     whiteText: {

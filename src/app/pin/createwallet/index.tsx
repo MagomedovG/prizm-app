@@ -114,8 +114,10 @@ const CreateWallet = () => {
                         <AntDesign name="copy1" size={15} color="#262626" />
                     </View>
                 </Pressable>
-                <Text style={{marginLeft:9, color:'#B81C1C'}}>Обязательно сохраните парольную фразу! Ее нельзя
-                    будет получить еще раз.</Text>
+                <Text style={{marginLeft:9, color:'#B81C1C'}}>Обязательно сохраните парольную-фразу! 
+                    Ее нельзя будет получить еще раз. Без нее
+                    нельзя будет обменять призмы
+                </Text>
             </View>
             <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
             <Modal
@@ -130,15 +132,23 @@ const CreateWallet = () => {
                 animationOutTiming={500}
                 backdropColor='black'
                 hardwareAccelerated
+                backdropTransitionOutTiming={0}
                 swipeDirection={'down'}
                 style={styles.modal}
 
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Обязательно сохраните сид-фразу! 
-                        Ее нельзя будет получить еще раз.</Text>
-                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:6}}>
+                    <Text style={styles.modalText}>
+                        Обязательно сохраните парольную фразу! 
+                        Ее нельзя будет получить еще раз. 
+                        <Text style={{color:'#B81C1C', fontWeight: 500}}>
+                            {' '}
+                            Без нее нельзя будет обменять призмы
+                        </Text>
+                    </Text>
+
+                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
                             <Pressable onPress={() => prevScreen()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
                                 <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
                             </Pressable>
@@ -170,7 +180,7 @@ const styles = StyleSheet.create({
     },
     modalText: {
         marginBottom: 15,
-        textAlign: 'center',
+        textAlign: 'left',
         fontSize:15
     },
     centeredView: {
