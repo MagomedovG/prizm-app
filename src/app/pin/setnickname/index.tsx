@@ -96,7 +96,7 @@ const SetNickName = () => {
             setIsNameSet(false);
             setName('');
             // Alert.alert('Такой пары имя - кошелек нет в базе')
-            console.error('Ошибка при создании:', error);
+            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
         }
     };
     

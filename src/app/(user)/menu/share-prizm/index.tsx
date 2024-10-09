@@ -5,14 +5,15 @@ import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {AntDesign} from "@expo/vector-icons";
 import {borderColor} from "@/assets/data/colors";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
-    const [count,setCount]=useState('')
+    const [count,setCount]=useState<number | null>(null)
     const [isNameSet, setIsNameSet] = useState(false);
     const router = useRouter();
-
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const copyWalletToClipboard = () => {
         Clipboard.setString(wallet);
         Alert.alert('Кошелек скопирован!','');
@@ -20,6 +21,59 @@ const SharePrizm = () => {
     const copySidToClipboard = () => {
         Clipboard.setString(sid);
         Alert.alert('Парольная фраза скопирована!','');
+    };
+    const validateCount = (value: string) => {
+        // Заменяем запятую на точку
+        const normalizedValue = value.replace(',', '.');
+        const parsedValue = parseFloat(normalizedValue);
+        
+        // Проверяем, что значение является числом и находится в пределах от 0.01 до 10 000 000
+        if (isNaN(parsedValue) || parsedValue < 0.01 || parsedValue > 10000000) {
+            setErrorMessage('Сумма должна быть в пределах от 0.01 до 10 000 000');
+        } else {
+            setErrorMessage(null);
+        }
+        setCount(normalizedValue);  // Сохраняем нормализованное значение
+    };
+    
+    const postForm = async () => {
+        
+        const form = {
+            secret_phrase:sid,
+            recipient_wallet:wallet,
+            prizm_amount:count
+        };
+        
+        
+        try {
+            console.log(`${apiUrl}/api/v1/users/get-or-create/`)
+            console.log(form)
+            const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                console.log('result',data )
+                const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка при проведении транзакции'
+                Alert.alert(result)
+                setIsNameSet(false);
+                throw new Error('Ошибка сети');
+                
+            } else {
+                router.replace('/(user)/menu');
+                console.log('!result',data )
+            }
+
+            console.log('Успешно создано:', data);
+        } catch (error) {
+            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
+        }
     };
 
     return (
@@ -32,14 +86,16 @@ const SharePrizm = () => {
                 {/*<Text style={styles.label}>Адрес нового кошелька</Text>*/}
                 <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, errorMessage ? styles.inputError : null]}
                         editable={true}
-                        onChangeText={setCount}
+                        onChangeText={validateCount}
                         placeholder={'Сумма pzm'}
                         value={count}
                         keyboardType={"numeric"}
                         placeholderTextColor='#8C8C8C'
+                        type={'number'}
                     />
+                    {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
                 </Pressable>
                 <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
@@ -69,7 +125,7 @@ const SharePrizm = () => {
                 {/*<Text style={{marginLeft:9}}>Обязательно сохраните парольную фразу! Ее нельзя*/}
                 {/*    будет получить еще раз.</Text>*/}
             </ScrollView>
-            <UIButton text='Перевести pzm' onPress={()=>{console.log('ss')}}/>
+            <UIButton text='Перевести pzm' disabled={errorMessage || !sid || !wallet} onPress={()=>{errorMessage || !sid || !wallet ? console.log('ss') : postForm()}}/>
         </View>
     );
 };
@@ -143,5 +199,15 @@ const styles = StyleSheet.create({
         fontSize: 26,
         textAlign: 'center',
         fontWeight: 'bold'
-    }
+    },
+    errorText: {
+        marginLeft:5,
+        color: 'red',
+        marginTop: 5,
+        fontSize: 14,
+    },
+    inputError: {
+        
+        borderColor: 'red',
+    },
 });

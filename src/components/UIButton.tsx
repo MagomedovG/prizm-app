@@ -8,15 +8,16 @@ import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 type ButtonProps = {
     text: string;
     isAdminWallet?:boolean;
+    disabled?: boolean;
 } & React.ComponentPropsWithoutRef<typeof Pressable>;
 
 const UIButton = forwardRef<View | null, ButtonProps>(
-    ({isAdminWallet, text, ...pressableProps }, ref) => {
+    ({isAdminWallet, text,disabled, ...pressableProps }, ref) => {
         const { theme } = useCustomTheme();
         const {asyncTheme} = useAsyncTheme()
         return (
             <Pressable ref={ref} {...pressableProps} style={[styles.container, theme === 'purple' ? styles.purpleBackground : styles.greenBackground, isAdminWallet && {bottom: 70}]}>
-                <Text style={styles.text}>{text}</Text>
+                <Text style={[styles.text, {color: disabled ? '#BDBBBB' : 'white'}]}>{text}</Text>
             </Pressable>
         );
     }
