@@ -76,7 +76,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                 }
             );
             const data = await response.json();
-            setExchanger(data);
+            setExchanger(data?.exchanger);
             if (!response.ok){
                 // console.log(response);
             } else {
