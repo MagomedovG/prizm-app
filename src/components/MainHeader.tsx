@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-import {useRouter} from "expo-router";
+import {Link, useRouter} from "expo-router";
 
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import { useFocusEffect } from '@react-navigation/native';
@@ -32,6 +32,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
     const [info,setInfo] = useState<IWallet | null>(null)
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
+    const [exchanger, setExchanger] = useState<string>('')
     // const userId =  asyncStorage.getItem('user_id')
     const username = asyncStorage.getItem('username')
     const prizm_wallet = asyncStorage.getItem('prizm_wallet')
@@ -68,6 +69,25 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             // console.log(response);
         }
     }
+    async function getExchanger() {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/exchanger/`,{
+                }
+            );
+            const data = await response.json();
+            setExchanger(data);
+            if (!response.ok){
+                // console.log(response);
+            } else {
+                // console.log('okku',data)
+            }
+
+        } catch (error) {
+            console.error("Ошибка при загрузке exchangera:", error);
+            // console.log(response);
+        }
+    }
 
     useEffect(() => {
         async function fetchUserId() {
@@ -80,6 +100,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
         }
 
         fetchUserId();
+        getExchanger() 
     }, []);
     
     const fetchHiddenState = async () => {
@@ -152,9 +173,9 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                         }}>{info?.username}</Text>
                     <Pressable
                         style={styles.headerPitopi}
-                        onPress={logOut}
+                        // onPress={logOut}
                     >
-                        <Text>Обменник</Text>
+                        <Link href={exchanger}>Обменник</Link>
                     </Pressable>
                     <Pressable
                         style={styles.headerPitopi}
