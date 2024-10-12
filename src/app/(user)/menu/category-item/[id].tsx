@@ -60,7 +60,7 @@ export default function categoryId() {
         if (isExpanded) {
             return text;
         }
-        return text?.length > 150 ? `${text.slice(0, 140)} ` : text;
+        return text?.length > 225 ? `${text.slice(0, 220)} ` : text;
     };
 
     useEffect(() => {
@@ -197,7 +197,7 @@ export default function categoryId() {
                     {/* {business?.description} */}
                         {/* {descr} */}
                         {business && getDisplayText(business?.description)}
-                        {business && business?.description?.length > 150 && !isExpanded && (
+                        {business && business?.description?.length > 225 && !isExpanded && (
                             <Pressable onPress={toggleText}>
                                 <Text style={[styles.text, {height:17, fontWeight:'bold'}]}> еще...</Text>
                             </Pressable>
