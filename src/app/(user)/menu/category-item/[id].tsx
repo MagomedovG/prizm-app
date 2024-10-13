@@ -193,13 +193,13 @@ export default function categoryId() {
                         </View>
                     </View>
                     <Text style={styles.subTitle}>О партнере</Text>
-                    <Text style={styles.text}>
+                    <Text style={[styles.text]}>
                     {/* {business?.description} */}
                         {/* {descr} */}
                         {business && getDisplayText(business?.description)}
                         {business && business?.description?.length > 225 && !isExpanded && (
                             <Pressable onPress={toggleText}>
-                                <Text style={[styles.text, {height:17, fontWeight:'bold'}]}> еще...</Text>
+                                <Text style={[{fontSize: 16,height:17,fontWeight:'bold',display:'flex',alignItems:'center',flexDirection:'row',justifyContent:'center', textAlign:'center'}]}> еще...</Text>
                             </Pressable>
                         )}
                     </Text>

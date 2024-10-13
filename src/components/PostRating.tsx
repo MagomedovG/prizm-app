@@ -21,7 +21,7 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', inactiveColor = 'white',refreshBusiness, initialStars }) => {
     const [activeStars, setActiveStars] = useState<number>(0);
-    console.log(initialStars)
+    
     const postRating = async (rating: number) => {
         setActiveStars(rating);
         const userId = await AsyncStorage.getItem('user_id');
@@ -42,13 +42,11 @@ const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', 
         });
         const data = await response.json();
         if (response.ok) {
-            console.log(data);
             refreshBusiness()
         } else {
-            console.log(data);
         }
         } catch (e) {
-        console.log(e);
+            // console.log(e);
         }
     }
   return (

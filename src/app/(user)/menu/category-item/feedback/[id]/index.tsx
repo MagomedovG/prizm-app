@@ -112,6 +112,7 @@ export default function feedbackId() {
         React.useCallback(() => {
             getFeedbacks()
             getBusiness()
+            getMyFeedback()
         }, [])
     )
 
@@ -259,6 +260,7 @@ export default function feedbackId() {
                 </View>
                 <FlatList
                     data={feedbacks}
+                    style={{marginBottom:100}}
                     renderItem={({ item }) => (
                         <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', marginBottom:feedbacks && feedbacks?.length > 5 ? 120 : 0, paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
                             <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:15}} >

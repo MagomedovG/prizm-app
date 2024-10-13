@@ -129,7 +129,7 @@ export default function categoryId() {
                 // const parsedUrl = url ? JSON.parse(url) : url;
                 // const parsedQr = qr ? JSON.parse(qr) : qr;
         
-                console.log('parsedQr', url, 'parsedUrl', url);
+                console.log('parsedQr', url, 'parsedUrl',typeof url);
                 setPrizmWallet(url || '');
                 setPrizmQrCode(qr || '');
             } catch (error) {
@@ -137,7 +137,7 @@ export default function categoryId() {
             }
         };
         
-        console.log('parsedQr')
+        console.log('parsedQr', prizmWallet)
         getWallet()
         getData();
     }, []);
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'gray',
         paddingVertical: 15,
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         backgroundColor: '#EFEFEF',
         borderRadius: 5,
         color: '#707070',

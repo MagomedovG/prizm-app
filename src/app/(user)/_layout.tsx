@@ -26,12 +26,13 @@ export default function TabLayout() {
         name="menu"
         options={{
             headerShown: false,
-          title: 'Menu',
+          // title: 'Menu',
           tabBarStyle: { display: 'none' },
           // headerShown:false,
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
+          // tabBarIcon: ({ color, focused }) => (
+          //   // <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+          //   <Text></Text>
+          // ),
         }}
       />
     </Tabs>

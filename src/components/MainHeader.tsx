@@ -155,7 +155,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 7.5 }}>
                     <Pressable
-                        // onPress={handleChatPress}
+                        onPress={logOut}
                     >
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
                     </Pressable>
