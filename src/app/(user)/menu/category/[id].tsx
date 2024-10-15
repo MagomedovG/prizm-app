@@ -192,7 +192,7 @@ export default function categoryId() {
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                                     <Text style={styles.text}>
                                         При оплате покажите
-                                        <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C'}}> qr-код продавцу</Text>
+                                        <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}> qr-код продавцу</Text>
                                     </Text>
                                 </Pressable>
                                 <View style={{width: 1,

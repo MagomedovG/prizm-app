@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Text,
     View,
@@ -10,13 +10,16 @@ import {
     ScrollView,
     Dimensions,
     FlatList,
-    Modal
+    // Modal,
+    Platform,
+    Alert,
+    
 } from "react-native";
 import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Animated } from 'react-native';
-
+import { Animated,Clipboard } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
-import {useCart} from "@/src/providers/CartProvider";
+
 import {categories, defaultLogo} from "@/assets/data/categories";
 import CategoryItemList from "@/src/components/main-page/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
@@ -32,7 +35,18 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Swiper from 'react-native-swiper'
 const { width, height } = Dimensions.get('window');
 import { IFeedbacks,IBusiness } from '@/src/types';
+const deviceWidth = Dimensions.get("window").width;
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import QRCode from 'react-qr-code';
+// import { AsyncStorage } from 'react-native';
+import Modal from "react-native-modal";
 
+const deviceHeight =
+    Platform.OS === "ios"
+        ? Dimensions.get("window").height
+        : require("react-native-extra-dimensions-android").get(
+            "REAL_WINDOW_HEIGHT"
+        );
 const ITEM_WIDTH = width - 25;
 
 export default function categoryId() {
@@ -44,14 +58,31 @@ export default function categoryId() {
     const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
     const [isExpanded, setIsExpanded] = useState(false);
     const categoryId = Number(id)
-
+    const [isQrModal, setIsQrModal] = useState(false);
+    const [prizmWallet, setPrizmWallet] = useState('')
+    
+    const [prizmQrCode, setPrizmQrCode] = useState('') 
+    const inputRef = useRef(null);
+    const copyToClipboard = () => {
+        if (prizmWallet && typeof prizmWallet === "string" ) {
+            Clipboard.setString(prizmWallet);
+        }
+        Alert.alert('Кошелек скопирован!', prizmWallet)
+    };
     const descr = 'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные'
     // const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
 
     // if (!category){
     //     return <Text>Wallet Not Found</Text>
     // }
-
+    const openQrModal = () => {
+        setIsQrModal(true) 
+        
+    };
+    
+    const closeQrModal = () => {
+        setIsQrModal(false); 
+    };
     const toggleText = () => {
         setIsExpanded(!isExpanded);
     };
@@ -64,7 +95,22 @@ export default function categoryId() {
     };
 
     useEffect(() => {
-        console.log(descr.length)
+        const getWallet = async () => {
+            try {
+                const url = await AsyncStorage.getItem('prizm_wallet');
+                const qr = await AsyncStorage.getItem('prizm_qr_code_url');
+        
+                // Проверяем, нужно ли парсить данные
+                // const parsedUrl = url ? JSON.parse(url) : url;
+                // const parsedQr = qr ? JSON.parse(qr) : qr;
+        
+                console.log('parsedQr', url, 'parsedUrl',typeof url);
+                setPrizmWallet(url || '');
+                setPrizmQrCode(qr || '');
+            } catch (error) {
+                console.error('Ошибка при получении данных из AsyncStorage:', error);
+            }
+        };
         async function getData() {
             try {
                 const response = await fetch(
@@ -83,6 +129,7 @@ export default function categoryId() {
         }
 
         getData();
+        getWallet()
     }, []);
 
     const openFullscreen = (index: number) => {
@@ -178,7 +225,14 @@ export default function categoryId() {
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                            <Text style={styles.text}>При оплате покажите qr-код продавцу</Text>
+                            <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
+                                    {/* <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View> */}
+                                    <Text style={styles.text}>
+                                        При оплате покажите
+                                        <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}> qr-код продавцу</Text>
+                                    </Text>
+                                </Pressable>
+                            {/* <Text style={styles.text}>При оплате покажите qr-код продавцу</Text> */}
                         </View>
                         <View style={{width: 1,
                             height: 17,
@@ -206,39 +260,105 @@ export default function categoryId() {
                     
                     
                 </View>
+                <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                animationIn={'slideInUp'}
+                isVisible={isQrModal}
+                onSwipeComplete={closeQrModal}
+                onBackdropPress={closeQrModal}
+                animationInTiming={300}
+                animationOut='slideOutDown'
+                animationOutTiming={300}
+                backdropTransitionOutTiming={0}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.qrModal}
+            >
+                <View style={styles.centeredQrView}>
+                    <View style={styles.qrModalView}>
+                        <View style={styles.qrimage}>
+                            <QRCode
+                                size={deviceWidth / 1.8}
+                                value={prizmQrCode}
+                                level={'M'}
+                            />
+                        </View>
+                        <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                            <TextInput
+                                ref={inputRef}
+                                style={styles.input}
+                                editable={false}
+                                // onChangeText={setPrizmWallet}
+                                value={prizmWallet}
+                            />
+                            <View style={styles.copyButtonContainer}>
+                                <AntDesign name="copy1" size={15} color="#262626" />
+                            </View>
+                        </Pressable>
+
+                    </View>
+                </View>
+            </Modal>
 
             </View>
 
-            <Modal visible={isFullscreen} transparent={true} >
-                <View style={styles.fullscreenContainer}>
-                    <Swiper 
-                        index={fullscreenImageIndex} 
-                        showsButtons={true} 
-                        showsPagination={false} 
-                        loop={false}
-                        style={{ minHeight: 260, maxHeight: 289 }}
-                        nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
-                        prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
-                        >
-                        {business?.images?.map((item:any, index:number) => (
-                            <View key={index} style={styles.fullscreenSlide}>
-                                <Image
-                                    style={styles.fullscreenImage}
-                                    source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
-                                />
-                            </View>
-                        ))}
-                    </Swiper>
-                    <Pressable style={styles.closeButton} onPress={closeFullscreen}>
-                        <AntDesign name="close" size={30} color="white" />
-                    </Pressable>
-                </View>
-            </Modal>
+            <Modal
+            isVisible={isFullscreen} // это свойство отвечает за видимость модалки
+            onSwipeComplete={closeFullscreen} // закрытие модалки при свайпе вниз
+            swipeDirection="down" // определяем направление свайпа
+            deviceWidth={deviceWidth}
+            deviceHeight={deviceHeight}
+            style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
+            animationIn="slideInUp" // анимация при открытии
+            animationOut="slideOutDown" // анимация при закрытии
+            backdropOpacity={0.8} // настройка прозрачности фона
+        >
+            <View style={styles.fullscreenContainer}>
+                <Swiper
+                    index={fullscreenImageIndex}
+                    showsButtons={true}
+                    showsPagination={false}
+                    loop={false}
+                    style={{ minHeight: 260, maxHeight: deviceHeight }}
+                    nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
+                    prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
+                >
+                    {business?.images?.map((item: any, index: number) => (
+                        <View key={index} style={styles.fullscreenSlide}>
+                            <Image
+                                style={styles.fullscreenImage}
+                                source={{ uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo }}
+                            />
+                        </View>
+                    ))}
+                </Swiper>
+                <Pressable style={styles.closeButton} onPress={closeFullscreen}>
+                    <AntDesign name="close" size={30} color="white" />
+                </Pressable>
+            </View>
+        </Modal>
+            
         </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
+    qrimage:{
+        marginHorizontal: 13,
+        marginBottom:23,
+        // aspectRatio: 1,
+        shadowColor: '#000000',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 5,
+        borderRadius:10,
+        borderWidth:17,
+        borderColor:'#fff'
+    },
+
     greenText: {
         color: '#070907'
     },
@@ -256,6 +376,61 @@ const styles = StyleSheet.create({
     },
     greenCircleText: {
         color: 'black',
+    },
+    qrModalView: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        paddingTop:38,
+        paddingBottom:26,
+        alignItems: 'center',
+        shadowColor: '#000',
+        width: '100%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    centeredQrView:{
+        // width:deviceWidth - 60,
+        // width:'100%'
+
+    },
+    centeredView: {
+        // flex: 1,
+        justifyContent: 'flex-end',
+    },
+    qrModal:{
+        margin: 0,
+        justifyContent: 'center',
+        alignItems:'center',
+        zIndex:3
+    },
+    pressable: {
+        position: 'relative',
+        width:deviceWidth / 1.8 + 34
+    },
+    copyButtonContainer: {
+        position: 'absolute',
+        right: 10,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // width:'100%'
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        paddingVertical: 15,
+        paddingHorizontal: 15,
+        backgroundColor: '#EFEFEF',
+        borderRadius: 5,
+        color: '#707070',
+        width:'100%'
     },
     circle: {
         borderRadius: 50,
@@ -352,7 +527,7 @@ const styles = StyleSheet.create({
     },
     fullscreenContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        // backgroundColor: 'rgba(0, 0, 0, 0.9)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -362,7 +537,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fullscreenImage: {
-        width: width,
+        width: deviceWidth,
         height: height,
         resizeMode: 'contain',
     },

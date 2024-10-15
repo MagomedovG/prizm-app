@@ -165,12 +165,12 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                 </View>
 
                 <View style={[styles.headerProfileGroup, {position:'relative'}]}>
-                    <Text style={{
+                    <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText,{
                             position:'absolute',
                             top:-20,
                             right:0,
-                            color:'white'
-                        }}>{info?.username}</Text>
+                            
+                        }]}>{info?.username}</Text>
                     <Pressable
                         style={styles.headerPitopi}
                         // onPress={logOut}
