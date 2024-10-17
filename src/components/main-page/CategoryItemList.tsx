@@ -1,14 +1,10 @@
 import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions} from "react-native";
-import {Colors} from "@/constants/Colors";
-import {ICategory, ICategoryItem} from "@/src/types";
-import {Link, useRouter, useSegments} from "expo-router";
-import wallet from "@/assets/data/wallet";
+import {Link, useSegments} from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import React from "react";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-import {IBusinessInCategory,ICategotyInBusinessInCategory} from '../../types'
-// import FastImage from 'react-native-fast-image'
+import {IBusinessInCategory} from '../../types'
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
 
@@ -22,12 +18,8 @@ type CategoryListProps = {
 }
 export default function CategoryItemList ({categoryList, title, isBonus, isAdmin, buttonLink,onWalletPress}:CategoryListProps) {
     const segments = useSegments();
-    const router = useRouter()
     console.log(segments);
     const { theme } = useCustomTheme();
-    // const handleAdminPage = () => {
-    //     router.push(`${buttonLink}`)
-    // }
     const handleWalletPress = () => {
         onWalletPress(true);
     };
@@ -86,7 +78,6 @@ const styles = StyleSheet.create({
     },
     button:{
         borderRadius:33,
-        // width:'30%',
         borderWidth:1,
         paddingVertical:10,
         paddingHorizontal:20
@@ -117,8 +108,6 @@ const styles = StyleSheet.create({
         gap:8,
         alignItems:'center',
         borderRadius:11,
-        // marginBottom: 30,
-
     },
     greenText:{
         color:'#363C36'
@@ -135,30 +124,17 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         marginBottom:50,
-
-        // flex:1,
-        // aspectRatio:1
-
     },
     flatlist:{
-        // flex:1,
         paddingTop: 30,
     },
     itemContainer: {
         width: ITEM_WIDTH,
-        // aspectRatio:1,
-        // margin: 5,
-        // padding: 10,
         backgroundColor: 'white',
-        // height:131,
-        // position:'relative',
     },
     image: {
-        // width: '100%',
-        // maxHeight:110,
         height:110,
         objectFit:'cover',
-        // height: '100%',
         borderRadius: 13,
         borderWidth:1,
         borderColor:'#898989'
@@ -166,13 +142,8 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: '600',
-
     },
     text:{
-        // position:'absolute',
-        // bottom:10,
-        // left:11,
-        // right:11,
         marginTop:5,
         marginLeft:7,
         fontSize:15,

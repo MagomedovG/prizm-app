@@ -1,38 +1,28 @@
-import {Link, Redirect, Stack} from 'expo-router';
+import {Link, Stack} from 'expo-router';
 import {
     View,
     FlatList,
-    ActivityIndicator,
     Text,
     Pressable,
     ScrollView,
-    Alert,
     Dimensions,
     Platform, RefreshControl
 } from "react-native";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
-
-
 import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
 import React, { useEffect, useState } from "react";
 import Modal from "react-native-modal";
-// import wallets from "@/assets/data/wallet";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
-// import { categories } from "@/assets/data/categories";
 import MainHeader from "@/src/components/MainHeader";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
-import CookieManager, { Cookies } from '@react-native-cookies/cookies';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {IWallet} from "@/src/types";
-import QRCode from 'react-qr-code';
 import Loader from '@/src/components/Loader';
-
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const deviceWidth = Dimensions.get("window").width;
@@ -50,7 +40,7 @@ type IChats = {
 export default function MenuScreen() {
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
-    const { asyncTheme, changeTheme } = useAsyncTheme();
+    const { changeTheme } = useAsyncTheme();
     const [isChatModal, setIsChatModal] = useState(false);
     const [categories, setCategories] = useState(null)
     const [wallets, setWallets] = useState<IWallet[]>([])
@@ -62,9 +52,6 @@ export default function MenuScreen() {
             const response = await fetch(`${apiUrl}/api/v1/social-networks/`)
             const data = await response.json();
             setChats(data)
-            if (response.ok){
-                console.log('data',(data?.whatsapp))
-            }
         } catch (err) {
             console.log(err)
         }
@@ -76,7 +63,7 @@ export default function MenuScreen() {
     const addWalletWithQrCodeUrl = (url: string) => {
         if (url) {
             setWallets((prevWallets: any) => {
-                const hasWallet = prevWallets.some(wallet => wallet.title === "Мой кошелек");
+                const hasWallet = prevWallets.some((wallet:any) => wallet.title === "Мой кошелек");
                 if (!hasWallet) {
                     return [
                         {
@@ -91,7 +78,6 @@ export default function MenuScreen() {
             });
             setTimeout(() => {
                 setIsLoading(false);
-                console.log('500')
             },500)
             
         }
@@ -104,16 +90,12 @@ export default function MenuScreen() {
                 `${apiUrl}/api/v1/categories/`,
             );
             const data = await response.json();
-            // console.log('categories',data);
             setCategories(data);
-            if (!response.ok){
-                console.log(response);
-            }
+            
             setRefreshing(false)
 
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-            // console.log(response);
         }
     }
 
@@ -125,15 +107,9 @@ export default function MenuScreen() {
                 `${apiUrl}/api/v1/funds/`,
             );
             const data = await response.json();
-            console.log(data);
             setWallets(data);
-            if (!response.ok){
-                console.log(response);
-            }
-
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
-            // console.log(response);
         }
     }
     useEffect(() => {
@@ -141,7 +117,6 @@ export default function MenuScreen() {
         getData();
         setTimeout(() => {
             setIsLoading(false);
-            console.log('2000')
         },2000)
     }, []);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -150,9 +125,6 @@ export default function MenuScreen() {
         setRefreshing(true);
         getFunds()
         getData();
-        // setTimeout(() => {
-        //     setRefreshing(false);
-        // }, 2000);
     }, []);
 
     const toggleModal = () => {
@@ -212,14 +184,6 @@ export default function MenuScreen() {
                                 ></LinearGradient>
                             </Pressable>
                         </View>
-
-
-                        {/*<Text style={styles.modalText}>Hello World!</Text>*/}
-                        {/*<Pressable*/}
-                        {/*    style={[styles.button, styles.buttonClose]}*/}
-                        {/*    onPress={hideModal}>*/}
-                        {/*    <Text style={styles.textStyle}>Hide Modal</Text>*/}
-                        {/*</Pressable>*/}
                     </View>
                 </View>
             </Modal>
@@ -283,7 +247,6 @@ export default function MenuScreen() {
                             <Text style={[styles.walletTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>Кошельки</Text>
                             <Pressable
                                 onPress={toggleModal}
-                                       // style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center',}}
                             >
                                 <View><Entypo name="dots-three-horizontal" size={22} color={theme === 'purple' ? 'white' : 'black'} /></View>
                             </Pressable>
@@ -296,8 +259,6 @@ export default function MenuScreen() {
                             keyExtractor={(item) => item.title}
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
-                            // contentContainerStyle={{gap:33}}
-                            // columnWrapperStyle={{gap:6}}
                         />
                     </LinearGradient>
 
@@ -341,7 +302,6 @@ const styles = StyleSheet.create({
         fontSize:22
     },
     centeredView: {
-        // flex: 1,
         justifyContent: 'flex-end',
     },
     chatModalView:{
@@ -349,10 +309,7 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:'center',
         alignItems:'center',
-        // gap:15,
         paddingHorizontal: 20,
-        // paddingTop:16,
-        // paddingBottom:26,
         paddingVertical:17,
         borderBottomColor:'#D7D7D7',
         borderBottomWidth:1,

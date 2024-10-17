@@ -6,11 +6,11 @@ import {
     StyleSheet,
     ScrollView,
     Dimensions,
-    FlatList, RefreshControl, SafeAreaView
+    FlatList, RefreshControl, 
 } from "react-native";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 
-import { Link, Stack, useLocalSearchParams, useRouter,useFocusEffect } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import {  defaultLogo } from "@/assets/data/categories";
 import HeaderLink from "@/src/components/HeaderLink";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
@@ -55,7 +55,6 @@ export default function feedbackId() {
             : format(date, 'd MMMM yyyy', { locale: ru }) + ' год';
     };
 
-    // const userId = await asyncStorage.getItem('user_id');
     async function getMyFeedback() {
         try {
             const userId = await asyncStorage.getItem('user_id');
@@ -76,12 +75,9 @@ export default function feedbackId() {
             );
             let data = await response.json();
 
-            if (!response.ok) {
-                console.error("Ошибка при загрузке фидбэков:", response);
-            } else {
+            if (response.ok) {
                 setFeedbacks(data);
             }
-            console.log(data)
         } catch (error) {
             console.error("Ошибка при загрузке данных фидбэков:", error);
         }
@@ -90,15 +86,12 @@ export default function feedbackId() {
     async function getBusiness() {
         try {
             const userId = await asyncStorage.getItem('user_id');
-            console.log('feedback-w-rating',`${apiUrl}/api/v1/business/${id}/?rating-created-by=${userId}`)
             const response = await fetch(
                 `${apiUrl}/api/v1/business/${id}/?rating-created-by=${userId}`,
             );
             const data = await response.json();
 
-            if (!response.ok) {
-                console.error("Ошибка при загрузке бизнес данных:", response);
-            } else {
+            if (response.ok) {
                 setBusiness(data?.business);
                 setStarsCount(data?.user_rating_value)
                 setRefreshing(false)
@@ -118,7 +111,6 @@ export default function feedbackId() {
 
 
     useEffect(() => {
-
         getMyFeedback()
         getFeedbacks();
         getBusiness();
@@ -132,7 +124,6 @@ export default function feedbackId() {
         getBusiness()
         getFeedbacks()
         getMyFeedback()
-        
     }, []);
 
     const getFeedbackWord = (count:number) => {
@@ -185,21 +176,15 @@ export default function feedbackId() {
         );
     };
     function trimTrailingZeros(num:string | number) {
-        // Преобразуем число в строку
         let str = num.toString();
-      
-        // Если число содержит десятичную точку
         if (str.includes('.')) {
-          // Убираем все лишние нули в конце числа после точки
           str = str.replace(/\.?0+$/, '');
         }
-      
         return str;
       }
     
 
     return (
-        // style={styles.cartContainer}
         <>
             <Stack.Screen options={{
                 headerShown: false,
@@ -232,7 +217,6 @@ export default function feedbackId() {
                 >
                     <View style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'space-between', gap:30}}>
                         <Text style={styles.averageMarkText}>
-                            {/*{averageMark.toFixed(1)}*/}
                             {business?.average_rating ? trimTrailingZeros(business.average_rating) : 0}
                         </Text>
                         <View style={{display:'flex', flexDirection:'column',justifyContent:'space-between', height:52}}>
@@ -243,16 +227,13 @@ export default function feedbackId() {
                         </View>
                     </View>
                     <Text style={{fontSize:14, color:'#C0C0C0', marginTop:13}}>Оцените и напишите отзыв</Text>
-                    {/* <View>{renderStars(5, 42)}</View> */}
                     <PostRating id={id as string} markSize={42} refreshBusiness={getBusiness} initialStars={starsCount ? starsCount : 0}/>
-
                 </LinearGradient>
                 <View style={{
                         display:'flex',
                         flexDirection:'row',
                         justifyContent:'space-between',
                         alignItems:'center',
-                        // paddingVertical:10, 
                         paddingTop:20,
                         borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}
                     >
@@ -260,15 +241,14 @@ export default function feedbackId() {
                 </View>
                 <FlatList
                     data={feedbacks}
-                    style={{marginBottom:100}}
+                    style={{marginBottom:feedbacks && feedbacks?.length > 5 ? 120 : 0}}
                     renderItem={({ item }) => (
-                        <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start', marginBottom:feedbacks && feedbacks?.length > 5 ? 120 : 0, paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
+                        <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start',  paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
                             <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:15}} >
                                 <Text style={{ color: 'black',fontSize:15, fontWeight:'500'}}>
                                     {item?.created_by ? item?.created_by?.username : 'Неизвестный'}
                                 </Text>
                                 <View style={{gap:16,display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-                                    {/*<View>{item.mark && renderStars(item.mark, 22, theme === 'purple' ? '#41146D' : '#32933C') }</View>*/}
                                     <Text style={{fontSize:14}}>{formatDate(item?.created_at)}</Text>
                                 </View>
                             </View>
@@ -276,7 +256,6 @@ export default function feedbackId() {
                             <Text style={{ color: 'black' }}>
                                 {item?.text}
                             </Text>
-                            
                         </View>
                     )}
                     keyExtractor={item => item.id.toString()}
@@ -294,12 +273,10 @@ export default function feedbackId() {
 const styles = StyleSheet.create({
     pickerWrapper: {
         borderWidth: 1,
-        // borderColor: theme === 'purple' ? '#41146D' : '#32933C',
         borderColor:'#32933C',
-
         borderRadius: 5,
         overflow: 'hidden',
-        width: 150, // или любая другая подходящая ширина
+        width: 150, 
         height: 40,
         justifyContent: 'center',
     },
@@ -307,10 +284,9 @@ const styles = StyleSheet.create({
         height: 40,
         width: '100%',
         color: '#32933C'
-        // color: theme === 'purple' ? '#41146D' : '#32933C', // Цвет текста выбранного элемента
     },
     pickerItem: {
-        fontSize: 16, // Размер шрифта элементов
+        fontSize: 16, 
     },
     purpleCircle: {
         backgroundColor: '#5C2389',
@@ -368,18 +344,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent:'space-between',
-        // gap: 32,
         marginTop: 26
     },
     cartHeader:{
-        // paddingHorizontal: 16,
         paddingVertical: 25,
         borderRadius: 15,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent:'space-between',
-        // gap: 32,
         marginTop: 26
     },
     cartContainer: {
@@ -389,8 +362,6 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingHorizontal: 50,
         flexDirection: 'column',
-
-
     },
     sale: {
         backgroundColor: '#313131',

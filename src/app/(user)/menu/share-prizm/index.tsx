@@ -1,17 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {AntDesign} from "@expo/vector-icons";
 import {borderColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const SharePrizm = () => {
-    const [wallet, setWallet] = useState('');
-    const [sid, setSid] = useState('');
-    const [count,setCount]=useState<number | null>(null)
-    const [isNameSet, setIsNameSet] = useState(false);
+    const [wallet, setWallet] = useState('PRIZM-G66W-SYMT-3W9N-4VAVE');
+    const [sid, setSid] = useState('prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split');
+    const [count,setCount]=useState<number | null | string>(8)
     const router = useRouter();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const copyWalletToClipboard = () => {
@@ -23,11 +20,9 @@ const SharePrizm = () => {
         Alert.alert('Парольная фраза скопирована!','');
     };
     const validateCount = (value: string) => {
-        // Заменяем запятую на точку
         const normalizedValue = value.replace(',', '.');
         const parsedValue = parseFloat(normalizedValue);
         
-        // Проверяем, что значение является числом и находится в пределах от 0.01 до 10 000 000
         if (isNaN(parsedValue) || parsedValue < 0.01 || parsedValue > 10000000) {
             setErrorMessage('Сумма должна быть в пределах от 0.01 до 10 000 000');
         } else {
@@ -43,11 +38,7 @@ const SharePrizm = () => {
             recipient_wallet:wallet,
             prizm_amount:count
         };
-        
-        
         try {
-            console.log(`${apiUrl}/api/v1/users/get-or-create/`)
-            console.log(form)
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
                 headers: {
@@ -55,22 +46,14 @@ const SharePrizm = () => {
                 },
                 body: JSON.stringify(form),
             });
-
             const data = await response.json();
-            
-            if (!response.ok) {
-                console.log('result',data )
-                const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка при проведении транзакции'
-                Alert.alert(result)
-                setIsNameSet(false);
-                throw new Error('Ошибка сети');
-                
+            if (data) {
+                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data?.prizm_amount || data;
+                Alert.alert(message);
             } else {
-                router.replace('/(user)/menu');
-                console.log('!result',data )
+                Alert.alert('Ошибка при проведении транзакции');
             }
-
-            console.log('Успешно создано:', data);
+            
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
         }
@@ -83,7 +66,6 @@ const SharePrizm = () => {
                 <Text style={styles.title}>
                     Перевести pzm
                 </Text>
-                {/*<Text style={styles.label}>Адрес нового кошелька</Text>*/}
                 <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
                         style={[styles.input, errorMessage ? styles.inputError : null]}
@@ -107,7 +89,6 @@ const SharePrizm = () => {
                         placeholderTextColor='#8C8C8C'
                     />
                 </Pressable>
-                {/*<Text style={styles.label}>Парольная фраза</Text>*/}
                 <Pressable onPress={copySidToClipboard} style={[styles.pressable, {flex: 1,
                     justifyContent: 'center',
                     marginTop: 5,
@@ -122,10 +103,8 @@ const SharePrizm = () => {
                         placeholderTextColor='#8C8C8C'
                     />
                 </Pressable>
-                {/*<Text style={{marginLeft:9}}>Обязательно сохраните парольную фразу! Ее нельзя*/}
-                {/*    будет получить еще раз.</Text>*/}
             </ScrollView>
-            <UIButton text='Перевести pzm' disabled={errorMessage || !sid || !wallet} onPress={()=>{errorMessage || !sid || !wallet ? console.log('ss') : postForm()}}/>
+            <UIButton text='Перевести pzm' disabled={!!errorMessage || !sid || !wallet} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
         </View>
     );
 };
@@ -140,7 +119,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 15,
         top: 0,
-        // bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -159,7 +137,6 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
-        // borderColor: '#957ABC',
         paddingVertical: 16,
         paddingHorizontal: 13,
         backgroundColor: '#ffffff',
@@ -173,7 +150,6 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 13,
         backgroundColor: '#fff',
-        // borderColor: '#828282',
         borderWidth: 1,
         borderRadius: 10,
         textAlignVertical: 'top',
@@ -188,7 +164,6 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        // justifyContent: 'center',
         marginTop:88,
         alignItems: 'center',
         position:'relative'
@@ -207,7 +182,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     inputError: {
-        
         borderColor: 'red',
     },
 });

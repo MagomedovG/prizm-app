@@ -33,10 +33,6 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
     const [exchanger, setExchanger] = useState<string>('')
-    // const userId =  asyncStorage.getItem('user_id')
-    const username = asyncStorage.getItem('username')
-    const prizm_wallet = asyncStorage.getItem('prizm_wallet')
-    const is_superuser =  asyncStorage.getItem('is_superuser')
     const logOut = () => {
         asyncStorage.removeItem('username')
         asyncStorage.removeItem('prizm_wallet')
@@ -57,16 +53,9 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             await AsyncStorage.setItem('prizm_qr_code_url', data.prizm_qr_code_url)
             await AsyncStorage.setItem('prizm_wallet', data.prizm_wallet)
             onQrCodeUrlUpdate(data.prizm_qr_code_url);  
-            console.log(11)
-            if (!response.ok){
-                console.log(response);
-            } else {
-                // console.log('okku',data)
-            }
 
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
-            // console.log(response);
         }
     }
     async function getExchanger() {
@@ -77,15 +66,8 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             );
             const data = await response.json();
             setExchanger(data?.exchanger);
-            if (!response.ok){
-                // console.log(response);
-            } else {
-                // console.log('okku',data)
-            }
-
         } catch (error) {
             console.error("Ошибка при загрузке exchangera:", error);
-            // console.log(response);
         }
     }
 
@@ -98,7 +80,6 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                 console.error('User ID не найден в asyncStorage');
             }
         }
-
         fetchUserId();
         getExchanger() 
     }, []);
@@ -120,9 +101,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                 getData();
                 fetchHiddenState();
             };
-    
             fetchData(); 
-    
             const intervalId = setInterval(() => {
                 getData();
             }, 30000); 
@@ -173,7 +152,6 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                         }]}>{info?.username}</Text>
                     <Pressable
                         style={styles.headerPitopi}
-                        // onPress={logOut}
                     >
                         <Link href={exchanger}>Обменник</Link>
                     </Pressable>
@@ -188,18 +166,18 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
             <View style={styles.headerList}>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `B : ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
+                        {isHidden ? '****' : `B: ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                        {isHidden ? '****' : `P : ${info?.para_balance ? info?.para_balance : 0.0} pzm`}
+                        {isHidden ? '****' : `P: ${info?.para_balance ? info?.para_balance : 0.0} pzm`}
                     </Text>
                 </View>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
-                        {isHidden ? '****' : `1 pzm : ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
+                        {isHidden ? '****' : `1 pzm: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
-                        {isHidden ? '****' : `баланс : ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} руб`}
+                        {isHidden ? '****' : `баланс: ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} руб`}
                     </Text>
                 </View>
             </View>

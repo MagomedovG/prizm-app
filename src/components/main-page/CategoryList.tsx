@@ -1,16 +1,12 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, ScrollView, Keyboard, Platform, KeyboardAvoidingView} from "react-native";
-import {Colors} from "@/constants/Colors";
+import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView} from "react-native";
 import {ICategory} from "@/src/types";
 import {Link, useRouter, useSegments} from "expo-router";
-import wallet from "@/assets/data/wallet";
 import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
 const ITEM_HEIGHT = height / 2 -30
-// import { Keyboard, Platform, KeyboardAvoidingView } from 'react-native';
 
 type CategoryListProps = {
     title?:string,
@@ -36,10 +32,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
             setKeyboardHeight(0);
         });
 
-        const containerStyle = {
-            ...styles.container,
-            marginBottom: keyboardHeight ? ITEM_HEIGHT + keyboardHeight : ITEM_HEIGHT,
-        };
+        
 
         return () => {
             keyboardDidHideListener.remove();
@@ -58,12 +51,9 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     }
     return (
         <KeyboardAvoidingView
-            // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT }]}
         >
-            {/* <View > */}
                 {isInput && <SearchInput data={categories} onFilteredData={handleFilteredData} placeholder="Поиск"/>}
-                {/*<Text style={styles.title}>{title}</Text>*/}
                 <View style={styles.titleButton}>
                     <Text style={[styles.title, !isAdminFond ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
                     {isAdminFond && (<Pressable onPress={handleAdminPage}
@@ -76,21 +66,16 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
 
                 <FlatList
                     data={filteredData}
-                    // style={styles.flatlist}
                     renderItem={({item}) =>
                         <Link
                             href={`${segments[0]}/menu/category/${item.id}`}
                             asChild
-                            // style={{width:'100%'}}
                         >
                             <Pressable style={styles.itemContainer}>
 
                                 <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
                                     <Text style={styles.text}>{item.title}</Text>
                                     <Image style={styles.image_logo} source={{uri: item?.logo}}/>
-                                    {/* <Ionicons name="cafe-sharp" size={24} color="black" /> */}
-                                    {/*<Image source={{uri: item.image}} style={styles.image} resizeMode={"contain"}/>*/}
-
                                 </View>
 
                             </Pressable>
@@ -101,7 +86,6 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     horizontal={false}
 
                 />
-            {/* </View> */}
         </KeyboardAvoidingView>
         
     );
@@ -116,8 +100,6 @@ const styles = StyleSheet.create({
         width: '100%',
         flex:1,
         overflow:'scroll',
-        // marginBottom:ITEM_HEIGHT,
-        // marginBottom: keyboardHeight ? ITEM_HEIGHT + keyboardHeight : ITEM_HEIGHT,
     },
     itemContainer: {
         display:'flex',

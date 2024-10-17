@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard,Dimensions,Platform} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {AntDesign} from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
@@ -17,9 +16,6 @@ const deviceHeight =
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const CreateWallet = () => {
-    const [wallet, setWallet] = useState('Кошелек');
-    const [sid, setSid] = useState('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation');
-    const [isNameSet, setIsNameSet] = useState(false);
     const [publicKey, setPublicKey] = useState('');
     const [prizmWallet, setPrizmWallet] = useState('');
     const [secretPhrase, setSecretPhrase] = useState('');
@@ -57,7 +53,6 @@ const CreateWallet = () => {
                     await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.account_rs))
                     await asyncStorage.setItem('public_key_hex', JSON.stringify(data?.public_key_hex))
                 }
-                console.log(data)
             } catch (error) {
                 console.log(error)
             }
@@ -156,14 +151,6 @@ const CreateWallet = () => {
                                 <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
                             </Pressable>
                         </View>
-
-
-                        {/*<Text style={styles.modalText}>Hello World!</Text>*/}
-                        {/*<Pressable*/}
-                        {/*    style={[styles.button, styles.buttonClose]}*/}
-                        {/*    onPress={hideModal}>*/}
-                        {/*    <Text style={styles.textStyle}>Hide Modal</Text>*/}
-                        {/*</Pressable>*/}
                     </View>
                 </View>
             </Modal>
@@ -184,7 +171,6 @@ const styles = StyleSheet.create({
         fontSize:15
     },
     centeredView: {
-        // flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -194,7 +180,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 27,
         paddingTop:19,
         paddingBottom:29,
-        // margin:'0 auto',
         alignItems: 'center',
         shadowColor: '#000',
         width: '80%',
@@ -213,7 +198,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 15,
         top: 0,
-        // bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -249,7 +233,6 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        // justifyContent: 'center',
         marginTop:88,
         alignItems: 'center',
         position:'relative'

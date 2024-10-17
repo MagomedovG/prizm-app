@@ -8,24 +8,20 @@ import {
     StyleSheet, Alert
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
-import HeaderLink from "@/src/components/HeaderLink";
 import UIButton from "@/src/components/UIButton";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {categories, defaultLogo} from "@/assets/data/categories";
+import { defaultLogo} from "@/assets/data/categories";
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-import Entypo from '@expo/vector-icons/Entypo';
 import {IBusiness} from '../../../../../../../types'
 import PostRating from "@/src/components/PostRating";
 
 export default function AddFeedback() {
     const [text, setText] = useState('');
-    const [activeStars, setActiveStars] = useState(2);
     const [business, setBusiness] = useState<IBusiness | null>(null);
     const [isMineRating, setIsMineRating] = useState()
 
@@ -40,23 +36,18 @@ export default function AddFeedback() {
             const data = await response.json();
             setBusiness(data?.business);
             getMyFeedback()
-            console.log(data);
-            
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error);
         }
     }
 
     useEffect(() => {
-        
-
         getData();
     }, []);
 
     const postComment = async () => {
         const userId = await asyncStorage.getItem('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null
-        console.log(userId,parsedUserId,id,text);
         try {
             const response = await fetch(`${apiUrl}/api/v1/feedbacks/`,{
                 method:'POST',
@@ -85,22 +76,14 @@ export default function AddFeedback() {
             if (response.ok){
                 setIsMineRating(data[0]?.rating_value)
             }
-            
-            
         } catch (error) {
             console.error("Ошибка при загрузке данных фидбэков:", error);
         }
     }    
-    // useEffect(()=>{
-    //     getMyFeedback()
-    // },[])
-
     return (
         <>
             <ScrollView style={{}}>
                 <ScrollView style={styles.container}>
-                    {/* <HeaderLink title="Супермаркеты" link={`/(user)/menu/category/${business?.id}`} emptyBackGround={false} /> */}
-
                     <View>
                         <View style={{ maxHeight: 140 }}>
                             <Image

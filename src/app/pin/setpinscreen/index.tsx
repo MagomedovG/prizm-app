@@ -5,7 +5,6 @@ import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useRouter } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
-import UIButton from '@/src/components/UIButton';
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 
 const { width } = Dimensions.get('window');
@@ -13,14 +12,13 @@ const MARGIN_PIN = width / 14;
 
 const SetPinScreen = () => {
     const router = useRouter();
-    const [storedPinHash, setStoredPinHash] = useState(null);
+    const [storedPinHash, setStoredPinHash] = useState<any>(null);
     const [pin, setPin] = useState('');
     const [confirming, setConfirming] = useState(false);
     const [initialPin, setInitialPin] = useState('');
     const [isError, setIsError] = useState(false);
     const { theme } = useCustomTheme();
 
-    // Animated values for error shake effect
     const shakeAnimation = useRef(new Animated.Value(0)).current;
 
     useEffect(()=> {
@@ -37,12 +35,12 @@ const SetPinScreen = () => {
     }, [])
 
     // Хэширование PIN-кода
-    const hashPin = async (inputPin) => {
+    const hashPin = async (inputPin:any) => {
         const hashed = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, inputPin);
         return hashed;
     };
 
-    const handlePress = (num) => {
+    const handlePress = (num:any) => {
         if (pin.length < 5) {
             setPin(pin + num);
         }
@@ -62,7 +60,7 @@ const SetPinScreen = () => {
         setPinCode()
     },[pin])
 
-    const handlePinComplete = async (inputPin) => {
+    const handlePinComplete = async (inputPin:any) => {
         if (storedPinHash === null) {
             if (!confirming) {
                 setInitialPin(inputPin);
@@ -73,7 +71,7 @@ const SetPinScreen = () => {
                     const inputPinHash = await hashPin(inputPin);
                     await AsyncStorage.setItem('userPinCode', inputPinHash);
                     Alert.alert('PIN установлен');
-                    router.replace('/pin/setnickname'); // Используем replace для обновления истории навигации
+                    router.replace('/pin/setnickname');
                 } else {
                     Alert.alert('PIN не совпадает, попробуйте снова');
                     triggerShake();
@@ -85,7 +83,6 @@ const SetPinScreen = () => {
             const inputPinHash = await hashPin(inputPin);
             if (inputPinHash === storedPinHash) {
                 router.replace('/(user)/menu');
-                // Alert.alert('Доступ разрешен');
             } else {
                 Alert.alert('Неправильный код-пароль');
                 triggerShake();
@@ -133,7 +130,7 @@ const SetPinScreen = () => {
         });
 
         if (result.success) {
-            router.replace('/(user)/menu'); // Используем replace для обновления истории навигации
+            router.replace('/(user)/menu'); 
             Alert.alert('Аутентификация успешна');
         } else {
             Alert.alert('Аутентификация не удалась');
@@ -160,7 +157,14 @@ const SetPinScreen = () => {
                     {Array(5).fill().map((_, i) => (
                         <Animated.View
                             key={i}
-                            style={[styles.pinDot(pin.length > i, theme, isError), { transform: [{ translateX: shakeAnimation }] }]}
+                            style={[
+                                styles.pinDot, 
+                                { 
+                                    backgroundColor: pin.length > i ? (theme === 'purple' ? '#6F1AEC' : '#32933C') : 'transparent', 
+                                    borderColor: isError ? 'red' : (theme === 'purple' ? '#6F1AEC' : '#32933C') 
+                                }, 
+                                { transform: [{ translateX: shakeAnimation }] }
+                            ]} 
                         />
                     ))}
                 </View>
@@ -175,8 +179,6 @@ const SetPinScreen = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            {/* <UIButton text={'Готово'} onPress={setPinCode} /> */}
-            {/*<UIButton text={'Войти с биометрией'} onPress={handleBiometricAuth} />*/}
         </View>
     );
 };
@@ -194,15 +196,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 24,
     },
-    pinDot: (filled, theme, isError) => ({
+    pinDot: {
         width: 16,
         height: 16,
         marginHorizontal: 12,
         borderRadius: 8,
-        backgroundColor: filled ? (theme === 'purple' ? '#6F1AEC' : '#32933C') : 'transparent',
         borderWidth: 2,
-        borderColor: isError ? 'red' : (theme === 'purple' ? '#6F1AEC' : '#32933C'),
-    }),
+    },
+    
     pinButtons: {
         flexDirection: 'row',
         flexWrap: 'wrap',

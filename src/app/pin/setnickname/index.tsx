@@ -10,39 +10,8 @@ const SetNickName = () => {
     const [name, setName] = useState('');
     const [asyncName, setAsyncName] = useState<string | null>(null);
     const [isNameSet, setIsNameSet] = useState<boolean>(false);
-    const [loading, setloading]=useState(false)
     const router = useRouter();
-    const local = useLocalSearchParams()
 
-    const postName = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/api/v1/users/?username=${name}`,{
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            
-
-            const data = await response.json();
-            console.log(data)
-            if (data.length < 1) {
-                setIsNameSet(true);
-                await AsyncStorage.setItem('usernamess', name);
-            } else {
-                Alert.alert('Имя пользователя занято')
-                
-            }
-
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
-            } else {
-            }
-
-            console.log('Успешно создано:', data);
-        } catch (error) {
-            console.error('Ошибка при создании:', error);
-        }
-    };
 
     const postForm = async () => {
         const username = await asyncStorage.getItem('username')
@@ -56,12 +25,7 @@ const SetNickName = () => {
             prizm_wallet,
             ...(public_key_hex && !isUpdatedName && { public_key_hex: JSON.parse(public_key_hex) })
         };
-        
-        
-        console.log(form)
         try {
-            console.log(`${apiUrl}/api/v1/users/get-or-create/`)
-            console.log(form)
             const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
                 method: 'POST',
                 headers: {
@@ -73,12 +37,10 @@ const SetNickName = () => {
             const data = await response.json();
             
             if (!response.ok) {
-                console.log('result',data )
                 const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'
                 Alert.alert(result)
                 setIsNameSet(false);
                 throw new Error('Ошибка сети');
-                
             } else {
                 setName('');
                 router.replace('/(user)/menu');
@@ -86,17 +48,12 @@ const SetNickName = () => {
                 await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
                 await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
                 await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
-                console.log('!result',data )
             }
-
-            console.log('Успешно создано:', data);
         } catch (error) {
             await AsyncStorage.removeItem('username')
             await AsyncStorage.removeItem('prizm_wallet')
             setIsNameSet(false);
             setName('');
-            // Alert.alert('Такой пары имя - кошелек нет в базе')
-            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
         }
     };
     
@@ -120,7 +77,7 @@ const SetNickName = () => {
                 setName(JSON.parse(walletName))
             }
             if (userName && walletName) {
-                // router.replace('/(user)')
+                router.replace('/(user)')
             }
         };
 
@@ -135,7 +92,6 @@ const SetNickName = () => {
                 setIsNameSet(true);
             }
         };
-
         getAsyncName();
     }, [isNameSet])
 
@@ -143,7 +99,6 @@ const SetNickName = () => {
         if (name.length === 0) {
             return
         }
-
         if (!isNameSet) {
             console.log(isNameSet);
             setIsNameSet(true);
@@ -157,8 +112,6 @@ const SetNickName = () => {
     }
     const createwallet = () => {
         router.push('/pin/createwallet');
-        
-        
     }
     const handleNameChange = (text: string) => {
         if (!isNameSet) {

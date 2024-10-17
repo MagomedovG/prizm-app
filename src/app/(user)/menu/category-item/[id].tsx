@@ -6,39 +6,27 @@ import {
     StyleSheet,
     Pressable,
     TextInput,
-    Button,
     ScrollView,
     Dimensions,
-    FlatList,
-    // Modal,
     Platform,
     Alert,
-    
 } from "react-native";
-import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Animated,Clipboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
 
-import {categories, defaultLogo} from "@/assets/data/categories";
-import CategoryItemList from "@/src/components/main-page/CategoryItemList";
-import SearchInput from "@/src/components/SearchInput";
-import MainHeader from "@/src/components/MainHeader";
-import HeaderLink from "@/src/components/HeaderLink";
+import {defaultLogo} from "@/assets/data/categories";
 import { AntDesign } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
-import {ICategory, ICategoryItemList} from "@/src/types";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {LinearGradient} from "expo-linear-gradient";
 import {lightColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Swiper from 'react-native-swiper'
 const { width, height } = Dimensions.get('window');
-import { IFeedbacks,IBusiness } from '@/src/types';
+import { IBusiness } from '@/src/types';
 const deviceWidth = Dimensions.get("window").width;
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import QRCode from 'react-qr-code';
-// import { AsyncStorage } from 'react-native';
 import Modal from "react-native-modal";
 
 const deviceHeight =
@@ -50,14 +38,12 @@ const deviceHeight =
 const ITEM_WIDTH = width - 25;
 
 export default function categoryId() {
-    const router = useRouter()
     const {theme} = useCustomTheme()
     const { id } = useLocalSearchParams()
     const [business, setBusiness] = useState<IBusiness | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
     const [isExpanded, setIsExpanded] = useState(false);
-    const categoryId = Number(id)
     const [isQrModal, setIsQrModal] = useState(false);
     const [prizmWallet, setPrizmWallet] = useState('')
     
@@ -69,29 +55,23 @@ export default function categoryId() {
         }
         Alert.alert('Кошелек скопирован!', prizmWallet)
     };
-    const descr = 'Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные и Зеленое яблоко - это яблоко зеленого цвета. Большой магазин не в форме яблока где продают яблоки разного цвета, не только зеленые, но и красные'
-    // const category: ICategory | undefined = categories.find(c => c.id.toString() === '1');
-
-    // if (!category){
-    //     return <Text>Wallet Not Found</Text>
-    // }
+    
     const openQrModal = () => {
         setIsQrModal(true) 
-        
     };
     
     const closeQrModal = () => {
         setIsQrModal(false); 
     };
     const toggleText = () => {
-        setIsExpanded(!isExpanded);
+        setIsExpanded(true);
     };
 
     const getDisplayText = (text:string) => {
         if (isExpanded) {
             return text;
         }
-        return text?.length > 225 ? `${text.slice(0, 220)} ` : text;
+        return text?.length > 225 ? `${text.slice(0, 220)}` : text;
     };
 
     useEffect(() => {
@@ -100,11 +80,7 @@ export default function categoryId() {
                 const url = await AsyncStorage.getItem('prizm_wallet');
                 const qr = await AsyncStorage.getItem('prizm_qr_code_url');
         
-                // Проверяем, нужно ли парсить данные
-                // const parsedUrl = url ? JSON.parse(url) : url;
-                // const parsedQr = qr ? JSON.parse(qr) : qr;
         
-                console.log('parsedQr', url, 'parsedUrl',typeof url);
                 setPrizmWallet(url || '');
                 setPrizmQrCode(qr || '');
             } catch (error) {
@@ -117,17 +93,11 @@ export default function categoryId() {
                     `${apiUrl}/api/v1/business/${id}/`,
                 );
                 const data = await response.json();
-                console.log(data);
                 setBusiness(data?.business);
-                if (!response.ok){
-                    console.log(response);
-                }
-
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
             }
         }
-
         getData();
         getWallet()
     }, []);
@@ -141,25 +111,8 @@ export default function categoryId() {
         setIsFullscreen(false);
     };
 
-    // const categoryItem: ICategoryItemList = category.items[categoryId - 1]
     const segments = useSegments();
 
-    const [pan] = useState(new Animated.ValueXY());
-
-    const handleGesture = Animated.event(
-        [{ nativeEvent: { translationY: pan.y } }],
-        { useNativeDriver: false }
-    );
-
-    const handleGestureEnd = (event:any) => {
-        const { translationY } = event.nativeEvent;
-
-        if (translationY > 150) { // чувствительность к свайпу вниз
-            closeFullscreen();
-        } else {
-            pan.setValue({ x: 0, y: 0 });
-        }
-    };
     
     return (
         <ScrollView style={{ paddingTop:173, flex:1}}>
@@ -226,13 +179,11 @@ export default function categoryId() {
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                             <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
-                                    {/* <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View> */}
                                     <Text style={styles.text}>
                                         При оплате покажите
                                         <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}> qr-код продавцу</Text>
                                     </Text>
                                 </Pressable>
-                            {/* <Text style={styles.text}>При оплате покажите qr-код продавцу</Text> */}
                         </View>
                         <View style={{width: 1,
                             height: 17,
@@ -247,16 +198,14 @@ export default function categoryId() {
                         </View>
                     </View>
                     <Text style={styles.subTitle}>О партнере</Text>
-                    <Text style={[styles.text]}>
-                    {/* {business?.description} */}
-                        {/* {descr} */}
-                        {business && getDisplayText(business?.description)}
-                        {business && business?.description?.length > 225 && !isExpanded && (
-                            <Pressable onPress={toggleText}>
-                                <Text style={[{fontSize: 16,height:17,fontWeight:'bold',display:'flex',alignItems:'center',flexDirection:'row',justifyContent:'center', textAlign:'center'}]}> еще...</Text>
-                            </Pressable>
-                        )}
-                    </Text>
+                    <Pressable  onPress={toggleText}>
+                        <Text style={[styles.text]}>
+                            {business && getDisplayText(business?.description)}
+                            {business && business?.description?.length > 225 && !isExpanded && (
+                                <Text style={[{fontSize: 16,fontWeight:'bold',lineHeight:16, textAlign:'center'}]}>еще...</Text>
+                            )}
+                        </Text>
+                    </Pressable>
                     
                     
                 </View>
@@ -290,7 +239,6 @@ export default function categoryId() {
                                 ref={inputRef}
                                 style={styles.input}
                                 editable={false}
-                                // onChangeText={setPrizmWallet}
                                 value={prizmWallet}
                             />
                             <View style={styles.copyButtonContainer}>
@@ -305,40 +253,40 @@ export default function categoryId() {
             </View>
 
             <Modal
-            isVisible={isFullscreen} // это свойство отвечает за видимость модалки
-            onSwipeComplete={closeFullscreen} // закрытие модалки при свайпе вниз
-            swipeDirection="down" // определяем направление свайпа
-            deviceWidth={deviceWidth}
-            deviceHeight={deviceHeight}
-            style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
-            animationIn="slideInUp" // анимация при открытии
-            animationOut="slideOutDown" // анимация при закрытии
-            backdropOpacity={0.8} // настройка прозрачности фона
-        >
-            <View style={styles.fullscreenContainer}>
-                <Swiper
-                    index={fullscreenImageIndex}
-                    showsButtons={true}
-                    showsPagination={false}
-                    loop={false}
-                    style={{ minHeight: 260, maxHeight: deviceHeight }}
-                    nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
-                    prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
-                >
-                    {business?.images?.map((item: any, index: number) => (
-                        <View key={index} style={styles.fullscreenSlide}>
-                            <Image
-                                style={styles.fullscreenImage}
-                                source={{ uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo }}
-                            />
-                        </View>
-                    ))}
-                </Swiper>
-                <Pressable style={styles.closeButton} onPress={closeFullscreen}>
-                    <AntDesign name="close" size={30} color="white" />
-                </Pressable>
-            </View>
-        </Modal>
+                isVisible={isFullscreen} // это свойство отвечает за видимость модалки
+                onSwipeComplete={closeFullscreen} // закрытие модалки при свайпе вниз
+                swipeDirection="down" // определяем направление свайпа
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
+                animationIn="slideInUp" // анимация при открытии
+                animationOut="slideOutDown" // анимация при закрытии
+                backdropOpacity={0.8} // настройка прозрачности фона
+            >
+                <View style={styles.fullscreenContainer}>
+                    <Swiper
+                        index={fullscreenImageIndex}
+                        showsButtons={true}
+                        showsPagination={false}
+                        loop={false}
+                        style={{ minHeight: 260, maxHeight: deviceHeight }}
+                        nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
+                        prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
+                    >
+                        {business?.images?.map((item: any, index: number) => (
+                            <View key={index} style={styles.fullscreenSlide}>
+                                <Image
+                                    style={styles.fullscreenImage}
+                                    source={{ uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo }}
+                                />
+                            </View>
+                        ))}
+                    </Swiper>
+                    <Pressable style={styles.closeButton} onPress={closeFullscreen}>
+                        <AntDesign name="close" size={30} color="white" />
+                    </Pressable>
+                </View>
+            </Modal>
             
         </ScrollView>
     );
@@ -348,7 +296,6 @@ const styles = StyleSheet.create({
     qrimage:{
         marginHorizontal: 13,
         marginBottom:23,
-        // aspectRatio: 1,
         shadowColor: '#000000',
         shadowOffset: { width: 3, height: 3 },
         shadowOpacity: 0.2,
@@ -395,12 +342,8 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     centeredQrView:{
-        // width:deviceWidth - 60,
-        // width:'100%'
-
     },
     centeredView: {
-        // flex: 1,
         justifyContent: 'flex-end',
     },
     qrModal:{
@@ -420,7 +363,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        // width:'100%'
     },
     input: {
         borderWidth: 1,
@@ -527,7 +469,6 @@ const styles = StyleSheet.create({
     },
     fullscreenContainer: {
         flex: 1,
-        // backgroundColor: 'rgba(0, 0, 0, 0.9)',
         justifyContent: 'center',
         alignItems: 'center',
     },

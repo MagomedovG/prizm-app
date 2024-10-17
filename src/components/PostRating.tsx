@@ -4,8 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 
 type StarRatingProps = {
-//   activeStars?:number;
-  id: string | number;
+  id: string | number | string[];
   markSize: number;
   color?: string;
   inactiveColor?: string;
@@ -16,8 +15,6 @@ import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-  
-
 
 const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', inactiveColor = 'white',refreshBusiness, initialStars }) => {
     const [activeStars, setActiveStars] = useState<number>(0);
@@ -26,25 +23,22 @@ const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', 
         setActiveStars(rating);
         const userId = await AsyncStorage.getItem('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null;
-        console.log('userId', userId, 'parsedUserId', parsedUserId, 'id', id, 'rating', rating);
-
         try {
-        const response = await fetch(`${apiUrl}/api/v1/ratings/update-or-create/`, {
-            method: 'PUT',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-            created_by: parsedUserId,
-            business: id,
-            rating_value: rating,
-            }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-            refreshBusiness()
-        } else {
-        }
+            const response = await fetch(`${apiUrl}/api/v1/ratings/update-or-create/`, {
+                method: 'PUT',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                created_by: parsedUserId,
+                business: id,
+                rating_value: rating,
+                }),
+            });
+            const data = await response.json();
+            if (response.ok) {
+                refreshBusiness()
+            } 
         } catch (e) {
             // console.log(e);
         }

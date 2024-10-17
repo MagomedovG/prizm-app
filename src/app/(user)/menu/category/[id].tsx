@@ -16,24 +16,18 @@ import {
     Clipboard
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
-import {categories} from "@/assets/data/categories";
+import { Stack, useLocalSearchParams, useRouter} from "expo-router";
 import CategoryItemList from "@/src/components/main-page/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
-import MainHeader from "@/src/components/MainHeader";
 import HeaderLink from "@/src/components/HeaderLink";
-import {ICategoryItem} from "@/src/types";
-import {LinearGradient} from "expo-linear-gradient";
 import Modal from "react-native-modal";
 import {lightColor} from "@/assets/data/colors";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {IBusinessInCategory} from '../../../../types'
-import WalletItem from '@/src/components/main-page/WalletItem';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import QRCode from 'react-qr-code';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -45,8 +39,6 @@ const deviceHeight =
         );
 
 export default function categoryId() {
-
-    const router = useRouter()
     const { id } = useLocalSearchParams()
     const {theme} = useCustomTheme()
     const [isQrModal, setIsQrModal] = useState(false);
@@ -57,7 +49,6 @@ export default function categoryId() {
     const [prizmWallet, setPrizmWallet] = useState('')
     
     const [prizmQrCode, setPrizmQrCode] = useState('') 
-    // const prizmWallet = asyncStorage.getItem('prizm_wallet')
     const inputRef = useRef(null);
     const copyToClipboard = () => {
         if (prizmWallet && typeof prizmWallet === "string" ) {
@@ -74,10 +65,7 @@ export default function categoryId() {
         setKeyboardHeight(0);
     });
 
-    const containerStyle = {
-        ...styles.container,
-        // marginBottom: keyboardHeight ? ITEM_HEIGHT + keyboardHeight : ITEM_HEIGHT,
-      };
+    
 
     return () => {
         keyboardDidHideListener.remove();
@@ -99,7 +87,6 @@ export default function categoryId() {
     
     const closeQrModal = () => {
         setIsQrModal(false); // Закрываем QR модалку
-        // setTimeout(() => setIsModal(true), 1000); // Открываем первую модалку после задержки
     };
     
     
@@ -112,10 +99,6 @@ export default function categoryId() {
                 );
                 const data = await response.json();
                 setCategoryList(data);
-                if (!response.ok){
-                    console.log(response);
-                }
-
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
             }
@@ -124,12 +107,6 @@ export default function categoryId() {
             try {
                 const url = await AsyncStorage.getItem('prizm_wallet');
                 const qr = await AsyncStorage.getItem('prizm_qr_code_url');
-        
-                // Проверяем, нужно ли парсить данные
-                // const parsedUrl = url ? JSON.parse(url) : url;
-                // const parsedQr = qr ? JSON.parse(qr) : qr;
-        
-                console.log('parsedQr', url, 'parsedUrl',typeof url);
                 setPrizmWallet(url || '');
                 setPrizmQrCode(qr || '');
             } catch (error) {
@@ -137,7 +114,6 @@ export default function categoryId() {
             }
         };
         
-        console.log('parsedQr', prizmWallet)
         getWallet()
         getData();
     }, []);
@@ -152,14 +128,12 @@ export default function categoryId() {
 
     return (
         <KeyboardAvoidingView
-            // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight  : 0}]}
         >
             <Stack.Screen options={{
                 headerShown:false,
                 header: () => <HeaderLink title="Главная" link="/(user)/menu"/>,
             }}/>
-            {/*<Text style={styles.title}>{category.name}</Text>*/}
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Поиск" isCategoryItem/>
                 <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={handleWalletPress} />
@@ -184,7 +158,6 @@ export default function categoryId() {
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        {/*<Text style={styles.modalText}>Как получить бонусы?</Text>*/}
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginTop:17}}>
                             <Text style={styles.subTitle}>Как получить кэшбэк?</Text>
                             <View>
@@ -263,7 +236,6 @@ export default function categoryId() {
                                 ref={inputRef}
                                 style={styles.input}
                                 editable={false}
-                                // onChangeText={setPrizmWallet}
                                 value={prizmWallet}
                             />
                             <View style={styles.copyButtonContainer}>
@@ -286,10 +258,8 @@ const styles = StyleSheet.create({
         width:deviceWidth / 1.8 + 34
     },
     image: {
-        // width: '75%',
         marginHorizontal: 13,
         marginBottom:23,
-        // aspectRatio: 1,
         shadowColor: '#000000',
         shadowOffset: { width: 3, height: 3 },
         shadowOpacity: 0.2,
@@ -306,7 +276,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        // width:'100%'
     },
     input: {
         borderWidth: 1,
@@ -325,7 +294,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop:16,
         paddingBottom:26,
-        // alignItems: 'center',
         shadowColor: '#000',
         width: '100%',
         shadowOffset: {
@@ -353,25 +321,16 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
     },
-    centeredQrView:{
-        // width:deviceWidth - 60,
-        // width:'100%'
-
-    },
     centeredView: {
-        // flex: 1,
         justifyContent: 'flex-end',
     },
     container: {
-        // flex: 1,
         display:'flex',
         flexDirection:'column',
         width: ITEM_WIDTH,
         paddingHorizontal: 10,
         paddingTop: 36,
-        // paddingBottom:50,
         alignSelf: 'center',
-        // overflow: 'scroll'
     },
     title: {
         fontSize: 18,
@@ -410,7 +369,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
     },
     subTitle:{
-        // marginTop:62,
         marginBottom:16,
         color:'#323232',
         fontSize:20,
