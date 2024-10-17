@@ -48,7 +48,7 @@ const SharePrizm = () => {
             });
             const data = await response.json();
             if (data) {
-                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data?.prizm_amount || data;
+                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data;
                 Alert.alert(message);
             } else {
                 Alert.alert('Ошибка при проведении транзакции');
