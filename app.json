@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "prizm",
+    "name": "Vozvrat Prizm",
     "slug": "prizm-app",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "prizm",
@@ -34,6 +34,14 @@
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1b9003df-5b69-4a2d-ad4f-3df3cb084e11"
+      }
     }
   }
 }

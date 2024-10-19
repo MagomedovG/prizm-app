@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 10.2.3"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
+      }
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
+      }
+    },
+    "test": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

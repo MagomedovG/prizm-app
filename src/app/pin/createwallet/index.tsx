@@ -77,8 +77,9 @@ const CreateWallet = () => {
                     <TextInput
                         style={styles.input}
                         editable={false}
-                        placeholder={'wallet'}
+                        placeholder={'Prizm Wallet'}
                         value={prizmWallet}
+                        placeholderTextColor='#8C8C8C'
                     />
                     <View style={[styles.copyButtonContainer, {bottom:0}]}>
                         <AntDesign name="copy1" size={15} color="#262626" />
@@ -89,8 +90,9 @@ const CreateWallet = () => {
                     <TextInput
                         style={styles.input}
                         editable={false}
-                        placeholder={'wallet'}
+                        placeholder={'Public Key'}
                         value={publicKey}
+                        placeholderTextColor='#8C8C8C'
                     />
                     <View style={[styles.copyButtonContainer, {bottom:0}]}>
                         <AntDesign name="copy1" size={15} color="#262626" />
@@ -102,8 +104,9 @@ const CreateWallet = () => {
                         style={[styles.input, {paddingRight:30}]}
                         editable={false}
                         multiline={true}
-                        placeholder={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation'}
+                        placeholder={'Secret Phrase'}
                         value={secretPhrase}
+                        placeholderTextColor='#8C8C8C'
                     />
                     <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
                         <AntDesign name="copy1" size={15} color="#262626" />

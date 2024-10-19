@@ -26,15 +26,15 @@ const SetPinScreen = () => {
             const userName = await AsyncStorage.getItem('username');
             const walletName = await AsyncStorage.getItem('prizm_wallet');
             const userId = await AsyncStorage.getItem('user_id');
-            if (!userName && !walletName && !userId) {
-                router.replace('/pin/setnickname')
-            }
+            // if (!userName && !walletName && !userId) {
+            //     router.replace('/pin/setnickname')
+            // }
         };
 
         getAsyncName();
     }, [])
 
-    // Хэширование PIN-кода
+    
     const hashPin = async (inputPin:any) => {
         const hashed = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, inputPin);
         return hashed;
@@ -61,17 +61,25 @@ const SetPinScreen = () => {
     },[pin])
 
     const handlePinComplete = async (inputPin:any) => {
+        const userName = await AsyncStorage.getItem('username');
+        const walletName = await AsyncStorage.getItem('prizm_wallet');
+        const userId = await AsyncStorage.getItem('user_id');
         if (storedPinHash === null) {
             if (!confirming) {
                 setInitialPin(inputPin);
                 setConfirming(true);
-                Alert.alert('Подтвердите PIN');
+                // Alert.alert('Подтвердите PIN');
             } else {
                 if (inputPin === initialPin) {
                     const inputPinHash = await hashPin(inputPin);
                     await AsyncStorage.setItem('userPinCode', inputPinHash);
-                    Alert.alert('PIN установлен');
-                    router.replace('/pin/setnickname');
+                    // Alert.alert('PIN установлен');
+                    if (!userName || !walletName || !userId) {
+                        router.replace('/pin/setnickname');
+                    } else {
+                        router.replace('/(user)/menu');
+                    }
+                    // router.replace('/pin/setnickname');
                 } else {
                     Alert.alert('PIN не совпадает, попробуйте снова');
                     triggerShake();
@@ -82,7 +90,12 @@ const SetPinScreen = () => {
         } else {
             const inputPinHash = await hashPin(inputPin);
             if (inputPinHash === storedPinHash) {
-                router.replace('/(user)/menu');
+                if (!userName || !walletName || !userId){
+                    router.replace('/pin/setnickname');
+                } else {
+                    router.replace('/(user)/menu');
+                }
+                
             } else {
                 Alert.alert('Неправильный код-пароль');
                 triggerShake();
