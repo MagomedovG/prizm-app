@@ -145,7 +145,7 @@ export default function walletId() {
                {id === 'user'  && (
                         <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
                             <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'flex-start'}}>
-                                <Text style={{color:'#262626',marginLeft:5,}}>Редактировать </Text>
+                                <Text style={{color:'#262626',marginLeft:5,}}>Редктировать </Text>
                                 <FontAwesome5 name="pencil-alt" size={12} color="#6B6B6B" />
                             </Pressable>
                         </View>
@@ -153,13 +153,13 @@ export default function walletId() {
                 }
             </View>
             <UIButton text={isUpdate ? 'Ок' : id === 'user'  ? 'Перевести PZM' :  'Назад'} onPress={()=> isUpdate ? updateUserWallet() : routerTo()} isAdminWallet={true}/>
-            {wallet?.is_superuser && id === 'user' && !isUpdate && 
+            {/* {wallet?.is_superuser && id === 'user' && !isUpdate && 
                 <Pressable style={styles.adminLink}>
                     <Text style={{textAlign:'center'}}>
                             Перейти в панель администратора
                         </Text>
                 </Pressable>
-            }
+            } */}
         </View>
     );
 }

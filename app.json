@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Vozvrat Prizm",
+    "name": "Vozvrat",
     "slug": "prizm-app",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "prizm",

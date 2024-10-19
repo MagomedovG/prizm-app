@@ -6,9 +6,9 @@ import {borderColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const SharePrizm = () => {
-    const [wallet, setWallet] = useState('PRIZM-G66W-SYMT-3W9N-4VAVE');
-    const [sid, setSid] = useState('prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split');
-    const [count,setCount]=useState<number | null | string>(8)
+    const [wallet, setWallet] = useState('');
+    const [sid, setSid] = useState('');
+    const [count,setCount]=useState<number | null | string>(null)
     const router = useRouter();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const copyWalletToClipboard = () => {

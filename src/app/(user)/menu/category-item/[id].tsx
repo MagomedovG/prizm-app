@@ -169,7 +169,7 @@ export default function categoryId() {
                         <Pressable>
                             {({pressed}) => (
                                 <View>
-                                    <Text style={[styles.text, {textDecorationLine:'underline'}]}>{business?.address}</Text>
+                                    <Text style={[styles.text, {textDecorationLine:'underline',color:theme === 'purple' ? '#6F1AEC' : '#375A2C',}]}>{business?.address}</Text>
                                 </View>
                             )}
                         </Pressable>
