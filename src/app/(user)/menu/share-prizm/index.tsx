@@ -9,7 +9,7 @@ const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
     const [count,setCount]=useState<number | null | string>(null)
-    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const copyWalletToClipboard = () => {
         Clipboard.setString(wallet);
@@ -32,7 +32,7 @@ const SharePrizm = () => {
     };
     
     const postForm = async () => {
-        
+        setIsLoading(true);
         const form = {
             secret_phrase:sid,
             recipient_wallet:wallet,
@@ -56,6 +56,8 @@ const SharePrizm = () => {
             
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -104,7 +106,7 @@ const SharePrizm = () => {
                     />
                 </Pressable>
             </ScrollView>
-            <UIButton text='Перевести pzm' disabled={!!errorMessage || !sid || !wallet} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
+            <UIButton text='Перевести pzm' disabled={!!errorMessage || !sid || !wallet || isLoading} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
         </View>
     );
 };

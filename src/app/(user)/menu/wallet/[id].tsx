@@ -35,7 +35,10 @@ export default function walletId() {
 
     useEffect(() => {
         if (isUpdate && inputRef.current) {
-            inputRef.current?.focus();
+            // inputRef.current?.focus();
+            setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
         }
     }, [isUpdate]);
     
@@ -132,7 +135,7 @@ export default function walletId() {
                     <TextInput
                         ref={inputRef}
                         style={styles.input}
-                        editable={isUpdate}
+                        readOnly={!isUpdate}
                         onChangeText={setPrizmWallet}
                         value={prizmWallet}
                         onFocus={() => setIsFocused(true)} 
@@ -144,8 +147,8 @@ export default function walletId() {
                 </Pressable>
                {id === 'user'  && (
                         <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
-                            <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'flex-start'}}>
-                                <Text style={{color:'#262626',marginLeft:5,}}>Редктировать </Text>
+                            <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
+                                <Text style={{color:'#262626',marginLeft:5,}}>Редактировать </Text>
                                 <FontAwesome5 name="pencil-alt" size={12} color="#6B6B6B" />
                             </Pressable>
                         </View>
