@@ -7,7 +7,7 @@ import {
     Clipboard,
     Alert,
     Pressable,
-    Dimensions
+    Dimensions,
 } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Stack, useLocalSearchParams, useRouter} from "expo-router";
@@ -145,7 +145,7 @@ export default function walletId() {
                         <AntDesign name="copy1" size={15} color="#262626" />
                     </View>
                 </Pressable>
-               {id === 'user'  && (
+               {id === 'user' && !isUpdate  && (
                         <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
                             <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
                                 <Text style={{color:'#262626',marginLeft:5,}}>Редактировать </Text>
@@ -155,7 +155,7 @@ export default function walletId() {
                     )
                 }
             </View>
-            <UIButton text={isUpdate ? 'Ок' : id === 'user'  ? 'Перевести PZM' :  'Назад'} onPress={()=> isUpdate ? updateUserWallet() : routerTo()} isAdminWallet={true}/>
+            {!isFocused && <UIButton text={isUpdate ? 'Сохранить' : id === 'user'  ? 'Перевести PZM' :  'Назад'} onPress={()=> isUpdate ? updateUserWallet() : routerTo()} isAdminWallet={true}/>}
             {/* {wallet?.is_superuser && id === 'user' && !isUpdate && 
                 <Pressable style={styles.adminLink}>
                     <Text style={{textAlign:'center'}}>
