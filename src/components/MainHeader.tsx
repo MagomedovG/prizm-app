@@ -133,11 +133,11 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
         >
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 7.5 }}>
-                    {/* <Pressable */}
-                        {/* // onPress={logOut}
-                    > */}
+                    <Pressable
+                        onPress={logOut}
+                    > 
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
-                    {/* </Pressable> */}
+                    </Pressable>
                     <Pressable onPress={toggleHidden} style={{marginBottom:4}}>
                         <Feather name="eye" size={15} color={theme === 'purple' ? 'white' : 'black'} />
                     </Pressable>
