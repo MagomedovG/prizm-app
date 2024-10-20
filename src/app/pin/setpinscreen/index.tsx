@@ -20,7 +20,6 @@ const SetPinScreen = () => {
     const { theme } = useCustomTheme();
 
     const shakeAnimation = useRef(new Animated.Value(0)).current;
-
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
@@ -30,6 +29,12 @@ const SetPinScreen = () => {
             //     router.replace('/pin/setnickname')
             // }
         };
+        const getStoredPinHash = async () => {
+            const pinHash = await AsyncStorage.getItem('userPinCode');
+            setStoredPinHash(pinHash);
+        };
+
+        getStoredPinHash();
 
         getAsyncName();
     }, [])
@@ -150,14 +155,7 @@ const SetPinScreen = () => {
         }
     };
 
-    useEffect(() => {
-        const getStoredPinHash = async () => {
-            const pinHash = await AsyncStorage.getItem('userPinCode');
-            setStoredPinHash(pinHash);
-        };
-
-        getStoredPinHash();
-    }, []);
+    
 
     return (
         <View style={styles.container}>

@@ -53,7 +53,13 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
         <KeyboardAvoidingView
             style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT }]}
         >
-                {isInput && <SearchInput data={categories} onFilteredData={handleFilteredData} placeholder="Поиск"/>}
+                
+                {isInput && 
+                    <View style={{marginHorizontal:10}}>
+                        <SearchInput data={categories} onFilteredData={handleFilteredData} placeholder="Поиск"/>
+                    </View>
+                    
+                }
                 <View style={styles.titleButton}>
                     <Text style={[styles.title, !isAdminFond ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
                     {isAdminFond && (<Pressable onPress={handleAdminPage}
@@ -82,7 +88,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                         </Link>
                     }
                     keyExtractor={(item) => item.id.toString()}
-                    contentContainerStyle={{gap:10}}
+                    // contentContainerStyle={{gap:10}}
                     horizontal={false}
 
                 />
@@ -108,9 +114,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         height:80,
         borderRadius:13,
+        marginTop:5,
+        marginBottom:5,
+        marginHorizontal:10,
         borderWidth:1,
-        borderColor:'rgba(0,0,0,0.1)',
-        shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4
+        borderColor:'rgba(0,0,0,0.2)',
+        shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4
     },
     image: {
         objectFit:'cover',
@@ -120,7 +129,8 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        marginBottom: 16
+        marginBottom: 16,
+        marginLeft:10
     },
     text:{
         fontSize:16,

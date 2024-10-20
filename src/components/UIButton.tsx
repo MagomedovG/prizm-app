@@ -12,7 +12,7 @@ const UIButton = forwardRef<View | null, ButtonProps>(
     ({isAdminWallet, text,disabled, ...pressableProps }, ref) => {
         const { theme } = useCustomTheme();
         return (
-            <Pressable ref={ref} {...pressableProps} style={[styles.container, theme === 'purple' ? styles.purpleBackground : styles.greenBackground, isAdminWallet && {bottom: 70}]}>
+            <Pressable ref={ref} {...pressableProps} style={[styles.container, theme === 'purple' ? styles.purpleBackground : styles.greenBackground, isAdminWallet && {bottom: 40}]}>
                 <Text style={[styles.text, {color: disabled ? '#BDBBBB' : 'white'}]}>{text}</Text>
             </Pressable>
         );

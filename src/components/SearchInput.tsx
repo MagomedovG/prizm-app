@@ -29,7 +29,7 @@ const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) =
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardAvoidingView}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
             >
                 <View style={styles.container}>
                     <Feather name="search" size={18} color="gray" />
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         paddingHorizontal: 10,
         borderWidth:1,
-        borderColor:'#DCDCDC',
+        borderColor:'rgba(0,0,0,0.2)',
         backgroundColor: 'white',
     },
     input: {

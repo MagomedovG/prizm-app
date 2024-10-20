@@ -199,7 +199,7 @@ export default function categoryId() {
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                                    <Text style={styles.text}>Обменяйте PRIZM на рубли в обменнике</Text>
+                                    <Text style={styles.text}>Обменяйте pzm на рубли в обменнике</Text>
                                 </View>
                             </View>
                         </View>

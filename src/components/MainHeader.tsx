@@ -20,7 +20,7 @@ type IWallet = {
     username:string;
 }
 type MainHeaderProps = {
-    onChatPress: () => void;
+    onChatPress: (value?: boolean) => void;
     onQrCodeUrlUpdate: (url: string) => void;
     refreshData: boolean;
 }
@@ -139,7 +139,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
                     {/* </Pressable> */}
                     <Pressable onPress={toggleHidden} style={{marginBottom:4}}>
-                        <Feather name="eye" size={15} color={theme === 'purple' ? 'white' : 'black'} />
+                        <Feather name={!isHidden ? "eye-off" : "eye"} size={15} color={theme === 'purple' ? 'white' : 'black'} />
                     </Pressable>
                 </View>
 

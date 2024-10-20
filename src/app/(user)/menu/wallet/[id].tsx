@@ -8,6 +8,10 @@ import {
     Alert,
     Pressable,
     Dimensions,
+    ScrollView,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform
 } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Stack, useLocalSearchParams, useRouter} from "expo-router";
@@ -32,7 +36,24 @@ export default function walletId() {
     )
     const [prizmWallet, setPrizmWallet] = useState<string>('')
     const inputRef = useRef(null);
+    const [keyboardStatus, setKeyboardStatus] = useState('Клавиатура закрыта');
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener("keyboardDidShow", (event) => {
+            setKeyboardStatus("Клавиатура открыта");
+            setKeyboardHeight(event.endCoordinates.height); // высота клавиатуры
+        });
+        const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+            setKeyboardStatus("Клавиатура закрыта");
+            setKeyboardHeight(0);
+        });
 
+        // Убираем подписки при размонтировании компонента
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
     useEffect(() => {
         if (isUpdate && inputRef.current) {
             // inputRef.current?.focus();
@@ -108,62 +129,79 @@ export default function walletId() {
     };
 
     return (
-        <View style={{ position: 'relative', flex: 1,'overflow':isFocused ? 'scroll' : 'hidden' }}>
-            <Stack.Screen options={{
-                headerShown: false,
-                header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
-            }} />
-            <View style={[styles.container, {marginVertical:28}]}>
-                <Text style={[styles.name, {marginTop:isUpdate && isFocused ? 10 : 80}]}>{ id === 'user' ? 'Мой кошелек' : wallet?.title}</Text>
-                {wallet?.prizm_qr_code_url &&
-                    <View style={styles.image}>
-                        <QRCode
-                            size={containerWidth}
-                            value={wallet?.prizm_qr_code_url}
-                            level={'M'}
-                        />
-                    </View>
-                }
-            </View>
-            <View style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent:'center'
-                }}>
-                <Pressable onPress={copyToClipboard} style={styles.pressable}>
-                    <TextInput
-                        ref={inputRef}
-                        style={styles.input}
-                        readOnly={!isUpdate}
-                        onChangeText={setPrizmWallet}
-                        value={prizmWallet}
-                        onFocus={() => setIsFocused(true)} 
-                        onBlur={() => setIsFocused(false)} 
-                    />
-                    <View style={styles.copyButtonContainer}>
-                        <AntDesign name="copy1" size={15} color="#262626" />
-                    </View>
-                </Pressable>
-               {id === 'user' && !isUpdate  && (
-                        <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
-                            <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
-                                <Text style={{color:'#262626',marginLeft:5,}}>Редактировать </Text>
-                                <FontAwesome5 name="pencil-alt" size={12} color="#6B6B6B" />
+        <>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
+            >
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ position: 'relative', flex: 1}}>
+                    <Stack.Screen options={{
+                        headerShown: false,
+                        header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
+                    }} />
+                    <View style={[styles.container, {marginVertical:28}]}>
+                        <Text style={[styles.name, {marginTop:80}]}>{ id === 'user' ? 'Мой кошелек' : wallet?.title}</Text>
+                        {wallet?.prizm_qr_code_url &&
+                            <View style={styles.image}>
+                                <QRCode
+                                    size={containerWidth}
+                                    value={wallet?.prizm_qr_code_url}
+                                    level={'M'}
+                                />
+                            </View>
+                        }
+                        <View style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            // alignItems: 'center',
+                            justifyContent:'center',
+                            marginTop:25,
+                            marginBottom:50
+                        }}>
+                            <Text style={{marginBottom:3,textAlign:'left',marginLeft:5, color:'rgba(0,0,0,0.5)'}}>Адрес кошелька:</Text>
+                            <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                                <TextInput
+                                    ref={inputRef}
+                                    style={styles.input}
+                                    readOnly={!isUpdate}
+                                    onChangeText={setPrizmWallet}
+                                    value={prizmWallet}
+                                    onFocus={() => setIsFocused(true)} 
+                                    onBlur={() => setIsFocused(false)} 
+                                />
+                                <View style={styles.copyButtonContainer}>
+                                    <AntDesign name="copy1" size={15} color="#262626" />
+                                </View>
                             </Pressable>
+                            {id === 'user' && !isUpdate  && (
+                                    <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
+                                        <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
+                                            <Text style={{color:'#262626',marginLeft:5}}>Редактировать </Text>
+                                            <FontAwesome5 name="pencil-alt" size={12} color="#6B6B6B" />
+                                        </Pressable>
+                                    </View>
+                                )
+                            }
                         </View>
-                    )
-                }
-            </View>
-            {!isFocused && <UIButton text={isUpdate ? 'Сохранить' : id === 'user'  ? 'Перевести PZM' :  'Назад'} onPress={()=> isUpdate ? updateUserWallet() : routerTo()} isAdminWallet={true}/>}
-            {/* {wallet?.is_superuser && id === 'user' && !isUpdate && 
-                <Pressable style={styles.adminLink}>
-                    <Text style={{textAlign:'center'}}>
-                            Перейти в панель администратора
-                        </Text>
-                </Pressable>
-            } */}
-        </View>
+                    </View>
+                    {/* {wallet?.is_superuser && id === 'user' && !isUpdate && 
+                        <Pressable style={styles.adminLink}>
+                            <Text style={{textAlign:'center'}}>
+                                    Перейти в панель администратора
+                                </Text>
+                        </Pressable>
+                    } */}
+                </ScrollView>
+                
+            </KeyboardAvoidingView>
+            <UIButton 
+                    text={isUpdate ? 'Сохранить' : id === 'user'  ? 'Перевести PZM' :  'Назад'} 
+                    onPress={()=> isUpdate ? updateUserWallet() : routerTo()} 
+                    isAdminWallet={true}
+                />
+        </>
+
     );
 }
 
@@ -171,6 +209,7 @@ const styles = StyleSheet.create({
     pressable: {
         position: 'relative',
         width: containerWidth + 34,
+        
     },
     copyButtonContainer: {
         position: 'absolute',

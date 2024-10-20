@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     },
     container: {
         backgroundColor: 'white',
-        paddingHorizontal: 16,
+        marginHorizontal: 6,
     },
     image: {
         width: "100%",
