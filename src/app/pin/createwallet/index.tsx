@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard,Dimensions,Platform} from "react-native";
+import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard,Dimensions,Platform, ScrollView} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {AntDesign} from "@expo/vector-icons";
@@ -109,99 +109,106 @@ const CreateWallet = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
-            <View style={{paddingHorizontal: 26, width: '100%'}}>
-                <Text style={styles.title}>
-                    Новый кошелек
-                </Text>
-                <Text style={styles.label}>Адрес нового кошелька</Text>
-                <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
-                    <TextInput
-                        style={styles.input}
-                        editable={false}
-                        placeholder={'Prizm Wallet'}
-                        value={prizmWallet}
-                        placeholderTextColor='#8C8C8C'
-                    />
-                    <View style={[styles.copyButtonContainer, {bottom:0}]}>
-                        <AntDesign name="copy1" size={15} color="#262626" />
-                    </View>
-                </Pressable>
-                <Text style={styles.label}>Публичный ключ</Text>
-                <Pressable onPress={copyPublicKeyToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
-                    <TextInput
-                        style={styles.input}
-                        editable={false}
-                        placeholder={'Public Key'}
-                        value={publicKey}
-                        placeholderTextColor='#8C8C8C'
-                    />
-                    <View style={[styles.copyButtonContainer, {bottom:0}]}>
-                        <AntDesign name="copy1" size={15} color="#262626" />
-                    </View>
-                </Pressable>
-                <Text style={styles.label}>Парольная фраза</Text>
-                <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>
-                    <TextInput
-                        style={[styles.input, {paddingRight:30}]}
-                        editable={false}
-                        multiline={true}
-                        placeholder={'Secret Phrase'}
-                        value={secretPhrase}
-                        placeholderTextColor='#8C8C8C'
-                    />
-                    <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
-                        <AntDesign name="copy1" size={15} color="#262626" />
-                    </View>
-                </Pressable>
-                <Text style={{marginLeft:9, color:'#B81C1C'}}>Обязательно сохраните парольную-фразу! 
-                    Ее нельзя будет получить еще раз. Без нее
-                    нельзя будет обменять pzm на рубли
-                </Text>
-            </View>
-            <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                animationIn={'slideInUp'}
-                isVisible={isModal}
-                onSwipeComplete={toggleModal}
-                onBackdropPress={toggleModal}
-                animationInTiming={200}
-                animationOut='slideOutDown'
-                animationOutTiming={500}
-                backdropColor='black'
-                hardwareAccelerated
-                backdropTransitionOutTiming={0}
-                swipeDirection={'down'}
-                onBackButtonPress={toggleModal}
-                style={styles.modal}
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={styles.container}>
 
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                    <Text style={styles.modalText}>
-                        Обязательно сохраните парольную фразу! 
-                        Ее нельзя будет получить еще раз. 
-                        <Text style={{color:'#B81C1C', fontWeight: 500}}>
-                            {' '}
-                            Без нее нельзя будет обменять pzm на рубли
-                        </Text>
+            
+                <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
+                <View style={{paddingHorizontal: 26, width: '100%'}}>
+                    <Text style={styles.title}>
+                        Новый кошелек
                     </Text>
+                    <Text style={styles.label}>Адрес нового кошелька</Text>
+                    <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
+                        <TextInput
+                            style={styles.input}
+                            editable={false}
+                            placeholder={'Prizm Wallet'}
+                            value={prizmWallet}
+                            placeholderTextColor='#8C8C8C'
+                        />
+                        <View style={[styles.copyButtonContainer, {bottom:0}]}>
+                            <AntDesign name="copy1" size={15} color="#262626" />
+                        </View>
+                    </Pressable>
+                    <Text style={styles.label}>Публичный ключ</Text>
+                    <Pressable onPress={copyPublicKeyToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
+                        <TextInput
+                            style={styles.input}
+                            editable={false}
+                            placeholder={'Public Key'}
+                            value={publicKey}
+                            placeholderTextColor='#8C8C8C'
+                        />
+                        <View style={[styles.copyButtonContainer, {bottom:0}]}>
+                            <AntDesign name="copy1" size={15} color="#262626" />
+                        </View>
+                    </Pressable>
+                    <Text style={styles.label}>Парольная фраза</Text>
+                    <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>
+                        <TextInput
+                            style={[styles.input, {paddingRight:30}]}
+                            editable={false}
+                            multiline={true}
+                            placeholder={'Secret Phrase'}
+                            value={secretPhrase}
+                            placeholderTextColor='#8C8C8C'
+                        />
+                        <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
+                            <AntDesign name="copy1" size={15} color="#262626" />
+                        </View>
+                    </Pressable>
+                    <Text style={{marginLeft:9, color:'#B81C1C'}}>Обязательно сохраните парольную-фразу! 
+                        Ее нельзя будет получить еще раз. Без нее
+                        нельзя будет обменять pzm на рубли
+                    </Text>
+                </View>
+                <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
+                <Modal
+                    deviceWidth={deviceWidth}
+                    deviceHeight={deviceHeight}
+                    animationIn={'slideInUp'}
+                    isVisible={isModal}
+                    onSwipeComplete={toggleModal}
+                    onBackdropPress={toggleModal}
+                    animationInTiming={200}
+                    animationOut='slideOutDown'
+                    animationOutTiming={500}
+                    backdropColor='black'
+                    hardwareAccelerated
+                    backdropTransitionOutTiming={0}
+                    swipeDirection={'down'}
+                    onBackButtonPress={toggleModal}
+                    style={styles.modal}
 
-                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
-                            <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
-                                <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
-                            </Pressable>
-                            <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
-                                <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
-                            </Pressable>
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={{color:'#B81C1C', fontWeight: 500,fontSize:23, marginBottom:7}}>
+                                Внимание!
+                            </Text>
+                        <Text style={styles.modalText}>
+                            Обязательно сохраните парольную фразу! 
+                            Ее нельзя будет получить еще раз. 
+                            <Text style={{color:'#B81C1C', fontWeight: 500}}>
+                                {' '}
+                                Без нее нельзя будет обменять pzm на рубли
+                            </Text>
+                        </Text>
+
+                            <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
+                                <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                    <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
+                                </Pressable>
+                                <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                    <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
-        </View>
+                </Modal>
+            </View>
+        </ScrollView>
     );
 };
 
