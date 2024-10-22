@@ -36,6 +36,46 @@ const CreateWallet = () => {
         Clipboard.setString(secretPhrase);
         Alert.alert('Парольная фраза скопирована!','');
     };
+
+    const postForm = async () => {
+        const username = await asyncStorage.getItem('username')
+        const public_key_hex = await asyncStorage.getItem('public_key_hex')
+        const prizm_wallet = await asyncStorage.getItem('prizm_wallet')
+        const walletName = await asyncStorage.getItem('prizm_wallet');
+        // const isUpdatedName = walletName ? JSON.parse(walletName) !== name : true
+        
+        const form = {
+            username,
+            prizm_wallet:prizmWallet,
+            public_key_hex:publicKey 
+        };
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            });
+            console.log(form)
+            const data = await response.json();
+            if (!response.ok) {
+                const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'
+                Alert.alert(result)
+                throw new Error('Ошибка сети');
+            } else {
+                router.replace('/(user)/menu');
+                await asyncStorage.setItem('username', JSON.stringify(data?.username))
+                await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
+                await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
+                await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
+            }
+        } catch (error) {
+            // await asyncStorage.removeItem('username')
+            await asyncStorage.removeItem('prizm_wallet')
+        }
+    };
+
     useEffect(() => {
         const createNewWallet = async () => {
             try {
@@ -60,9 +100,12 @@ const CreateWallet = () => {
         createNewWallet()
     },[])
 
-    const prevScreen = () => {
-        toggleModal()
-        router.back()
+    const menuScreen = () => {
+        setTimeout(() => {
+            router.push('/(user)/menu/');
+        }, 300); 
+        // toggleModal()
+        // router.replace('/(user)/menu/');
     }
 
     return (
@@ -132,6 +175,7 @@ const CreateWallet = () => {
                 hardwareAccelerated
                 backdropTransitionOutTiming={0}
                 swipeDirection={'down'}
+                onBackButtonPress={toggleModal}
                 style={styles.modal}
 
             >
@@ -147,7 +191,7 @@ const CreateWallet = () => {
                     </Text>
 
                         <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
-                            <Pressable onPress={() => prevScreen()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                            <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
                                 <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
                             </Pressable>
                             <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>

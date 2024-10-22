@@ -3,7 +3,7 @@ import { Pressable, Text, View, StyleSheet } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
+// import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {Link, useRouter} from "expo-router";
 
@@ -26,7 +26,7 @@ type MainHeaderProps = {
 }
 
 const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProps) => {
-    const { asyncTheme, changeTheme } = useAsyncTheme();
+    // const { asyncTheme, changeTheme } = useAsyncTheme();
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
     const [info,setInfo] = useState<IWallet | null>(null)
@@ -133,8 +133,8 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
         >
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 7.5 }}>
-                    {/* <Pressable */}
-                        {/* // onPress={logOut}
+                    {/* <Pressable
+                         onPress={logOut}
                     > */}
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
                     {/* </Pressable> */}
@@ -174,7 +174,7 @@ const MainHeader = ({ onChatPress,onQrCodeUrlUpdate,refreshData }:MainHeaderProp
                 </View>
                 <View style={styles.headerListItems}>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
-                        {isHidden ? '****' : `1 pzm: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
+                        {isHidden ? '****' : `курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} руб`}
                     </Text>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right'}]}>
                         {isHidden ? '****' : `баланс: ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} руб`}

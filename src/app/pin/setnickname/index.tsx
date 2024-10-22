@@ -76,9 +76,9 @@ const SetNickName = () => {
             if (isNameSet && walletName){
                 setName(JSON.parse(walletName))
             }
-            if (userName && walletName) {
-                router.replace('/(user)')
-            }
+            // if (userName && walletName) {
+            //     router.replace('/(user)')
+            // }
         };
 
         getAsyncName();

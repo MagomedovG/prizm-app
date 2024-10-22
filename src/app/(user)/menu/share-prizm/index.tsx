@@ -11,6 +11,7 @@ const SharePrizm = () => {
     const [count,setCount]=useState<number | null | string>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const router = useRouter();
     const copyWalletToClipboard = () => {
         Clipboard.setString(wallet);
         Alert.alert('Кошелек скопирован!','');
@@ -52,6 +53,12 @@ const SharePrizm = () => {
                 Alert.alert(message);
             } else {
                 Alert.alert('Ошибка при проведении транзакции');
+            }
+            if (response.ok){
+                setSid('')
+                setCount(null)
+                setWallet('')
+                router.replace('/(user)/menu');
             }
             
         } catch (error) {

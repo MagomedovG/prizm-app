@@ -13,10 +13,11 @@ import {
     Platform, 
     KeyboardAvoidingView,
     Alert,
-    Clipboard
+    Clipboard,
+    BackHandler
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Stack, useLocalSearchParams, useRouter} from "expo-router";
+import { Link, Stack, useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
 import CategoryItemList from "@/src/components/main-page/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
 import HeaderLink from "@/src/components/HeaderLink";
@@ -47,7 +48,7 @@ export default function categoryId() {
     const [isModal, setIsModal] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [prizmWallet, setPrizmWallet] = useState('')
-    
+    const [exchanger, setExchanger] = useState<string>('')
     const [prizmQrCode, setPrizmQrCode] = useState('') 
     const inputRef = useRef(null);
     const copyToClipboard = () => {
@@ -56,21 +57,36 @@ export default function categoryId() {
         }
         Alert.alert('Кошелек скопирован!', prizmWallet)
     };
+
+    async function getExchanger() {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/exchanger/`,{
+                }
+            );
+            const data = await response.json();
+            setExchanger(data?.exchanger);
+        } catch (error) {
+            console.error("Ошибка при загрузке exchangera:", error);
+        }
+    }
+
+
     useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
-        setKeyboardHeight(event.endCoordinates.height);
-    });
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
+            setKeyboardHeight(event.endCoordinates.height);
+        });
 
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-        setKeyboardHeight(0);
-    });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardHeight(0);
+        });
 
-    
+        
 
-    return () => {
-        keyboardDidHideListener.remove();
-        keyboardDidShowListener.remove();
-    };
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
     }, []);
 
     const handleWalletPress = (value: boolean) => {
@@ -113,7 +129,7 @@ export default function categoryId() {
                 console.error('Ошибка при получении данных из AsyncStorage:', error);
             }
         };
-        
+        getExchanger()
         getWallet()
         getData();
     }, []);
@@ -125,6 +141,7 @@ export default function categoryId() {
     const handleFilteredData = (data:any) => {
         setFilteredData(data);
     };
+    
 
     return (
         <KeyboardAvoidingView
@@ -146,6 +163,7 @@ export default function categoryId() {
                 isVisible={isModal}
                 onSwipeComplete={hideModal}
                 onBackdropPress={hideModal}
+                onBackButtonPress={hideModal} 
                 animationInTiming={300}
                 animationOut='slideOutDown'
                 animationOutTiming={200}
@@ -157,6 +175,7 @@ export default function categoryId() {
 
             >
                 <View style={styles.centeredView}>
+                    
                     <View style={styles.modalView}>
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginTop:17}}>
                             <Text style={styles.subTitle}>Как получить кэшбэк?</Text>
@@ -164,8 +183,7 @@ export default function categoryId() {
                                 <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                                     <Text style={styles.text}>
-                                        При оплате покажите
-                                        <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}> qr-код продавцу</Text>
+                                        При оплате покажите <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}>qr-код продавцу</Text>
                                     </Text>
                                 </Pressable>
                                 <View style={{width: 1,
@@ -177,7 +195,7 @@ export default function categoryId() {
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                                    <Text style={styles.text}>Кэшбэк начислится мгновенно</Text>
+                                    <Text style={styles.text}>Кэшбэк pzm начислится мгновенно</Text>
                                 </View>
                             </View>
 
@@ -188,7 +206,12 @@ export default function categoryId() {
                             <View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                                    <Text style={styles.text}>Перейдите в приложение обменника</Text>
+                                    <View style={{display:'flex', flexDirection:'row'}}>
+                                        <Text style={[styles.text]}>Перейдите в раздел </Text>
+                                        <Link href={exchanger}>
+                                            <Text style={[styles.text,{textDecorationLine:'underline',color:theme === 'purple' ? '#6F1AEC' : '#375A2C',}]}>обменник</Text>
+                                        </Link>
+                                    </View>
                                 </View>
                                 <View style={{width: 1,
                                     height: 17,
@@ -199,16 +222,20 @@ export default function categoryId() {
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                                    <Text style={styles.text}>Обменяйте pzm на рубли в обменнике</Text>
+                                    <Text style={[styles.text]}>Обменяйте pzm на рубли в обменнике</Text>
                                 </View>
                             </View>
                         </View>
                     </View>
                 </View>
+                <Pressable style={styles.closeButton} onPress={hideModal}>
+                        <AntDesign name="close" size={30} color="white" />
+                </Pressable>
             </Modal>
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}
+                onBackButtonPress={closeQrModal} 
                 animationIn={'slideInUp'}
                 isVisible={isQrModal}
                 onSwipeComplete={closeQrModal}
@@ -244,7 +271,11 @@ export default function categoryId() {
                         </Pressable>
 
                     </View>
+                    
                 </View>
+                <Pressable style={styles.closeButton} onPress={closeQrModal}>
+                        <AntDesign name="close" size={30} color="white" />
+                </Pressable>
             </Modal>
         </KeyboardAvoidingView>
 
@@ -252,7 +283,15 @@ export default function categoryId() {
     );
 };
 const styles = StyleSheet.create({
-    modalText:{},
+    centeredQrView:{
+        
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 111,
+    },
     pressable: {
         position: 'relative',
         width:deviceWidth / 1.8 + 34
@@ -341,13 +380,15 @@ const styles = StyleSheet.create({
     modal: {
         margin: 0,
         justifyContent: 'flex-end',
-        zIndex: 2
+        zIndex: 2,
+        position: 'relative',
     },
     qrModal:{
         margin: 0,
         justifyContent: 'center',
         alignItems:'center',
-        zIndex:3
+        zIndex:3,
+        position:'relative'
     },
     purpleCircleText:{
         color:'white',

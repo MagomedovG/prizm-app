@@ -153,6 +153,7 @@ export default function MenuScreen() {
                 isVisible={isModal}
                 onSwipeComplete={toggleModal}
                 onBackdropPress={toggleModal}
+                onBackButtonPress={()=>setIsModal(false)}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -186,14 +187,18 @@ export default function MenuScreen() {
                         </View>
                     </View>
                 </View>
+                <Pressable style={styles.closeButton} onPress={()=>setIsModal(false)}>
+                        <AntDesign name="close" size={30} color="white" />
+                    </Pressable>
             </Modal>
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isChatModal}
-                onSwipeComplete={toggleChatModal}
-                onBackdropPress={toggleChatModal}
+                onSwipeComplete={()=>setIsChatModal(false)}
+                onBackdropPress={()=>setIsChatModal(false)}
+                onBackButtonPress={()=>setIsChatModal(false)}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -231,7 +236,9 @@ export default function MenuScreen() {
                         </View>
                     </View>
                     </View>
-
+                    <Pressable style={styles.closeButton} onPress={()=>setIsChatModal(false)}>
+                        <AntDesign name="close" size={30} color="white" />
+                    </Pressable>
             </Modal>
 
             <View style={{ flex: 1 }} >
@@ -280,6 +287,12 @@ export default function MenuScreen() {
 }
 
 const styles = StyleSheet.create({
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 111,
+    },
     button: {
         borderRadius: 20,
         padding: 10,
@@ -390,5 +403,6 @@ const styles = StyleSheet.create({
     modal: {
         margin: 0,
         justifyContent: 'flex-end',
+        position:'relative'
     },
 });

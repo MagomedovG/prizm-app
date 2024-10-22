@@ -31,7 +31,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                     <Entypo name="info-with-circle" size={24} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
                     <Pressable onPress={handleWalletPress}>
                         <Text  style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>
-                            Как получить и вывести кэшбэк
+                            Как получить и вывести кэшбэк pzm
                         </Text>
                     </Pressable>
                 </Pressable> }
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
         fontWeight:'bold'
     },
     bonusText:{
-        fontSize:16,
+        fontSize:15,
         fontWeight:600
     },
     bonus:{

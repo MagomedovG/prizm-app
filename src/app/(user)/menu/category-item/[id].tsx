@@ -194,7 +194,7 @@ export default function categoryId() {
                         }}></View>
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                            <Text style={styles.text}>Кэшбэк начислится мгновенно</Text>
+                            <Text style={styles.text}>Кэшбэк pzm начислится мгновенно</Text>
                         </View>
                     </View>
                     <Text style={styles.subTitle}>О партнере</Text>
@@ -220,6 +220,7 @@ export default function categoryId() {
                 animationOut='slideOutDown'
                 animationOutTiming={300}
                 backdropTransitionOutTiming={0}
+                onBackButtonPress={closeQrModal}
                 backdropColor='black'
                 hardwareAccelerated
                 swipeDirection={'down'}
@@ -248,6 +249,9 @@ export default function categoryId() {
 
                     </View>
                 </View>
+                <Pressable style={styles.closeButton} onPress={closeQrModal}>
+                        <AntDesign name="close" size={30} color="white" />
+                    </Pressable>
             </Modal>
 
             </View>
@@ -262,6 +266,10 @@ export default function categoryId() {
                 animationIn="slideInUp" // анимация при открытии
                 animationOut="slideOutDown" // анимация при закрытии
                 backdropOpacity={0.8} // настройка прозрачности фона
+                animationInTiming={300}
+                animationOutTiming={300}
+                backdropTransitionOutTiming={0}
+                onBackButtonPress={closeFullscreen}
             >
                 <View style={styles.fullscreenContainer}>
                     <Swiper
@@ -350,7 +358,8 @@ const styles = StyleSheet.create({
         margin: 0,
         justifyContent: 'center',
         alignItems:'center',
-        zIndex:3
+        zIndex:3,
+        position: 'relative',
     },
     pressable: {
         position: 'relative',
