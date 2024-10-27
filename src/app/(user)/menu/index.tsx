@@ -60,30 +60,6 @@ export default function MenuScreen() {
         getChats()
     }, []);
     
-    const addWalletWithQrCodeUrl = (url: string) => {
-        if (url) {
-            setWallets((prevWallets: any) => {
-                const hasWallet = prevWallets.some((wallet:any) => wallet.title === "Мой кошелек");
-                if (!hasWallet) {
-                    return [
-                        {
-                            id: 'user',
-                            title: "Мой кошелек",
-                            prizm_qr_code_url: url
-                        },
-                        ...prevWallets
-                    ];
-                }
-                return prevWallets;
-            });
-            setTimeout(() => {
-                setIsLoading(false);
-            },500)
-            
-        }
-    };
-
-
     const getData = async () => {
         try {
             const response = await fetch(
@@ -242,7 +218,7 @@ export default function MenuScreen() {
             </Modal>
 
             <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={toggleChatModal} onQrCodeUrlUpdate={addWalletWithQrCodeUrl} refreshData={refreshing}/>
+                <MainHeader onChatPress={toggleChatModal}  refreshData={refreshing} onDotsPress={toggleModal}/>
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -250,14 +226,7 @@ export default function MenuScreen() {
                         end={{ x: 0, y: 0 }}
                         style={styles.walletContainer}
                     >
-                        <View style={{display:'flex', width:'100%', flexDirection:'row', justifyContent:'space-between', alignItems:'center',marginBottom: 15}}>
-                            <Text style={[styles.walletTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>Кошельки</Text>
-                            <Pressable
-                                onPress={toggleModal}
-                            >
-                                <View><Entypo name="dots-three-horizontal" size={22} color={theme === 'purple' ? 'white' : 'black'} /></View>
-                            </Pressable>
-                        </View>
+                        
                         <FlatList
                             data={wallets}
                             renderItem={({ item }) => <WalletItem wallet={item} />}
@@ -383,9 +352,9 @@ const styles = StyleSheet.create({
     },
     walletContainer: {
         backgroundColor: '#D9D9D9',
-        paddingHorizontal: 25,
-        borderBottomLeftRadius: 25,
-        borderBottomRightRadius: 25,
+        paddingLeft: 25,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
     },
     walletTitle: {
         fontSize: 20,

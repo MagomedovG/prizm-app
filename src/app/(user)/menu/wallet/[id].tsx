@@ -112,7 +112,9 @@ export default function walletId() {
             const data = await response.json();
             if (!response.ok) {
                 Alert.alert('Введен некорректный кошелек')
-            } 
+            } else {
+                await asyncStorage.setItem('prizm_wallet', prizmWallet)
+            }
         } catch (e) {
             console.log(e);
         } finally {

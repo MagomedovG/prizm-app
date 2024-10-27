@@ -2,7 +2,7 @@ import {Pressable, StyleSheet, Text, View} from "react-native";
 import {Colors} from "@/constants/Colors";
 import {IWallet} from "@/src/types";
 import {Link, useSegments} from "expo-router";
-import { Dimensions } from 'react-native';
+import { Dimensions, Image } from 'react-native';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import QRCode from "react-qr-code";
 import React from "react";
@@ -13,20 +13,24 @@ type WalletItemProps = {
     wallet: IWallet,
     containerWidth?:number
 }
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 export default function WalletItem ({ wallet }:WalletItemProps) {
     const segments = useSegments()
     const {theme} = useCustomTheme()
     console.log(segments)
     return (
-        <Link href={wallet.id ? `${segments[0]}/menu/wallet/${wallet.id}` : '/(user)/menu/'} asChild>
+        <Link href={`${segments[0]}/menu/wallet/${wallet.id}`} asChild>
             <Pressable style={styles.container}>
                 <View style={styles.image}>
-                    <QRCode
+                    <Image
+                        source={{ uri: `${wallet?.logo}` }}
+                        style={styles.logo}
+                    />
+                    {/* <QRCode
                         size={containerWidth-12}
                         value={wallet?.prizm_qr_code_url}
-                    />
+                    /> */}
                 </View>
-                <Text style={[styles.title, theme === 'purple' ? styles.whiteText : styles.blackText]}>{wallet.title}</Text>
             </Pressable>
         </Link>
     )
@@ -38,6 +42,7 @@ const styles = StyleSheet.create({
         display:'flex',
         flexDirection:'column',
         alignItems:"center",
+        marginBottom:14
 
     },
     whiteText:{
@@ -46,21 +51,28 @@ const styles = StyleSheet.create({
     blackText:{
         color:'black'
     },
+    logo:{
+        width:'100%',
+        // aspectRatio:1,
+        borderRadius:10,
+        height:83
+    },
     image:{
         width:'100%',
-        aspectRatio:1,
-        borderWidth:6,
-        borderColor:'#fff',
+        // aspectRatio:1,
+        // borderWidth:6,
+        // borderColor:'#fff',
+        // height:83,
         borderRadius:10,
     },
-    title:{
-        fontSize:14,
-        fontWeight:'medium',
-        marginTop:5,
-        marginBottom:10,
-        width:'100%',
-        textAlign:'center'
-    },
+    // title:{
+    //     fontSize:14,
+    //     fontWeight:'medium',
+    //     marginTop:5,
+    //     marginBottom:10,
+    //     width:'100%',
+    //     textAlign:'center'
+    // },
     price:{
         color: Colors.light.tint
     }
