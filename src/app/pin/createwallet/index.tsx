@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard,Dimensions,Platform, ScrollView} from "react-native";
-import {Stack, useRouter} from "expo-router";
+import {Link, Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {AntDesign} from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 
 const deviceWidth = Dimensions.get("window").width;
+const { width, height } = Dimensions.get('window');
 const deviceHeight =
     Platform.OS === "ios"
         ? Dimensions.get("window").height
@@ -14,7 +15,7 @@ const deviceHeight =
             "REAL_WINDOW_HEIGHT"
         );
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
+const CONTAINER_TOP = height / 20
 const CreateWallet = () => {
     const [publicKey, setPublicKey] = useState('');
     const [prizmWallet, setPrizmWallet] = useState('');
@@ -24,6 +25,13 @@ const CreateWallet = () => {
     const toggleModal = () => {
         setIsModal(!isModal);
     };
+    const replaceToMenu = () => {
+        setIsModal(false);
+        setTimeout(() => {
+            router.replace('/(user)/menu');
+        }, 500); 
+    };
+    
     const copyWalletToClipboard = () => {
         Clipboard.setString(prizmWallet);
         Alert.alert('Кошелек скопирован!','');
@@ -38,18 +46,23 @@ const CreateWallet = () => {
     };
 
     const postForm = async () => {
-        const username = await asyncStorage.getItem('username')
-        const public_key_hex = await asyncStorage.getItem('public_key_hex')
-        const prizm_wallet = await asyncStorage.getItem('prizm_wallet')
+        
+        const username = await asyncStorage.getItem('username');
+        const public_key_hex = await asyncStorage.getItem('public_key_hex');
+        const prizm_wallet = await asyncStorage.getItem('prizm_wallet');
         const walletName = await asyncStorage.getItem('prizm_wallet');
         // const isUpdatedName = walletName ? JSON.parse(walletName) !== name : true
         
+        // const parsedUsername = await JSON.parse(username)
+        
         const form = {
-            username,
-            prizm_wallet:prizmWallet,
-            public_key_hex:publicKey 
+            username: username,
+            prizm_wallet: prizmWallet,
+            public_key_hex: publicKey 
         };
+        console.log('error')
         try {
+            
             const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
                 method: 'POST',
                 headers: {
@@ -64,15 +77,16 @@ const CreateWallet = () => {
                 Alert.alert(result)
                 throw new Error('Ошибка сети');
             } else {
-                router.replace('/(user)/menu');
+                setIsModal(false);
                 await asyncStorage.setItem('username', JSON.stringify(data?.username))
                 await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
                 await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
                 await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
+                replaceToMenu() 
             }
         } catch (error) {
-            // await asyncStorage.removeItem('username')
-            await asyncStorage.removeItem('prizm_wallet')
+            console.log(error)
+            // await asyncStorage.removeItem('prizm_wallet')
         }
     };
 
@@ -110,41 +124,19 @@ const CreateWallet = () => {
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
             <View style={styles.container}>
-
-            
-                <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
                 <View style={{paddingHorizontal: 26, width: '100%'}}>
+                    
                     <Text style={styles.title}>
-                        Новый кошелек
+                        ПРЕДУПРЕЖДЕНИЕ
                     </Text>
-                    <Text style={styles.label}>Адрес нового кошелька</Text>
-                    <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
-                        <TextInput
-                            style={styles.input}
-                            editable={false}
-                            placeholder={'Prizm Wallet'}
-                            value={prizmWallet}
-                            placeholderTextColor='#8C8C8C'
-                        />
-                        <View style={[styles.copyButtonContainer, {bottom:0}]}>
-                            <AntDesign name="copy1" size={15} color="#262626" />
-                        </View>
-                    </Pressable>
-                    <Text style={styles.label}>Публичный ключ</Text>
-                    <Pressable onPress={copyPublicKeyToClipboard} style={[styles.pressable, {marginBottom: 15}]}>
-                        <TextInput
-                            style={styles.input}
-                            editable={false}
-                            placeholder={'Public Key'}
-                            value={publicKey}
-                            placeholderTextColor='#8C8C8C'
-                        />
-                        <View style={[styles.copyButtonContainer, {bottom:0}]}>
-                            <AntDesign name="copy1" size={15} color="#262626" />
-                        </View>
-                    </Pressable>
-                    <Text style={styles.label}>Парольная фраза</Text>
+                    <View style={styles.message}>
+                        <Text style={styles.messageText}>Обязательно сохраните парольную-фразу! 
+                            Ее нельзя будет получить еще раз. Без нее нельзя будет обменять <Text style={{fontWeight:'bold'}}>PZM</Text> на рубли! (сделайте фото экрана или сохраните на телефоне)
+                        </Text>
+                    </View>
+                    <Text style={styles.label}>Парольная-фраза</Text>
                     <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>
                         <TextInput
                             style={[styles.input, {paddingRight:30}]}
@@ -158,10 +150,7 @@ const CreateWallet = () => {
                             <AntDesign name="copy1" size={15} color="#262626" />
                         </View>
                     </Pressable>
-                    <Text style={{marginLeft:9, color:'#B81C1C'}}>Обязательно сохраните парольную-фразу! 
-                        Ее нельзя будет получить еще раз. Без нее
-                        нельзя будет обменять pzm на рубли
-                    </Text>
+                    
                 </View>
                 <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
                 <Modal
@@ -184,22 +173,23 @@ const CreateWallet = () => {
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
-                            <Text style={{color:'#B81C1C', fontWeight: 500,fontSize:23, marginBottom:7}}>
+                            <Text style={{color:'rgba(255, 49, 49, 1)', fontWeight: 500,fontSize:23, marginBottom:7}}>
                                 Внимание!
                             </Text>
-                        <Text style={styles.modalText}>
-                            Обязательно сохраните парольную фразу! 
-                            Ее нельзя будет получить еще раз. 
-                            <Text style={{color:'#B81C1C', fontWeight: 500}}>
-                                {' '}
-                                Без нее нельзя будет обменять pzm на рубли
+                            <Text style={styles.modalText}>
+                                Обязательно сохраните парольную фразу! 
+                                Ее нельзя будет получить еще раз. 
+                                <Text style={{color:'#B81C1C', fontWeight: 500}}>
+                                    {' '}
+                                    Без нее нельзя будет обменять pzm на рубли
+                                </Text>
                             </Text>
-                        </Text>
 
                             <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
                                 <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
                                     <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
                                 </Pressable>
+                                
                                 <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
                                     <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
                                 </Pressable>
@@ -256,10 +246,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     label:{
-        color:'#B6B6B6',
+        color:'rgba(7, 9, 7, 1)',
         fontSize:14,
         marginLeft:9,
-        marginBottom:2
+        marginBottom:2,
+        fontWeight:'700'
     },
     createWallet:{
         marginHorizontal:42,
@@ -274,10 +265,26 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 12,
         backgroundColor: '#ffffff',
-        borderRadius: 5,
+        borderRadius: 10,
         fontSize:18,
         color: '#000000',
         paddingRight:32
+    },
+    message:{
+        borderWidth: 1,
+        borderColor: '#B81C1C',
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        backgroundColor: '#ffffff',
+        borderRadius: 10,
+        fontSize:18,
+        color: '#000000',
+        paddingRight:32,
+        marginBottom:16
+    },
+    messageText:{
+        fontSize:18,
+        color:'#B81C1C',
     },
     inputContainer: {
         width: '100%',
@@ -292,9 +299,10 @@ const styles = StyleSheet.create({
         position:'relative'
     },
     title: {
-        color: '#070907',
-        marginBottom: 40,
-        fontSize: 26,
+        color: '#B81C1C',
+        marginTop: CONTAINER_TOP ,
+        fontSize: 20,
+        marginBottom:11,
         textAlign: 'center',
         fontWeight: 'bold'
     }

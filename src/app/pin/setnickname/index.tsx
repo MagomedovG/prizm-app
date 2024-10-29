@@ -1,128 +1,36 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Alert, Pressable, ActivityIndicator} from "react-native";
-import {Stack, useRouter,useLocalSearchParams} from "expo-router";
+import {StyleSheet, View, Text, TextInput} from "react-native";
+import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-import { useFocusEffect } from '@react-navigation/native';
 const SetNickName = () => {
-    const [name, setName] = useState('');
-    const [asyncName, setAsyncName] = useState<string | null>(null);
-    const [isNameSet, setIsNameSet] = useState<boolean>(false);
+    const [name, setName] = useState<any>('');
     const router = useRouter();
 
-
-    const postForm = async () => {
-        const username = await asyncStorage.getItem('username')
-        const public_key_hex = await asyncStorage.getItem('public_key_hex')
-        const prizm_wallet = name
-        const walletName = await AsyncStorage.getItem('prizm_wallet');
-        const isUpdatedName = walletName ? JSON.parse(walletName) !== name : true
-        
-        const form = {
-            username,
-            prizm_wallet,
-            ...(public_key_hex && !isUpdatedName && { public_key_hex: JSON.parse(public_key_hex) })
-        };
-        try {
-            const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(form),
-            });
-
-            const data = await response.json();
-            
-            if (!response.ok) {
-                const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'
-                Alert.alert(result)
-                setIsNameSet(false);
-                throw new Error('Ошибка сети');
-            } else {
-                setName('');
-                router.replace('/(user)/menu');
-                await asyncStorage.setItem('username', JSON.stringify(data?.username))
-                await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
-                await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
-                await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
-            }
-        } catch (error) {
-            await AsyncStorage.removeItem('username')
-            await AsyncStorage.removeItem('prizm_wallet')
-            setIsNameSet(false);
-            setName('');
-        }
-    };
-    
-    useFocusEffect(
-        React.useCallback(() => {
-            const getAsyncName = async () => {
-                const walletName = await AsyncStorage.getItem('prizm_wallet');
-                if (walletName && isNameSet) {
-                    setName(JSON.parse(walletName));
-                }
-            };
-
-            getAsyncName();
-        }, [isNameSet])
-    );
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
-            const walletName = await AsyncStorage.getItem('prizm_wallet');
-            if (isNameSet && walletName){
-                setName(JSON.parse(walletName))
-            }
-            // if (userName && walletName) {
-            //     router.replace('/(user)')
-            // }
-        };
-
-        getAsyncName();
-    }, [isNameSet])
-
-    useEffect(()=> {
-        const getAsyncName = async () => {
-            const userName = await AsyncStorage.getItem('username');
-            setAsyncName(userName);
-            if (userName) {
-                setIsNameSet(true);
+            const parsedUserName = userName ? JSON.parse(userName) : '';
+            if (userName){
+                setName(parsedUserName);
             }
         };
         getAsyncName();
-    }, [isNameSet])
+    }, [])
 
     const setNickName = async () => {
-        if (name.length === 0) {
+        if (name?.length === 0) {
             return
         }
-        if (!isNameSet) {
-            console.log(isNameSet);
-            setIsNameSet(true);
-            await AsyncStorage.setItem('username', name);
-            setName('')
-        } else {
-            postForm()
-            
-        }
-        
+        await AsyncStorage.setItem('username', name);
+        router.push('/pin/setnickname/LoginScreen')
     }
-    const createwallet = () => {
-        router.push('/pin/createwallet');
-    }
+    
     const handleNameChange = (text: string) => {
-        if (!isNameSet) {
             const allowedCharsRegex = /^[a-zA-Z0-9._@]*$/;
-            
             if (allowedCharsRegex.test(text)) {
                 setName(text);
             }
-        } else {
-            setName(text);
-        }
     };
 
 
@@ -131,33 +39,21 @@ const SetNickName = () => {
             <Stack.Screen options={{ title: 'SetNickName', headerShown: false }} />
             <View style={{paddingHorizontal: 45, width: '100%'}}>
                 <Text style={styles.title}>
-                    {isNameSet ? 'Введите адрес кошелька' : 'Придумайте имя пользователя'}
+                    Придумайте имя пользователя
                 </Text>
                 <View style={styles.inputContainer}>
                     <TextInput
-                        placeholder={isNameSet ? "PRIZM-1234-..." : "Имя пользователя"}
+                        placeholder="Имя пользователя"
                         value={name}
                         onChangeText={handleNameChange}
                         style={styles.input}
                         placeholderTextColor="gray"
                     />
                 </View>
-                {
-                    !isNameSet && (
-                        <Text style={styles.suggest}>
-                            Имя пользователя может содержать только латинские буквы (a-z, A-Z), цифры и символы @, _, .
-                        </Text>
-                    )
-                }
+                <Text style={styles.suggest}>
+                    Имя пользователя может содержать только латинские буквы (a-z, A-Z), цифры и символы @, _, .
+                </Text>
             </View>
-            {
-                isNameSet && <Pressable style={styles.createWallet} onPress={createwallet}>
-                    <Text style={{color:'#B6B6B6'}}>
-                        Хочу создать кошелек
-                    </Text>
-                </Pressable>
-            }
-
             <UIButton text='Ок' onPress={setNickName}/>
         </View>
     );
@@ -174,7 +70,8 @@ const styles = StyleSheet.create({
         bottom:95
     },
     input: {
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical:12,
         paddingLeft:12,
         width: '100%',
         fontSize: 16,

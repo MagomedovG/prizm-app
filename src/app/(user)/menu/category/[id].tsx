@@ -145,7 +145,9 @@ export default function categoryId() {
 
     return (
         <KeyboardAvoidingView
-            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight  : 0}]}
+            style={[styles.container,  Platform.OS === 'ios' ? {marginBottom: keyboardHeight ? keyboardHeight  : 0}  : {}]}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
         >
             <Stack.Screen options={{
                 headerShown:false,
@@ -178,7 +180,7 @@ export default function categoryId() {
                     
                     <View style={styles.modalView}>
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginTop:17}}>
-                            <Text style={styles.subTitle}>Как получить кэшбэк?</Text>
+                            <Text style={styles.subTitle}>Как получить vozvrat pzm?</Text>
                             <View>
                                 <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
@@ -195,14 +197,15 @@ export default function categoryId() {
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                                    <Text style={styles.text}>Кэшбэк pzm начислится мгновенно</Text>
+                                    <Text style={styles.text}>Продавец начислит vozvrat pzm 
+                                    на ваш кошелек</Text>
                                 </View>
                             </View>
 
 
                         </View>
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'column',marginBottom:20, marginTop:32}}>
-                            <Text style={styles.subTitle}>Как вывести кэшбек?</Text>
+                            <Text style={styles.subTitle}>Как обменять vozvrat pzm на рубли?</Text>
                             <View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
@@ -222,7 +225,7 @@ export default function categoryId() {
                                 }}></View>
                                 <View style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                                    <Text style={[styles.text]}>Обменяйте pzm на рубли в обменнике</Text>
+                                    <Text style={[styles.text]}>Обменяйте vozvrat pzm на рубли в обменнике</Text>
                                 </View>
                             </View>
                         </View>

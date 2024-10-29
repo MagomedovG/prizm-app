@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Pressable, Text, View, StyleSheet } from "react-native";
+import { Pressable, Text, View, StyleSheet, Platform } from "react-native";
 import { Entypo, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -51,8 +51,8 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             );
             const data = await response.json();
             setInfo(data);
-            await AsyncStorage.setItem('prizm_qr_code_url', data.prizm_qr_code_url)
-            await AsyncStorage.setItem('prizm_wallet', data.prizm_wallet)
+            await AsyncStorage.setItem('prizm_qr_code_url', data?.prizm_qr_code_url)
+            await AsyncStorage.setItem('prizm_wallet', data?.prizm_wallet)
 
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
@@ -70,14 +70,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             console.error("Ошибка при загрузке exchangera:", error);
         }
     }
-    const getWallet = async () => {
-        try {
-            const url = await AsyncStorage.getItem('prizm_wallet');
-            setPrizmWallet(url || '');
-        } catch (error) {
-            console.error('Ошибка при получении данных из AsyncStorage:', error);
-        }
-    };
+    
 
     useEffect(() => {
         async function fetchUserId() {
@@ -90,14 +83,13 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
         }
         fetchUserId();
         getExchanger();
-        getWallet()
     }, []);
     
     const fetchHiddenState = async () => {
         try {
             const hiddenState = await AsyncStorage.getItem('isHidden');
             if (hiddenState !== null) {
-                setIsHidden(JSON.parse(hiddenState));
+                setIsHidden(JSON.parse(hiddenState))
             }
         } catch (error) {
             console.error('Failed to load hidden state', error);
@@ -153,11 +145,11 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
         >
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                     <Pressable
+                     {/* <Pressable
                          onPress={logOut}
-                    > 
+                    >  */}
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
-                    </Pressable> 
+                    {/* </Pressable>  */}
                     <Pressable onPress={toggleHidden} style={{paddingBottom:4, padding:7.5}}>
                         <Feather name={!isHidden ? "eye-off" : "eye"} size={15} color={theme === 'purple' ? 'white' : 'black'} />
                     </Pressable>
@@ -175,7 +167,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                             onPress={handleDotsPress}
                     >
                         <View>
-                            <Entypo name="dots-three-horizontal" size={20} color={theme === 'purple' ? 'white' : 'black'} />
+                            <Entypo name="dots-three-horizontal" size={20} color={theme === 'purple' ? 'white' : 'black'} style={{marginRight:5}} />
                         </View>
                     </Pressable>
                     <Pressable
@@ -192,29 +184,30 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                 </View>
             </View>
             <View style={styles.headerFirstListItems}>
-                <Text
-                    style={[
-                        styles.headerFirstListItem,
-                        theme === 'purple' ? { color: '#56007B' } : styles.blackText,
-                    ]}
-                >
-                    <Text style={{ fontSize: 18 }}>
-                        Баланс:
+                <View style={[{borderRadius:5},styles.headerFirstListItem]}>
+                    <Text
+                        style={[
+                            {fontWeight:'bold'},
+                            theme === 'purple' ? { color: '#56007B' } : styles.blackText,
+                        ]}
+                    >
+                        <Text style={{ fontSize: 18 }}>
+                            Баланс:
+                        </Text>
+                        <Text style={{ fontSize: 20 }}>
+                            {isHidden ? ' ****' : ` ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} `}
+                        </Text>
+                        <Text style={{ fontSize: 12 }}>
+                            {isHidden ? '' : `РУБ.`}
+                        </Text>
                     </Text>
-                    <Text style={{ fontSize: 20 }}>
-                        {isHidden ? ' ****' : ` ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} `}
-                    </Text>
-                    <Text style={{ fontSize: 12 }}>
-                        {isHidden ? '' : `РУБ.`}
-                    </Text>
-                </Text>
-
+                </View>
                 <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15}]}>
                     <Text style={{ fontSize: 15 }}>
-                        {isHidden ? '****' : `курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} `}
+                        {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} `}
                     </Text>
                     <Text style={{ fontSize: 12 }}>
-                        {isHidden ? '' : `РУБ.`}
+                        РУБ.
                     </Text>
                     
                 </Text>
@@ -241,21 +234,48 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                             </Text>
                         </View>
                         <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                            {prizmWallet ?? ''}
+                            {info?.prizm_wallet ?? ''}
                         </Text>
                     </View>
                     <View style={styles.headerCartButtonsContainer}>
                         <View style={styles.cartButton}>
                             <FontAwesome5 name="long-arrow-alt-up" size={7} color={theme === 'purple' ? "white" : "black"}/>
-                            <Link href="/(user)/menu/share-prizm" style={[styles.cartButtonLink, theme === 'purple' ? {color:'#2E0E5D', backgroundColor:'#fff'} : {}]}>
-                                отправить
-                            </Link>
+                            { Platform.OS === 'ios' ? 
+                                <View style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {}]}>
+                                    <Link href="/(user)/menu/share-prizm" style={[{
+                                            fontSize:11,
+                                            lineHeight:10
+                                        }, 
+                                        theme === 'purple' ? {color:'#2E0E5D'} : {}
+                                    ]}>
+                                        отправить
+                                    </Link>
+                                </View>
+                            : <Link href="/(user)/menu/share-prizm" style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {}]}>
+                                <Text style={[{
+                                        fontSize:11,
+                                        lineHeight:10
+                                    }, 
+                                    theme === 'purple' ? {color:'#2E0E5D'} : {}
+                                ]}>
+                                    отправить
+                                </Text>
+                            </Link>   } 
                         </View>
-                        <View style={styles.cartButton}>
+                        <View  style={styles.cartButton}>
                             <FontAwesome5 name="long-arrow-alt-down" size={7} color={theme === 'purple' ? "white" : "black"} />
-                            <Link href="/(user)/menu/wallet/user"  style={[styles.cartButtonLink,{borderWidth:0.5}, theme === 'purple' ? {color:'#fff', borderColor:'#fff'} : {}]}>
-                                получить
+                            <Link href="/(user)/menu/wallet/user" style={[styles.cartButtonLink, {borderWidth:0.5,height:19}, theme === 'purple' ? {borderColor:'#fff'} : {}]}>
+                                <Text style={[
+                                        {
+                                            fontSize:11,
+                                            lineHeight:10
+                                        }, 
+                                        theme === 'purple' ? {color:'#fff'} : {}
+                                    ]}>
+                                    получить
+                                </Text>
                             </Link>
+                            
                         </View>
                     </View>
                 </View>
@@ -269,6 +289,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         borderBottomWidth: 0,
         width: '100%',
+        paddingHorizontal:16,
         padding: 25,
         paddingBottom: 20
     },
@@ -312,7 +333,6 @@ const styles = StyleSheet.create({
         marginTop:15
     },
     headerFirstListItem:{
-        // color: '#56007B',
         paddingHorizontal:6,
         paddingVertical:1,
         borderRadius:5,
@@ -361,7 +381,7 @@ const styles = StyleSheet.create({
         fontSize:5
     }, 
     headerCartWallet:{
-        fontSize:5,
+        fontSize:4.4,
         paddingHorizontal:4,
     },
     headerCartButtonsContainer:{
@@ -376,13 +396,18 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         // justifyContent: "space-between",
         gap:2,
-        alignItems:'center'
+        alignItems:'center',
+        borderRadius:5,
     },
     cartButtonLink:{
-        paddingHorizontal:3,
-        paddingVertical:2,
+        paddingHorizontal:6,
+    
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent:'center',
+        alignItems:'center',
+        paddingVertical:5,
         borderRadius:5,
-        fontSize:10
     },
     headerListItems: {
         display: 'flex',

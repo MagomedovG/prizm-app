@@ -247,7 +247,7 @@ export default function MenuScreen() {
                             />
                         }
                     >
-                        <CategoryList categories={categories} title="Кэшбек у партнеров" isInput={true} />
+                        <CategoryList categories={categories} title="Категории" isInput={true} />
                     </ScrollView>
                 </View>
             </View>
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     },
     walletContainer: {
         backgroundColor: '#D9D9D9',
-        paddingLeft: 25,
+        paddingLeft: 16,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
     },

@@ -7,6 +7,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import QueryProvider from "@/src/providers/QueryProvider";
 import CustomThemeProvider from "@/src/providers/CustomThemeProvider";
 SplashScreen.preventAutoHideAsync();
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs(true); 
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

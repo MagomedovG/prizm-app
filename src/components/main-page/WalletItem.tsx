@@ -8,7 +8,7 @@ import QRCode from "react-qr-code";
 import React from "react";
 
 const { width } = Dimensions.get('window');
-const containerWidth = (width / 3) - 24;
+const containerWidth = (width / 3) - 17;
 type WalletItemProps = {
     wallet: IWallet,
     containerWidth?:number
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
     logo:{
         width:'100%',
         // aspectRatio:1,
+        objectFit:'cover',
         borderRadius:10,
         height:83
     },

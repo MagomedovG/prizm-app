@@ -1,4 +1,4 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView} from "react-native";
+import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform} from "react-native";
 import {ICategory} from "@/src/types";
 import {Link, useRouter, useSegments} from "expo-router";
 import SearchInput from "@/src/components/SearchInput";
@@ -51,7 +51,10 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     }
     return (
         <KeyboardAvoidingView
-            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT }]}
+            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 35) }]}
+            // style={styles.container}
+                // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
         >
                 
                 {isInput && 
@@ -77,7 +80,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                             href={`${segments[0]}/menu/category/${item.id}`}
                             asChild
                         >
-                            <Pressable style={styles.itemContainer}>
+                            <Pressable style={Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer}>
 
                                 <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
                                     <Text style={styles.text}>{item.title}</Text>
@@ -107,7 +110,7 @@ const styles = StyleSheet.create({
         flex:1,
         overflow:'scroll',
     },
-    itemContainer: {
+    itemIosContainer:{
         display:'flex',
         flexDirection:'row',
         alignItems:'center',
@@ -120,6 +123,24 @@ const styles = StyleSheet.create({
         borderWidth:1,
         borderColor:'rgba(0,0,0,0.2)',
         shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4
+    },
+    itemAndroidContainer: {
+        display:'flex',
+        flexDirection:'row',
+        alignItems:'center',
+        backgroundColor: 'white',
+        height:80,
+        borderRadius:13,
+        marginTop:5,
+        marginBottom:5,
+        marginHorizontal:10,
+        borderWidth:1,
+        borderColor:'rgba(0,0,0,0.2)',
+        shadowColor: 'rgba(0,0,0,0.7)',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
+        elevation: 3,
     },
     image: {
         objectFit:'cover',

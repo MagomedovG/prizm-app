@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useCustomTheme } from '../providers/CustomThemeProvider';
 
 const DismissKeyboard = ({ children }:any) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -10,7 +11,7 @@ const DismissKeyboard = ({ children }:any) => (
 
 const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) => {
     const [query, setQuery] = useState('');
-
+    const { theme } = useCustomTheme();
     useEffect(() => {
         if (query) {
             const filtered = data.filter((item:any) => 
@@ -31,14 +32,15 @@ const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) =
                 style={styles.keyboardAvoidingView}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
             >
-                <View style={styles.container}>
-                    <Feather name="search" size={18} color="gray" />
+                <View style={[styles.container,{ backgroundColor:theme === 'purple' ? '#772899' : '#BAEBAD'}]}>
+                    <Feather name="search" size={18} color={theme === 'purple' ? '#fff' : '#343434'} />
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor:theme === 'purple' ? '#772899' : '#BAEBAD'}]}
                         placeholder={placeholder}
                         value={query}
                         onChangeText={setQuery}
-                        placeholderTextColor='#8C8C8C'
+                        placeholderTextColor={theme === 'purple' ? '#fff' : '#343434'}
+                        // '#8C8C8C'
                     />
                 </View>
             </KeyboardAvoidingView>
@@ -56,15 +58,12 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         borderRadius: 50,
         paddingHorizontal: 10,
-        borderWidth:1,
-        borderColor:'rgba(0,0,0,0.2)',
-        backgroundColor: 'white',
     },
     input: {
         height: 40,
         padding: 12,
         width: '90%',
-        color: '#8C8C8C', // Добавьте это, если хотите, чтобы текст был белым
+        // color: '#8C8C8C', // Добавьте это, если хотите, чтобы текст был белым
     },
 });
 

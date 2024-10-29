@@ -31,7 +31,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                     <Entypo name="info-with-circle" size={24} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
                     <Pressable onPress={handleWalletPress}>
                         <Text  style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>
-                            Как получить и вывести кэшбэк pzm
+                            Как получить и обменять vozvrat pzm
                         </Text>
                     </Pressable>
                 </Pressable> }

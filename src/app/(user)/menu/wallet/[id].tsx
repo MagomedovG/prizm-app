@@ -14,7 +14,7 @@ import {
     Platform
 } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { Stack, useLocalSearchParams, useRouter} from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign } from '@expo/vector-icons';
@@ -35,33 +35,28 @@ export default function walletId() {
         null
     )
     const [prizmWallet, setPrizmWallet] = useState<string>('')
+    const [publicKey, setPublicKey] = useState<string>('')
     const inputRef = useRef(null);
     const [keyboardStatus, setKeyboardStatus] = useState('Клавиатура закрыта');
     const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const scrollViewRef = useRef<ScrollView>(null); 
     useEffect(() => {
-        const showSubscription = Keyboard.addListener("keyboardDidShow", (event) => {
-            setKeyboardStatus("Клавиатура открыта");
-            setKeyboardHeight(event.endCoordinates.height); // высота клавиатуры
-        });
-        const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-            setKeyboardStatus("Клавиатура закрыта");
-            setKeyboardHeight(0);
-        });
-
-        // Убираем подписки при размонтировании компонента
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
-    }, []);
-    useEffect(() => {
-        if (isUpdate && inputRef.current) {
+        if (isUpdate && inputRef && inputRef.current) {
             // inputRef.current?.focus();
             setTimeout(() => {
                 inputRef.current?.focus();
-            }, 100);
+            }, 300);
         }
     }, [isUpdate]);
+
+    useEffect(() => {
+        if (isFocused && scrollViewRef.current) {
+            setTimeout(() => {
+                scrollViewRef?.current?.scrollToEnd({ animated: true });
+            }, 100)
+            
+        }
+    }, [isFocused]); 
     
     const routerTo = () => {
         if (isUpdate){
@@ -87,14 +82,26 @@ export default function walletId() {
             const data = await response.json();
             setWallet(data);
             setPrizmWallet(data?.prizm_wallet)
+            console.log(data)
 
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/${id}/`);
         }
     }
-
+    const getWallet = async () => {
+        try {
+            const key = await AsyncStorage.getItem('public_key_hex');
+            if (key){
+                setPublicKey(JSON.parse(key) || '');
+            }
+            
+        } catch (error) {
+            console.error('Ошибка при получении данных из AsyncStorage:', error);
+        }
+    };
     useEffect(() => {
         getFunds()
+        getWallet()
     },[])
     const updateUserWallet = async () => {
         const userId = await AsyncStorage.getItem('user_id');
@@ -123,12 +130,26 @@ export default function walletId() {
         }
     }
 
-    const copyToClipboard = () => {
+    const copyWalletToClipboard = () => {
         if (wallet?.prizm_wallet && typeof wallet.prizm_wallet === "string" && wallet) {
             Clipboard.setString(wallet.prizm_wallet);
         }
         Alert.alert('Кошелек скопирован!', wallet?.prizm_wallet)
     };
+
+    const copyPKeyToClipboard = () => {
+        if (publicKey && typeof publicKey === "string") {
+            Clipboard.setString(publicKey);
+        }
+        Alert.alert('Публичный ключ скопирован!', publicKey)
+    };
+    function getTitle(str:string) {
+        if (typeof str !== 'string') {
+            return ''; 
+        }
+        return str.length > 24 ? str.slice(0, 23) + '...' : str;
+      }
+
 
     return (
         <>
@@ -137,7 +158,7 @@ export default function walletId() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
             >
-                <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ position: 'relative', flex: 1}}>
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ position: 'relative', flex: 1}} ref={scrollViewRef} >
                     <Stack.Screen options={{
                         headerShown: false,
                         header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
@@ -158,11 +179,11 @@ export default function walletId() {
                             flexDirection: 'column',
                             // alignItems: 'center',
                             justifyContent:'center',
-                            marginTop:25,
-                            marginBottom:50
+                            marginTop:5,
+                            marginBottom:100
                         }}>
-                            <Text style={{marginBottom:3,textAlign:'left',marginLeft:5, color:'rgba(0,0,0,0.5)'}}>Адрес кошелька:</Text>
-                            <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                            <Text style={{marginBottom:3,textAlign:'left',marginLeft:8,marginTop:10, color:'#262626', fontSize:14}}>Адрес кошелька:</Text>
+                            <Pressable onPress={copyWalletToClipboard} style={styles.pressable}>
                                 <TextInput
                                     ref={inputRef}
                                     style={styles.input}
@@ -176,32 +197,48 @@ export default function walletId() {
                                     <AntDesign name="copy1" size={15} color="#262626" />
                                 </View>
                             </Pressable>
+                            
                             {id === 'user' && !isUpdate  && (
-                                    <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34}}>
-                                        <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
-                                            <Text style={{color:'#262626',marginLeft:5}}>Редактировать </Text>
-                                            <FontAwesome5 name="pencil-alt" size={12} color="#6B6B6B" />
+                                    <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34, marginBottom:10}}>
+                                        <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:2, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
+                                            <Text style={{color:'#262626',marginLeft:4, fontSize:13}}>Изменить кошелек </Text>
+                                            <FontAwesome5 name="pencil-alt" size={10} color="#6B6B6B" />
                                         </Pressable>
                                     </View>
                                 )
                             }
+                            {id === 'user' && 
+                                <View>
+                                    <Text style={{marginBottom:3,textAlign:'left',marginLeft:8, color:'#262626', fontSize:14}}>Публичный ключ:</Text>
+                                    <Pressable onPress={copyPKeyToClipboard} style={styles.pressable}>
+                                        <TextInput
+                                            style={styles.input}
+                                            readOnly={true}
+                                            value={getTitle(publicKey)}
+                                        />
+                                        <View style={styles.copyButtonContainer}>
+                                            <AntDesign name="copy1" size={15} color="#262626" />
+                                        </View>
+                                    </Pressable>
+                                </View>
+                            }
                         </View>
                     </View>
-                    {/* {wallet?.is_superuser && id === 'user' && !isUpdate && 
-                        <Pressable style={styles.adminLink}>
-                            <Text style={{textAlign:'center'}}>
+                    {wallet?.is_superuser && id === 'user' && !isUpdate && 
+                        <View style={styles.adminLink}>
+                            <Link href='https://backend.vozvrat-pzm.ru/prizm-admin' style={{textAlign:'center', textDecorationLine:'underline', color:'rgba(102, 102, 102, 1)'}}>
                                     Перейти в панель администратора
-                                </Text>
-                        </Pressable>
-                    } */}
+                                </Link>
+                        </View>
+                    }
                 </ScrollView>
                 
             </KeyboardAvoidingView>
-            <UIButton 
-                    text={isUpdate ? 'Сохранить' : id === 'user'  ? 'Перевести PZM' :  'Назад'} 
+            {(isUpdate || id !== 'user') && <UIButton 
+                    text={isUpdate ? 'Сохранить'  :  'Назад'} 
                     onPress={()=> isUpdate ? updateUserWallet() : routerTo()} 
                     isAdminWallet={true}
-                />
+            />}
         </>
 
     );
@@ -224,11 +261,12 @@ const styles = StyleSheet.create({
     input: {
         borderWidth: 1,
         borderColor: 'gray',
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        backgroundColor: '#EFEFEF',
-        borderRadius: 5,
-        color: '#707070',
+        fontSize:16,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        // backgroundColor: '#EFEFEF',
+        borderRadius: 10,
+        color: '#070907',
     },
     adminLink:{
         position:'absolute',

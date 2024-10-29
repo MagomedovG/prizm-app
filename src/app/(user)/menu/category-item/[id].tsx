@@ -174,7 +174,7 @@ export default function categoryId() {
                             )}
                         </Pressable>
                     </Link>
-                    <Text style={styles.subTitle}>Как получить кэшбек</Text>
+                    <Text style={styles.subTitle}>Как получить vozvrat pzm</Text>
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
@@ -194,7 +194,8 @@ export default function categoryId() {
                         }}></View>
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>2</Text></View>
-                            <Text style={styles.text}>Кэшбэк pzm начислится мгновенно</Text>
+                            <Text style={styles.text}>Продавец начислит vozvrat pzm 
+                            на ваш кошелек</Text>
                         </View>
                     </View>
                     <Text style={styles.subTitle}>О партнере</Text>
