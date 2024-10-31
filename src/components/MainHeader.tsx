@@ -224,16 +224,16 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                     </View>
                 </View>
                 <View style={styles.headerCartButtonContainer}>
-                    <View style={styles.headerCartContainer}>
-                        <View style={styles.headerCartTitle}>
-                            <Text style={[styles.cartTitle,theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                    <View style={[styles.headerCartContainer,{backgroundColor: theme === 'purple' ? '#772899' : '#BAEAAE'} ]}>
+                        <View style={[styles.headerCartTitle, {backgroundColor: theme === 'purple' ? '#56007B' : '#6A975E'}]}>
+                            <Text style={[styles.cartTitle,styles.whiteText ]}>
                                 PZM Wallet
                             </Text>
-                            <Text style={[styles.cartName,theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                            <Text style={[styles.cartName,styles.whiteText]}>
                                 {getTitle(info?.username ?? '')}
                             </Text>
                         </View>
-                        <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                        <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : {color:'#6A975E'}]}>
                             {info?.prizm_wallet ?? ''}
                         </Text>
                     </View>
@@ -241,7 +241,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                         <View style={styles.cartButton}>
                             <FontAwesome5 name="long-arrow-alt-up" size={7} color={theme === 'purple' ? "white" : "black"}/>
                             { Platform.OS === 'ios' ? 
-                                <View style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {}]}>
+                                <View style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
                                     <Link href="/(user)/menu/share-prizm" style={[{
                                             fontSize:11,
                                             lineHeight:10
@@ -251,7 +251,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                                         отправить
                                     </Link>
                                 </View>
-                            : <Link href="/(user)/menu/share-prizm" style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {}]}>
+                            : <Link href="/(user)/menu/share-prizm" style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
                                 <Text style={[{
                                         fontSize:11,
                                         lineHeight:10
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
         borderWidth:3,
         borderColor:'#FFFF',
         borderRadius:5,
-        backgroundColor:'#772899',
+        
         display: 'flex',
         flexDirection: 'column',
         justifyContent: "space-between",
@@ -368,14 +368,14 @@ const styles = StyleSheet.create({
     },
     headerCartTitle:{
         width:'100%',
-        backgroundColor:'#56007B',
         padding:4,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: "space-between",
     }, 
     cartTitle:{
-        fontSize:6
+        fontSize:6,
+        fontWeight: 'bold',
     }, 
     cartName:{
         fontSize:5
