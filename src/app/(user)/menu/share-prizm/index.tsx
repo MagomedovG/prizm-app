@@ -48,18 +48,22 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            if (data) {
+            if (response.ok){
+                setSid('')
+                setCount(null)
+                setWallet('')
+                Alert.alert(
+                    "Транзакция прошла успешно!", // Title of the alert
+                    "Возможна задержка от 1 минуты до 60", // Message of the alert
+                  );
+                router.replace('/(user)/menu');
+            } else if (data) {
                 const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data;
                 Alert.alert(message);
             } else {
                 Alert.alert('Ошибка при проведении транзакции');
             }
-            if (response.ok){
-                setSid('')
-                setCount(null)
-                setWallet('')
-                router.replace('/(user)/menu');
-            }
+            
             
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );

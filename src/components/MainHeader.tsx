@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Pressable, Text, View, StyleSheet, Platform } from "react-native";
+import { Pressable, Text, View, StyleSheet, Platform, Alert } from "react-native";
 import { Entypo, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -53,7 +53,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             setInfo(data);
             await AsyncStorage.setItem('prizm_qr_code_url', data?.prizm_qr_code_url)
             await AsyncStorage.setItem('prizm_wallet', data?.prizm_wallet)
-
+            
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
         }
@@ -106,7 +106,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             const intervalId = setInterval(() => {
                 getData();
             }, 30000); 
-    
+            
             return () => clearInterval(intervalId); 
         }, [refreshData])
     );
