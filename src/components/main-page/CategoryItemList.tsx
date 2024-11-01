@@ -49,7 +49,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                                 resizeMode={FastImage.resizeMode.contain}
                             /> */}
                             <View style={{position:'relative'}}>
-                                <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image} resizeMode={"contain"}/> 
+                                <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image}/> 
                                 <View style={styles.saleContainer}>
                                     <Text style={styles.sale}>{item?.cashback_size}%</Text>
                                 </View>

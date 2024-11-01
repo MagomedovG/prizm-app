@@ -244,7 +244,7 @@ export default function feedbackId() {
                     style={{marginBottom:feedbacks && feedbacks?.length > 5 ? 120 : 0}}
                     renderItem={({ item }) => (
                         <View style={{flexDirection:'column',justifyContent:'space-between',alignItems:'flex-start',  paddingTop:20,paddingBottom:12, borderBottomWidth:1, borderBottomColor: theme === 'purple' ? '#41146D' : '#32933C'}}>
-                            <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:15}} >
+                            <View style={{display:'flex', flexDirection:'row', gap:12, alignItems:'center', marginBottom:7}} >
                                 <Text style={{ color: 'black',fontSize:15, fontWeight:'500'}}>
                                     {item?.created_by ? item?.created_by?.username : 'Неизвестный'}
                                 </Text>

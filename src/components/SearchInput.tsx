@@ -33,14 +33,13 @@ const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) =
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
             >
                 <View style={[styles.container,{ backgroundColor:theme === 'purple' ? '#772899' : '#BAEBAD'}]}>
-                    <Feather name="search" size={18} color={theme === 'purple' ? '#fff' : '#343434'} />
+                    <Feather name="search" size={18} color={theme === 'purple' ? '#fff' : '#343434'} style={{marginBottom:1}}/>
                     <TextInput
-                        style={[styles.input, { backgroundColor:theme === 'purple' ? '#772899' : '#BAEBAD'}]}
+                        style={[styles.input, { backgroundColor:theme === 'purple' ? '#772899' : '#BAEBAD',color:theme === 'purple' ? '#fff' : '#343434'}]}
                         placeholder={placeholder}
                         value={query}
                         onChangeText={setQuery}
                         placeholderTextColor={theme === 'purple' ? '#fff' : '#343434'}
-                        // '#8C8C8C'
                     />
                 </View>
             </KeyboardAvoidingView>
@@ -56,13 +55,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginVertical: 20,
-        borderRadius: 50,
-        paddingHorizontal: 10,
+        borderRadius: 20,
+        paddingRight: 10,
+        paddingLeft:15
     },
     input: {
-        height: 40,
-        padding: 12,
+        height: 45,
+        padding: 10,
         width: '90%',
+        fontSize:16
         // color: '#8C8C8C', // Добавьте это, если хотите, чтобы текст был белым
     },
 });

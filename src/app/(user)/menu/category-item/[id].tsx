@@ -115,32 +115,37 @@ export default function categoryId() {
 
     
     return (
-        <ScrollView style={{ paddingTop:173, flex:1}}>
-            <View style={{width:'100%', position:'absolute', top: -173}}>
+        <ScrollView style={[{  flex:1}, Platform.OS === "ios" ? {paddingTop: 173} : {}]}>
+            <View style={[{width:'100%', position:'absolute'}, Platform.OS === "ios" ? {top: -173} : {top: 0}]}>
                 {business?.images ?
-                    <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{minHeight:260,
-                        maxHeight:289}}>
+                    <Swiper showsButtons={false} showsPagination={false} autoplay={false} style={{
+                        minHeight:260,
+                        maxHeight:289
+                        }}>
                         {business?.images?.map((item:any, index:number) => (
-                            <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
-                                <Image
-                                    style={styles.image}
-                                    source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
-                                />
-                            </Pressable>
+                                <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
+                                    
+                                    <Image
+                                        style={styles.image}
+                                        source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
+                                    />
+                                </Pressable>
+                            
                         ))}
                     </Swiper>
                     : <View/>
                 }
             </View>
 
-            <View style={styles.container}>
+            <View style={[styles.container, Platform.OS === "ios" ? {} : {paddingTop:173}]}>
                 <Stack.Screen options={{
                     headerShown:false,
                 }}/>
 
                 <View style={{marginBottom:180}}>
-                    <View style={styles.sale}>
-                        <Text style={styles.saleText}>Кэшбек {business?.cashback_size}%</Text>
+                    {/* borderColor:'#535353', */}
+                    <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
+                        <Text style={styles.saleText}>Vozvrat pzm {business?.cashback_size}%</Text>
                     </View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -180,8 +185,8 @@ export default function categoryId() {
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                             <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <Text style={styles.text}>
-                                        При оплате покажите
-                                        <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}> qr-код продавцу</Text>
+                                        При оплате <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}>покажите
+                                        qr-код</Text> продавцу
                                     </Text>
                                 </Pressable>
                         </View>
@@ -279,8 +284,24 @@ export default function categoryId() {
                         showsPagination={false}
                         loop={false}
                         style={{ minHeight: 260, maxHeight: deviceHeight }}
-                        nextButton={<AntDesign name="right" style={styles.arrowIcon} size={24} />}
-                        prevButton={<AntDesign name="left" style={styles.arrowIcon} size={24} />}
+                        nextButton={
+                            <View style={{
+                                backgroundColor:'#fff',
+                                borderRadius:50
+                            }}>
+                                <AntDesign name="right" style={[styles.arrowIcon, {paddingLeft:10}]} size={20} />
+                            </View>
+                            
+                        }
+                        prevButton={
+                            <View style={{
+                                backgroundColor:'#fff',
+                                borderRadius:50
+                            }}>
+                                <AntDesign name="left" style={[styles.arrowIcon, {paddingRight:10}]} size={20} />
+                            </View>
+                        
+                    }
                     >
                         {business?.images?.map((item: any, index: number) => (
                             <View key={index} style={styles.fullscreenSlide}>
@@ -447,12 +468,13 @@ const styles = StyleSheet.create({
     },
     sale: {
         backgroundColor: 'white',
-        paddingHorizontal: 18,
+        paddingHorizontal: 12,
         paddingVertical: 9,
         textAlign: 'center',
         borderRadius: 10,
-        marginBottom: 10,
-        alignSelf: 'flex-start'
+        marginBottom: 5,
+        alignSelf: 'flex-start',
+        borderWidth: 0.5,
     },
     saleText: {
         color: '#000',
@@ -477,6 +499,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
+        // aspectRatio:1
     },
     fullscreenContainer: {
         flex: 1,
@@ -509,5 +532,7 @@ const styles = StyleSheet.create({
     },
     arrowIcon: {
         color: 'grey',
+        padding:8,
+        
     },
 });

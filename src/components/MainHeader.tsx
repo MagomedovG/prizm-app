@@ -53,7 +53,6 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             setInfo(data);
             await AsyncStorage.setItem('prizm_qr_code_url', data?.prizm_qr_code_url)
             await AsyncStorage.setItem('prizm_wallet', data?.prizm_wallet)
-            
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
         }
@@ -144,7 +143,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             style={styles.headerContainer}
         >
             <View style={styles.headerTitleContainer}>
-                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
                      {/* <Pressable
                          onPress={logOut}
                     >  */}
@@ -167,7 +166,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                             onPress={handleDotsPress}
                     >
                         <View>
-                            <Entypo name="dots-three-horizontal" size={20} color={theme === 'purple' ? 'white' : 'black'} style={{marginRight:5}} />
+                            <Entypo name="dots-three-horizontal" size={18} color={theme === 'purple' ? 'white' : 'black'} style={{marginRight:5}} />
                         </View>
                     </Pressable>
                     <Pressable
@@ -204,7 +203,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                 </View>
                 <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15}]}>
                     <Text style={{ fontSize: 15 }}>
-                        {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(4) : 0} `}
+                        {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(5) : 0} `}
                     </Text>
                     <Text style={{ fontSize: 12 }}>
                         РУБ.
@@ -336,7 +335,7 @@ const styles = StyleSheet.create({
         paddingHorizontal:6,
         paddingVertical:1,
         borderRadius:5,
-        fontSize: 18,
+        // fontSize: 18,
         fontWeight: 'bold',
         backgroundColor:'white',
     },
@@ -355,12 +354,11 @@ const styles = StyleSheet.create({
     },
 
     headerCartContainer:{
-        width:100,
-        height:55,
+        width:130,
+        height:70,
         borderWidth:3,
         borderColor:'#FFFF',
         borderRadius:5,
-        
         display: 'flex',
         flexDirection: 'column',
         justifyContent: "space-between",
@@ -369,20 +367,22 @@ const styles = StyleSheet.create({
     headerCartTitle:{
         width:'100%',
         padding:4,
+        paddingHorizontal:6,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: "space-between",
+        alignItems:'center'
     }, 
     cartTitle:{
-        fontSize:6,
+        fontSize:8,
         fontWeight: 'bold',
     }, 
     cartName:{
-        fontSize:5
+        fontSize:7
     }, 
     headerCartWallet:{
-        fontSize:4.4,
-        paddingHorizontal:4,
+        fontSize:6,
+        paddingHorizontal:6,
     },
     headerCartButtonsContainer:{
         display: 'flex',

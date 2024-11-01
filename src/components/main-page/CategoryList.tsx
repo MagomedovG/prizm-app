@@ -51,7 +51,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     }
     return (
         <KeyboardAvoidingView
-            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 35) }]}
+            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 0) }]}
             // style={styles.container}
                 // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     title: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: '600',
         marginBottom: 16,
         marginLeft:10

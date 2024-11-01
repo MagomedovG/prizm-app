@@ -54,7 +54,7 @@ const SharePrizm = () => {
                 setWallet('')
                 Alert.alert(
                     "Транзакция прошла успешно!", // Title of the alert
-                    "Возможна задержка от 1 минуты до 60", // Message of the alert
+                    "Возможна задержка от 1 минуты до 60 минут", // Message of the alert
                   );
                 router.replace('/(user)/menu');
             } else if (data) {

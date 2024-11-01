@@ -185,7 +185,7 @@ export default function categoryId() {
                                 <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                                     <Text style={styles.text}>
-                                        При оплате покажите <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}>qr-код продавцу</Text>
+                                        При оплате <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}>покажите qr-код</Text> продавцу
                                     </Text>
                                 </Pressable>
                                 <View style={{width: 1,

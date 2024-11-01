@@ -82,6 +82,7 @@ export default function walletId() {
             const data = await response.json();
             setWallet(data);
             setPrizmWallet(data?.prizm_wallet)
+            setPublicKey(data?.prizm_public_key)
             console.log(data)
 
         } catch (error) {
@@ -89,15 +90,15 @@ export default function walletId() {
         }
     }
     const getWallet = async () => {
-        try {
-            const key = await AsyncStorage.getItem('public_key_hex');
-            if (key){
-                setPublicKey(JSON.parse(key) || '');
-            }
+        // try {
+        //     const key = await AsyncStorage.getItem('public_key_hex');
+        //     if (key){
+        //         setPublicKey(JSON.parse(key) || '');
+        //     }
             
-        } catch (error) {
-            console.error('Ошибка при получении данных из AsyncStorage:', error);
-        }
+        // } catch (error) {
+        //     console.error('Ошибка при получении данных из AsyncStorage:', error);
+        // }
     };
     useEffect(() => {
         getFunds()
@@ -143,11 +144,11 @@ export default function walletId() {
         }
         Alert.alert('Публичный ключ скопирован!', publicKey)
     };
-    function getTitle(str:string) {
+    function getTitle(str:string, size:number) {
         if (typeof str !== 'string') {
             return ''; 
         }
-        return str.length > 24 ? str.slice(0, 23) + '...' : str;
+        return str.length > size ? str.slice(0, size - 1) + '...' : str;
       }
 
 
@@ -214,7 +215,7 @@ export default function walletId() {
                                         <TextInput
                                             style={styles.input}
                                             readOnly={true}
-                                            value={getTitle(publicKey)}
+                                            value={getTitle(publicKey, 28)}
                                         />
                                         <View style={styles.copyButtonContainer}>
                                             <AntDesign name="copy1" size={15} color="#262626" />
