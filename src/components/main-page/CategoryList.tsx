@@ -15,6 +15,8 @@ type CategoryListProps = {
     isAdminFond?:boolean,
     linkButton?:string,
 }
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 export default function CategoryList ({categories, title, isInput, isAdminFond, linkButton}:CategoryListProps) {
     const segments = useSegments();
     console.log(segments);
@@ -73,7 +75,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     </Pressable>)}
                 </View>
 
-                <FlatList
+                {filteredData?.[0]?.id ? <FlatList
                     data={filteredData}
                     renderItem={({item}) =>
                         <Link
@@ -84,7 +86,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
 
                                 <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
                                     <Text style={styles.text}>{item.title}</Text>
-                                    <Image style={styles.image_logo} source={{uri: item?.logo}}/>
+                                    <Image style={styles.image_logo} source={{uri: `${apiUrl}${item?.logo}`}}/>
                                 </View>
 
                             </Pressable>
@@ -94,7 +96,12 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     // contentContainerStyle={{gap:10}}
                     horizontal={false}
 
-                />
+                /> : 
+                        <Text style={{color:'gray', marginTop:ITEM_HEIGHT / 4, fontSize:18, width:'100%', textAlign:'center'}}>
+                            Нет подходящих категорий
+                        </Text>
+                         
+                    }
         </KeyboardAvoidingView>
         
     );

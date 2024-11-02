@@ -24,7 +24,7 @@ export default function WalletItem ({ wallet }:WalletItemProps) {
             <Pressable style={styles.container}>
                 <View style={styles.image}>
                     <Image
-                        source={{ uri: `${wallet?.logo}` }}
+                        source={{ uri: `${apiUrl}${wallet?.logo}` }}
                         style={styles.logo}
                     />
                     {/* <QRCode

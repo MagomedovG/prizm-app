@@ -183,14 +183,14 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                 </View>
             </View>
             <View style={styles.headerFirstListItems}>
-                <View style={[{borderRadius:5},styles.headerFirstListItem]}>
+                <View style={[{borderRadius:5, height:26},styles.headerFirstListItem]}>
                     <Text
                         style={[
-                            {fontWeight:'bold'},
+                            {fontWeight:'bold',lineHeight:23.5},
                             theme === 'purple' ? { color: '#56007B' } : styles.blackText,
                         ]}
                     >
-                        <Text style={{ fontSize: 18 }}>
+                        <Text style={{ fontSize: 18}}>
                             Баланс:
                         </Text>
                         <Text style={{ fontSize: 20 }}>
@@ -201,7 +201,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                         </Text>
                     </Text>
                 </View>
-                <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15}]}>
+                <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15,lineHeight:14}]}>
                     <Text style={{ fontSize: 15 }}>
                         {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(5) : 0} `}
                     </Text>

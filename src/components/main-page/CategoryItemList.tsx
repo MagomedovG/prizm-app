@@ -5,9 +5,9 @@ import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import React from "react";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {IBusinessInCategory} from '../../types'
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
-
+const ITEM_HEIGHT = height 
 type CategoryListProps = {
     categoryList:  IBusinessInCategory | null,
     title?: string,
@@ -35,7 +35,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                         </Text>
                     </Pressable>
                 </Pressable> }
-            <FlatList
+           {categoryList?.[0] ? <FlatList
                 data={categoryList}
                 style={styles.flatlist}
                 renderItem={({item}) =>
@@ -63,7 +63,11 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                 keyExtractor={(item) => item.id.toString()} // Добавляем keyExtractor для уникальности
                 contentContainerStyle={{gap:11}}
                 columnWrapperStyle={{gap:6}}
-            />
+            /> : 
+            <Text style={{color:'gray', marginTop:ITEM_HEIGHT / 3, fontSize:18, width:'100%', textAlign:'center'}}>
+                Нет подходящих бизнесов
+            </Text>
+        }
         </View>
     );
 }
