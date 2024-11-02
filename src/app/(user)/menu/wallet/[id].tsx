@@ -202,7 +202,7 @@ export default function walletId() {
                             {id === 'user' && !isUpdate  && (
                                     <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34, marginBottom:10}}>
                                         <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:2, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
-                                            <Text style={{color:'#262626',marginLeft:4, fontSize:13}}>Изменить кошелек </Text>
+                                            <Text style={{color:'#262626',marginLeft:8, fontSize:13}}>Изменить кошелек </Text>
                                             <FontAwesome5 name="pencil-alt" size={10} color="#6B6B6B" />
                                         </Pressable>
                                     </View>

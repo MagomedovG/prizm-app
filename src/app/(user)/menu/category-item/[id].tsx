@@ -145,7 +145,7 @@ export default function categoryId() {
                 <View style={{marginBottom:180}}>
                     {/* borderColor:'#535353', */}
                     <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
-                        <Text style={styles.saleText}>Vozvrat pzm {business?.cashback_size}%</Text>
+                        <Text style={styles.saleText}>Vozvrat pzm { business?.cashback_size ? parseFloat(business?.cashback_size?.toString()) : 0}%</Text>
                     </View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -183,7 +183,7 @@ export default function categoryId() {
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
-                            <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center'}}>
+                            <Pressable onPress={openQrModal} style={{display:'flex', flexDirection:'row', gap:15, alignItems:'center',maxWidth:'90%'}}>
                                     <Text style={styles.text}>
                                         При оплате <Text style={{color:theme === 'purple' ? '#6F1AEC' : '#375A2C',textDecorationLine:'underline'}}>покажите
                                         qr-код</Text> продавцу

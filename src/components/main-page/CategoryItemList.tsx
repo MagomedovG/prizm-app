@@ -28,7 +28,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
             {isBonus
                 &&
                 <Pressable onPress={handleWalletPress} style={[styles.bonus, theme === 'purple' ? styles.purpleBackground : styles.greenBackground]}>
-                    <Entypo name="info-with-circle" size={24} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
+                    <Entypo name="info-with-circle" size={18} color={theme === 'purple' ? '#EFEFEF' : '#363C36'} />
                     <Pressable onPress={handleWalletPress}>
                         <Text  style={[styles.bonusText, theme === 'purple' ? styles.purpleText : styles.greenText]}>
                             Как получить и обменять vozvrat pzm
@@ -51,7 +51,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                             <View style={{position:'relative'}}>
                                 <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image}/> 
                                 <View style={styles.saleContainer}>
-                                    <Text style={styles.sale}>{item?.cashback_size}%</Text>
+                                    <Text style={styles.sale}>{parseFloat(item?.cashback_size.toString())}%</Text>
                                 </View>
                             </View>
                             <Text style={styles.text}>{item.title ? item.title : 'Без названия'}</Text>
@@ -83,10 +83,10 @@ const styles = StyleSheet.create({
         paddingHorizontal:20
     },
     saleContainer:{
-        paddingVertical:9,
-        paddingHorizontal:12,
+        paddingVertical:4,
+        paddingHorizontal:9,
         backgroundColor:'white',
-        borderRadius:10,
+        borderRadius:8,
         position:'absolute',
         right:4,
         bottom:4
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     bonus:{
         height:44,
         display:'flex',
-        paddingLeft:15,
+        paddingLeft:12,
         flexDirection:'row',
         gap:8,
         alignItems:'center',
