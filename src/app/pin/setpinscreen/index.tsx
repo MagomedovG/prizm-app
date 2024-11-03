@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useRouter } from 'expo-router';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
+import NetInfo from '@react-native-community/netinfo';
 
 const { width } = Dimensions.get('window');
 const MARGIN_PIN = width / 14;
@@ -18,7 +19,21 @@ const SetPinScreen = () => {
     const [initialPin, setInitialPin] = useState('');
     const [isError, setIsError] = useState(false);
     const { theme } = useCustomTheme();
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+        if (!state.isConnected) {
+            Alert.alert(
+            "Нет соединения",
+            "Пожалуйста, проверьте интернет-соединение.",
+            [{ text: "OK" ,
+               
+            }]
+            );
+        }
+        });
 
+        return () => unsubscribe();
+    }, [NetInfo]);
     const shakeAnimation = useRef(new Animated.Value(0)).current;
     useEffect(()=> {
         const getAsyncName = async () => {

@@ -144,11 +144,11 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
         >
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
-                     {/* <Pressable
+                      <Pressable
                          onPress={logOut}
-                    >  */}
+                    >  
                         <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
-                    {/* </Pressable>  */}
+                    </Pressable> 
                     <Pressable onPress={toggleHidden} style={{paddingBottom:4, padding:7.5}}>
                         <Feather name={!isHidden ? "eye-off" : "eye"} size={15} color={theme === 'purple' ? 'white' : 'black'} />
                     </Pressable>
@@ -166,7 +166,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                             onPress={handleDotsPress}
                     >
                         <View>
-                            <Entypo name="dots-three-horizontal" size={18} color={theme === 'purple' ? 'white' : 'black'} style={{marginRight:5}} />
+                            <Entypo name="dots-three-horizontal" size={18} color={theme === 'purple' ? 'white' : 'black'} style={{padding:10, paddingRight:5}} />
                         </View>
                     </Pressable>
                     <Pressable
@@ -201,7 +201,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                         </Text>
                     </Text>
                 </View>
-                <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15,lineHeight:14}]}>
+                <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15,lineHeight:15}]}>
                     <Text style={{ fontSize: 15 }}>
                         {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(5) : 0} `}
                     </Text>

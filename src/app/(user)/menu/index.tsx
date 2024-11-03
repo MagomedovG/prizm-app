@@ -6,7 +6,8 @@ import {
     Pressable,
     ScrollView,
     Dimensions,
-    Platform, RefreshControl
+    Platform, RefreshControl,
+    StatusBar
 } from "react-native";
 import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
@@ -24,14 +25,10 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import {IWallet} from "@/src/types";
 import Loader from '@/src/components/Loader';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
-const deviceWidth = Dimensions.get("window").width;
-const deviceHeight =
-    Platform.OS === "ios"
-        ? Dimensions.get("window").height
-        : require("react-native-extra-dimensions-android").get(
-            "REAL_WINDOW_HEIGHT"
-        );
+const {width, height} = Dimensions.get("window");
+const deviceWidth = width
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 type IChats = {
     whatsapp:string,
     youtube:string,
@@ -103,9 +100,7 @@ export default function MenuScreen() {
         getData();
     }, []);
 
-    const toggleModal = () => {
-        setIsModal(!isModal);
-    };
+    
     const toggleChatModal = () => {
         setIsChatModal(!isChatModal)
     }
@@ -127,9 +122,9 @@ export default function MenuScreen() {
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isModal}
-                onSwipeComplete={toggleModal}
-                onBackdropPress={toggleModal}
-                onBackButtonPress={()=>setIsModal(false)}
+                onSwipeComplete={() => setIsModal(false)}
+                onBackdropPress={() => setIsModal(false)}
+                onBackButtonPress={() => setIsModal(false)}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -138,6 +133,7 @@ export default function MenuScreen() {
                 backdropTransitionOutTiming={0}
                 swipeDirection={'down'}
                 style={styles.modal}
+                statusBarTranslucent
 
             >
                 <View style={styles.centeredView}>
@@ -183,33 +179,34 @@ export default function MenuScreen() {
                 swipeDirection={'down'}
                 style={styles.modal}
                 backdropTransitionOutTiming={0}
+                statusBarTranslucent
             >
                 <View style={styles.centeredView}>
                     <View style={[styles.chatModalViewContainer, {padding: 0}]}>
-                        <View style={[styles.chatModalView, {paddingTop:20}]}>
-                        <Link href={chats ? chats?.youtube : '/(user)/menu/'}>
-                            <View style={styles.iconAndTextContainer}>
-                            <AntDesign name="youtube" size={23} color="rgb(234,57,42)" />
-                            <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15, color:'rgb(234,57,42)'}}>YouTube</Text>
-                            </View>
+                        <Link href={chats ? chats?.youtube : '/(user)/menu/'} style={[styles.chatModalView, {paddingTop:20}]} asChild>
+                            <Pressable>
+                                    <View style={styles.iconAndTextContainer}>
+                                        <AntDesign name="youtube" size={23} color="rgb(234,57,42)" />
+                                        <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15, color:'rgb(234,57,42)'}}>YouTube</Text>
+                                    </View>
+                            </Pressable>
                         </Link>
-                        </View>
-                        <View style={styles.chatModalView}>
-                        <Link href={chats ? chats?.whatsapp : '/(user)/menu/'}>
-                            <View style={styles.iconAndTextContainer}>
-                            <FontAwesome5 name="whatsapp" size={23} color="rgb(101,208,114)" />
-                            <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15, color:'rgb(101,208,114)'}}>WhatsApp</Text>
-                            </View>
+                        <Link href={chats ? chats?.whatsapp : '/(user)/menu/'} style={styles.chatModalView} asChild >
+                            <Pressable>
+                                    <View style={styles.iconAndTextContainer}>
+                                        <FontAwesome5 name="whatsapp" size={23} color="rgb(101,208,114)" />
+                                        <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15, color:'rgb(101,208,114)'}}>WhatsApp</Text>
+                                    </View>
+                            </Pressable>
                         </Link>
-                        </View>
-                        <View style={[styles.chatModalView, {borderBottomWidth: 0, paddingBottom: 29}]}>
-                        <Link href={chats ? chats?.telegram : '/(user)/menu/'}>
-                            <View style={styles.iconAndTextContainer}>
-                            <FontAwesome5 name="telegram-plane" size={23} color="rgb(78,142,229)" />
-                            <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15,color:'rgb(78,142,229)'}}>Telegram</Text>
-                            </View>
+                        <Link href={chats ? chats?.telegram : '/(user)/menu/'} asChild style={[styles.chatModalView, {borderBottomWidth: 0, paddingBottom: 29}]}>
+                            <Pressable >
+                                    <View style={styles.iconAndTextContainer}>
+                                        <FontAwesome5 name="telegram-plane" size={23} color="rgb(78,142,229)" />
+                                        <Text style={{fontSize: 16, fontWeight: 'semibold', marginLeft: 15,color:'rgb(78,142,229)'}}>Telegram</Text>
+                                    </View>
+                            </Pressable>
                         </Link>
-                        </View>
                     </View>
                     </View>
                     <Pressable style={styles.closeButton} onPress={()=>setIsChatModal(false)}>
@@ -218,7 +215,7 @@ export default function MenuScreen() {
             </Modal>
 
             <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={toggleChatModal}  refreshData={refreshing} onDotsPress={toggleModal}/>
+                <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)}/>
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}

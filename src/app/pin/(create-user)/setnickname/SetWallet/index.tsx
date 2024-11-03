@@ -63,16 +63,7 @@ const SetWallet = () => {
             getAsyncName();
         }, [])
     );
-    useEffect(()=> {
-        const getAsyncName = async () => {
-            const walletName = await AsyncStorage.getItem('prizm_wallet');
-            if (walletName){
-                setName(JSON.parse(walletName))
-            }
-        };
-
-        getAsyncName();
-    }, [])
+    
 
 
     const setWallet = async () => {
@@ -103,7 +94,7 @@ const SetWallet = () => {
                     />
                 </View>
             </View>
-                <Link asChild href="/pin/createwallet" style={styles.createWallet}>
+                <Link asChild href="/pin/setnickname/LoginScreen" style={styles.createWallet}>
                     <Pressable>
                         <Text style={{color:'#000000'}}>
                             У меня нет кошелька

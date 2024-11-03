@@ -10,6 +10,7 @@ import {
     Dimensions,
     Platform,
     Alert,
+    StatusBar,
 } from "react-native";
 import { Animated,Clipboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,13 +29,9 @@ import { IBusiness } from '@/src/types';
 const deviceWidth = Dimensions.get("window").width;
 import QRCode from 'react-qr-code';
 import Modal from "react-native-modal";
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 
-const deviceHeight =
-    Platform.OS === "ios"
-        ? Dimensions.get("window").height
-        : require("react-native-extra-dimensions-android").get(
-            "REAL_WINDOW_HEIGHT"
-        );
 const ITEM_WIDTH = width - 25;
 
 export default function categoryId() {
@@ -46,7 +43,6 @@ export default function categoryId() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isQrModal, setIsQrModal] = useState(false);
     const [prizmWallet, setPrizmWallet] = useState('')
-    
     const [prizmQrCode, setPrizmQrCode] = useState('') 
     const inputRef = useRef(null);
     const copyToClipboard = () => {
@@ -144,9 +140,15 @@ export default function categoryId() {
 
                 <View style={{marginBottom:180}}>
                     {/* borderColor:'#535353', */}
-                    <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
-                        <Text style={styles.saleText}>Vozvrat pzm { business?.cashback_size ? parseFloat(business?.cashback_size?.toString()) : 0}%</Text>
+                    <View style={styles.saleContainer}>
+                        <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
+                            <Text style={styles.saleText}>Vozvrat pzm { business?.cashback_size ? parseFloat(business?.cashback_size?.toString()) : 0}%</Text>
+                        </View>
+                        {business?.images  &&  <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
+                            <Text style={styles.saleText}>{business.images.length} фото</Text>
+                        </View>}
                     </View>
+                    
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
                         start={{ x: 1, y: 0 }}
@@ -216,49 +218,50 @@ export default function categoryId() {
                     
                 </View>
                 <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                animationIn={'slideInUp'}
-                isVisible={isQrModal}
-                onSwipeComplete={closeQrModal}
-                onBackdropPress={closeQrModal}
-                animationInTiming={300}
-                animationOut='slideOutDown'
-                animationOutTiming={300}
-                backdropTransitionOutTiming={0}
-                onBackButtonPress={closeQrModal}
-                backdropColor='black'
-                hardwareAccelerated
-                swipeDirection={'down'}
-                style={styles.qrModal}
-            >
-                <View style={styles.centeredQrView}>
-                    <View style={styles.qrModalView}>
-                        <View style={styles.qrimage}>
-                            <QRCode
-                                size={deviceWidth / 1.8}
-                                value={prizmQrCode}
-                                level={'M'}
-                            />
-                        </View>
-                        <Pressable onPress={copyToClipboard} style={styles.pressable}>
-                            <TextInput
-                                ref={inputRef}
-                                style={styles.input}
-                                editable={false}
-                                value={prizmWallet}
-                            />
-                            <View style={styles.copyButtonContainer}>
-                                <AntDesign name="copy1" size={15} color="#262626" />
+                    deviceWidth={deviceWidth}
+                    deviceHeight={deviceHeight}
+                    animationIn={'slideInUp'}
+                    isVisible={isQrModal}
+                    onSwipeComplete={closeQrModal}
+                    onBackdropPress={closeQrModal}
+                    animationInTiming={300}
+                    animationOut='slideOutDown'
+                    animationOutTiming={300}
+                    backdropTransitionOutTiming={0}
+                    onBackButtonPress={closeQrModal}
+                    backdropColor='black'
+                    hardwareAccelerated
+                    swipeDirection={'down'}
+                    style={styles.qrModal}
+                    statusBarTranslucent
+                >
+                    <View style={styles.centeredQrView}>
+                        <View style={styles.qrModalView}>
+                            <View style={styles.qrimage}>
+                                <QRCode
+                                    size={deviceWidth / 1.8}
+                                    value={prizmQrCode}
+                                    level={'M'}
+                                />
                             </View>
-                        </Pressable>
+                            <Pressable onPress={copyToClipboard} style={styles.pressable}>
+                                <TextInput
+                                    ref={inputRef}
+                                    style={styles.input}
+                                    editable={false}
+                                    value={prizmWallet}
+                                />
+                                <View style={styles.copyButtonContainer}>
+                                    <AntDesign name="copy1" size={15} color="#262626" />
+                                </View>
+                            </Pressable>
 
+                        </View>
                     </View>
-                </View>
-                <Pressable style={styles.closeButton} onPress={closeQrModal}>
-                        <AntDesign name="close" size={30} color="white" />
-                    </Pressable>
-            </Modal>
+                    <Pressable style={styles.closeButton} onPress={closeQrModal}>
+                            <AntDesign name="close" size={30} color="white" />
+                        </Pressable>
+                </Modal>
 
             </View>
 
@@ -276,6 +279,7 @@ export default function categoryId() {
                 animationOutTiming={300}
                 backdropTransitionOutTiming={0}
                 onBackButtonPress={closeFullscreen}
+                statusBarTranslucent
             >
                 <View style={styles.fullscreenContainer}>
                     <Swiper
@@ -294,14 +298,15 @@ export default function categoryId() {
                             
                         }
                         prevButton={
-                            <View style={{
-                                backgroundColor:'#fff',
-                                borderRadius:50
-                            }}>
-                                <AntDesign name="left" style={[styles.arrowIcon, {paddingRight:10}]} size={20} />
-                            </View>
-                        
-                    }
+                                <View style={{
+                                    backgroundColor:'#fff',
+                                    borderRadius:50
+                                }}>
+                                    <AntDesign name="left" style={[styles.arrowIcon, {paddingRight:10}]} size={20} />
+                                </View>
+                            
+                        }
+                        scrollEnabled={false}
                     >
                         {business?.images?.map((item: any, index: number) => (
                             <View key={index} style={styles.fullscreenSlide}>
@@ -466,6 +471,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 32
     },
+    saleContainer:{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent:'space-between',
+        alignItems: 'center',
+    },
     sale: {
         backgroundColor: 'white',
         paddingHorizontal: 12,
@@ -473,7 +484,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         borderRadius: 10,
         marginBottom: 5,
-        alignSelf: 'flex-start',
+        // alignSelf: 'flex-start',
         borderWidth: 0.5,
     },
     saleText: {

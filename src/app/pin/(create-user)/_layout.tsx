@@ -1,12 +1,10 @@
-import {Stack, Tabs, useRouter} from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import * as Network from 'expo-network';
-import { Colors } from '@/constants/Colors';
+import {Stack, useRouter} from 'expo-router';
+import React, { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
-export default function UserLayout() {
+export default function CreateUserLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter()
   const replaceToPin = () => router.replace('/pin/setpinscreen')
@@ -29,6 +27,8 @@ export default function UserLayout() {
   }, [NetInfo]);
   
   return (
-    <Stack screenOptions={{headerShown:false}}/>
+    <Stack screenOptions={{headerShown:false}}>
+        
+    </Stack>
   );
 }

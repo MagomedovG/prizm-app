@@ -14,7 +14,8 @@ import {
     KeyboardAvoidingView,
     Alert,
     Clipboard,
-    BackHandler
+    BackHandler,
+    StatusBar
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, Stack, useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
@@ -31,13 +32,10 @@ const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
 import QRCode from 'react-qr-code';
 import { AntDesign } from '@expo/vector-icons';
+const height = Dimensions.get("window").height
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 
-const deviceHeight =
-    Platform.OS === "ios"
-        ? Dimensions.get("window").height
-        : require("react-native-extra-dimensions-android").get(
-            "REAL_WINDOW_HEIGHT"
-        );
 
 export default function categoryId() {
     const { id } = useLocalSearchParams()
@@ -174,7 +172,7 @@ export default function categoryId() {
                 backdropTransitionOutTiming={0}
                 swipeDirection={'down'}
                 style={styles.modal}
-
+                statusBarTranslucent
             >
                 <View style={styles.centeredView}>
                     
@@ -251,6 +249,7 @@ export default function categoryId() {
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.qrModal}
+                statusBarTranslucent
             >
                 <View style={styles.centeredQrView}>
                     <View style={styles.qrModalView}>

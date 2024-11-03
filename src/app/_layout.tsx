@@ -1,13 +1,13 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import QueryProvider from "@/src/providers/QueryProvider";
 import CustomThemeProvider from "@/src/providers/CustomThemeProvider";
 SplashScreen.preventAutoHideAsync();
-import { LogBox } from 'react-native';
+import { Alert, LogBox } from 'react-native';
 
 LogBox.ignoreAllLogs(true); 
 
@@ -16,6 +16,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  
   const CustomDefaultTheme = {
     ...DefaultTheme,
     colors: {
@@ -23,6 +24,7 @@ export default function RootLayout() {
       background: 'white',
     },
   };
+  
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -32,6 +34,7 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+  
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? CustomDefaultTheme : CustomDefaultTheme}>
@@ -40,6 +43,8 @@ export default function RootLayout() {
               <Stack>
                 <Stack.Screen name="(user)" options={{ headerShown: false }} />
                 <Stack.Screen name="(auth)" options={{headerShown: false }} />
+                <Stack.Screen name="pin" options={{headerShown: false }} />
+                <Stack.Screen name="pin/(create-user)" options={{headerShown: false }} />
                 <Stack.Screen name="+not-found" />
               </Stack>
             </CustomThemeProvider>

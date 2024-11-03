@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard,Dimensions,Platform, ScrollView} from "react-native";
+import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard,Dimensions,Platform, ScrollView, StatusBar} from "react-native";
 import {Link, Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {AntDesign} from "@expo/vector-icons";
@@ -8,12 +8,9 @@ import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncSto
 
 const deviceWidth = Dimensions.get("window").width;
 const { width, height } = Dimensions.get('window');
-const deviceHeight =
-    Platform.OS === "ios"
-        ? Dimensions.get("window").height
-        : require("react-native-extra-dimensions-android").get(
-            "REAL_WINDOW_HEIGHT"
-        );
+
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const CONTAINER_TOP = height / 20
 const CreateWallet = () => {
@@ -169,7 +166,7 @@ const CreateWallet = () => {
                     swipeDirection={'down'}
                     onBackButtonPress={toggleModal}
                     style={styles.modal}
-
+                    statusBarTranslucent
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
