@@ -66,13 +66,8 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     
                 }
                 <View style={styles.titleButton}>
-                    <Text style={[styles.title, !isAdminFond ? {marginBottom: 15} : {marginBottom: 0}]}>{title}</Text>
-                    {isAdminFond && (<Pressable onPress={handleAdminPage}
-                                            style={[styles.button, theme === 'purple' ? {backgroundColor: '#5B1FB2'} : {backgroundColor: '#32933C'}, {borderColor: '#41146D'}]}>
-                        <Text style={{color: 'white', textAlign: 'center'}}>
-                            Добавить
-                        </Text>
-                    </Pressable>)}
+                    <Text style={[styles.title, {marginBottom: 0}]}>{title}</Text>
+                    
                 </View>
 
                 {filteredData?.[0]?.id ? <FlatList

@@ -113,6 +113,7 @@ export default function categoryId() {
                 );
                 const data = await response.json();
                 setCategoryList(data);
+                console.log(data);  
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
             }

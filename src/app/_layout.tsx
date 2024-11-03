@@ -40,12 +40,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? CustomDefaultTheme : CustomDefaultTheme}>
         <QueryProvider>
             <CustomThemeProvider>
-              <Stack>
-                <Stack.Screen name="(user)" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{headerShown: false }} />
-                <Stack.Screen name="pin" options={{headerShown: false }} />
-                <Stack.Screen name="pin/(create-user)" options={{headerShown: false }} />
-                <Stack.Screen name="+not-found" />
+              <Stack screenOptions={{headerShown:false}}>
               </Stack>
             </CustomThemeProvider>
         </QueryProvider>

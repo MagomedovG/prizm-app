@@ -35,6 +35,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                         </Text>
                     </Pressable>
                 </Pressable> }
+                <Text style={styles.title}>{title}</Text>
            {categoryList?.[0] ? <FlatList
                 data={categoryList}
                 style={styles.flatlist}
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
         marginBottom:50,
     },
     flatlist:{
-        paddingTop: 30,
+        paddingTop: 15,
     },
     itemContainer: {
         width: ITEM_WIDTH,
@@ -143,9 +144,15 @@ const styles = StyleSheet.create({
         borderWidth:1,
         borderColor:'#898989'
     },
+    // title: {
+    //     fontSize: 24,
+    //     fontWeight: '600',
+    // },
     title: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: '600',
+        marginTop: 30,
+        marginLeft:10
     },
     text:{
         marginTop:5,
