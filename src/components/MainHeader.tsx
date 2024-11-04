@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     }, 
     cartName:{
-        fontSize:7
+        fontSize:8
     }, 
     headerCartWallet:{
         fontSize:6,

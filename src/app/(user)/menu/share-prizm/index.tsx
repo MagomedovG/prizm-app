@@ -1,9 +1,10 @@
-import React, { useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {borderColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
@@ -11,6 +12,7 @@ const SharePrizm = () => {
     const [count,setCount]=useState<number | null | string>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [balance, setBalance] = useState<number | null>(null)
     const router = useRouter();
     const copyWalletToClipboard = () => {
         Clipboard.setString(wallet);
@@ -20,18 +22,60 @@ const SharePrizm = () => {
         Clipboard.setString(sid);
         Alert.alert('Парольная фраза скопирована!','');
     };
+    function calculateMaxTransfer(balance) {
+        let commission = balance * 0.005;
+    
+        if (commission < 0.05) {
+            commission = 0.05;
+        } else if (commission > 10) {
+            commission = 10;
+        }
+    
+        const maxTransferAmount = balance - commission;
+        return maxTransferAmount > 0 ? maxTransferAmount : 0;
+    }
+    function getComission(balance) {
+        let commission = balance * 0.005;
+    
+        if (commission < 0.05) {
+            commission = 0.05;
+        } else if (commission > 10) {
+            commission = 10;
+        }
+    
+        const maxTransferAmount = commission;
+        return maxTransferAmount > 0 ? maxTransferAmount : 0;
+    }
     const validateCount = (value: string) => {
         const normalizedValue = value.replace(',', '.');
         const parsedValue = parseFloat(normalizedValue);
         
-        if (isNaN(parsedValue) || parsedValue < 0.01 || parsedValue > 10000000) {
-            setErrorMessage('Сумма должна быть в пределах от 0.01 до 10 000 000');
+        if (balance === 0) {
+            setErrorMessage(`недостаточно средств на балансе: ${calculateMaxTransfer(balance)} pzm`)
+        } else if( isNaN(parsedValue) || parsedValue < 0.01 || parsedValue > 10000000){
+            setErrorMessage('сумма должна быть в пределах от 0.01 до 10 000 000');
         } else {
             setErrorMessage(null);
         }
-        setCount(normalizedValue);  // Сохраняем нормализованное значение
+        setCount(normalizedValue);  
     };
-    
+    async function getData() {
+        const userId = await asyncStorage.getItem('user_id')
+        try {
+            
+            const response = await fetch(
+                `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
+                }
+            );
+            const data = await response.json();
+            setBalance(data?.balance_in_pzm);
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
+        }
+    }
+    useEffect(()=>{
+        getData()
+    },[])
     const postForm = async () => {
         setIsLoading(true);
         const form = {
@@ -71,6 +115,7 @@ const SharePrizm = () => {
             setIsLoading(false);
         }
     };
+    
 
     return (
         <View style={styles.container}>
@@ -81,7 +126,7 @@ const SharePrizm = () => {
                 </Text>
                 <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
-                        style={[styles.input, errorMessage ? styles.inputError : null]}
+                        style={[styles.input, errorMessage || Number(count) > calculateMaxTransfer(balance) ? styles.inputError : null, balance === 0 || Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}
                         editable={true}
                         onChangeText={validateCount}
                         placeholder={'Сумма pzm'}
@@ -90,7 +135,9 @@ const SharePrizm = () => {
                         placeholderTextColor='#8C8C8C'
                         type={'number'}
                     />
-                    {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+                    {errorMessage && <Text style={[styles.errorText, {color:'#C85557'}]}>{errorMessage}</Text>}
+                    {!errorMessage && !count && <Text style={styles.errorText}>коммисия сети 0,5% (не менее 0,05 и не более 10 pzm)</Text>}
+                    {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${getComission(count).toFixed(3)} pzm`}</Text>}
                 </Pressable>
                 <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
@@ -117,7 +164,7 @@ const SharePrizm = () => {
                     />
                 </Pressable>
             </ScrollView>
-            <UIButton text='Перевести pzm' disabled={!!errorMessage || !sid || !wallet || isLoading} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
+            <UIButton text='Перевести pzm' disabled={!!errorMessage || !sid || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
         </View>
     );
 };
@@ -190,11 +237,10 @@ const styles = StyleSheet.create({
     },
     errorText: {
         marginLeft:5,
-        color: 'red',
-        marginTop: 5,
-        fontSize: 14,
+        // marginTop: 5,
+        fontSize: 13,
     },
     inputError: {
-        borderColor: 'red',
+        borderColor: '#C85557',
     },
 });
