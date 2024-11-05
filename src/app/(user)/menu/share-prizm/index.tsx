@@ -92,23 +92,21 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
+            if (data?.header && data?.description){
+                Alert.alert(
+                    data?.header, 
+                    data?.description, 
+                  );
+            }
             if (response.ok){
                 setSid('')
                 setCount(null)
                 setWallet('')
-                Alert.alert(
-                    "Транзакция прошла успешно!", // Title of the alert
-                    "Возможна задержка от 1 минуты до 60 минут", // Message of the alert
-                  );
                 router.replace('/(user)/menu');
-            } else if (data) {
+            } else if (data && !data?.header) {
                 const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data;
                 Alert.alert(message);
-            } else {
-                Alert.alert('Ошибка при проведении транзакции');
-            }
-            
-            
+            } 
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
         } finally {
@@ -124,9 +122,9 @@ const SharePrizm = () => {
                 <Text style={styles.title}>
                     Перевести pzm
                 </Text>
-                <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
+                <View style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
-                        style={[styles.input, errorMessage || Number(count) > calculateMaxTransfer(balance) ? styles.inputError : null, balance === 0 || Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}
+                        style={[styles.input,  errorMessage || Number(count) > calculateMaxTransfer(balance) ? styles.inputError : null, balance === 0 || Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}
                         editable={true}
                         onChangeText={validateCount}
                         placeholder={'Сумма pzm'}
@@ -137,8 +135,8 @@ const SharePrizm = () => {
                     />
                     {errorMessage && <Text style={[styles.errorText, {color:'#C85557'}]}>{errorMessage}</Text>}
                     {!errorMessage && !count && <Text style={styles.errorText}>коммисия сети 0,5% (не менее 0,05 и не более 10 pzm)</Text>}
-                    {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${getComission(count).toFixed(3)} pzm`}</Text>}
-                </Pressable>
+                    {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${parseFloat(getComission(count).toFixed(3))} pzm`}</Text>}
+                </View>
                 <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom: 10}]}>
                     <TextInput
                         style={styles.input}
