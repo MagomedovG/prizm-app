@@ -1,4 +1,4 @@
-import {Pressable, StyleSheet, Text, View} from "react-native";
+import {ActivityIndicator, Pressable, StyleSheet, Text, View} from "react-native";
 import {Colors} from "@/constants/Colors";
 import {IWallet} from "@/src/types";
 import {Link, useSegments} from "expo-router";
@@ -6,6 +6,7 @@ import { Dimensions, Image } from 'react-native';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import QRCode from "react-qr-code";
 import React from "react";
+import CachedImage from "expo-cached-image";
 
 const { width } = Dimensions.get('window');
 const containerWidth = (width / 3) - 17;
@@ -23,14 +24,17 @@ export default function WalletItem ({ wallet }:WalletItemProps) {
         <Link href={`${segments[0]}/menu/wallet/${wallet.id}`} asChild>
             <Pressable style={styles.container}>
                 <View style={styles.image}>
-                    <Image
+                    <CachedImage
                         source={{ uri: `${apiUrl}${wallet?.logo}` }}
                         style={styles.logo}
+                        cacheKey={`${wallet.id}-wallet-logo`} 
+                        placeholderContent={( 
+                            <ActivityIndicator 
+                              size="small"
+                              style={styles.logo}
+                            />
+                          )} 
                     />
-                    {/* <QRCode
-                        size={containerWidth-12}
-                        value={wallet?.prizm_qr_code_url}
-                    /> */}
                 </View>
             </Pressable>
         </Link>

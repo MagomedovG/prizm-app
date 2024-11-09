@@ -11,11 +11,12 @@ import {
     Platform,
     Alert,
     StatusBar,
+    ActivityIndicator,
 } from "react-native";
 import { Animated,Clipboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
-
+import CachedImage from 'expo-cached-image'
 import {defaultLogo} from "@/assets/data/categories";
 import { AntDesign } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -29,6 +30,7 @@ import { IBusiness } from '@/src/types';
 const deviceWidth = Dimensions.get("window").width;
 import QRCode from 'react-qr-code';
 import Modal from "react-native-modal";
+import { useQuery } from '@tanstack/react-query';
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 
@@ -37,7 +39,7 @@ const ITEM_WIDTH = width - 25;
 export default function categoryId() {
     const {theme} = useCustomTheme()
     const { id } = useLocalSearchParams()
-    const [business, setBusiness] = useState<IBusiness | null>(null)
+    // const [business, setBusiness] = useState<IBusiness | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -69,32 +71,28 @@ export default function categoryId() {
         }
         return text?.length > 225 ? `${text.slice(0, 220)}` : text;
     };
-
+    const { data: business, isLoading: isBusinessLoading } = useQuery<IBusiness>({
+        queryKey: ['business', id],
+        queryFn: async () => {
+            const response = await fetch(
+                `${apiUrl}/api/v1/business/${id}/`,
+            );
+            const data = await response.json();
+            const business = data.business;
+            return business;
+        },
+    });
     useEffect(() => {
         const getWallet = async () => {
             try {
                 const url = await AsyncStorage.getItem('prizm_wallet');
-                const qr = await AsyncStorage.getItem('prizm_qr_code_url');
-        
-        
+                const qr = await AsyncStorage.getItem('prizm_qr_code_url');       
                 setPrizmWallet(url || '');
                 setPrizmQrCode(qr || '');
             } catch (error) {
                 console.error('Ошибка при получении данных из AsyncStorage:', error);
             }
         };
-        async function getData() {
-            try {
-                const response = await fetch(
-                    `${apiUrl}/api/v1/business/${id}/`,
-                );
-                const data = await response.json();
-                setBusiness(data?.business);
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error);
-            }
-        }
-        getData();
         getWallet()
     }, []);
 
@@ -109,6 +107,10 @@ export default function categoryId() {
 
     const segments = useSegments();
 
+    if (isBusinessLoading){
+        return <Text>Loading...</Text>
+    }
+
     
     return (
         <ScrollView style={[{  flex:1}, Platform.OS === "ios" ? {paddingTop: 173} : {}]}>
@@ -120,8 +122,8 @@ export default function categoryId() {
                         }}>
                         {business?.images?.map((item:any, index:number) => (
                                 <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
-                                    
-                                    <Image
+                                    <CachedImage
+                                        cacheKey={`${item.id}-category-item-preview-slider`} 
                                         style={styles.image}
                                         source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
                                     />
@@ -145,7 +147,11 @@ export default function categoryId() {
                             <Text style={styles.saleText}>Vozvrat pzm { business?.cashback_size ? parseFloat(business?.cashback_size?.toString()) : 0}%</Text>
                         </View>
                         {business?.images  &&  <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
-                            <Text style={styles.saleText}>{business.images.length} фото</Text>
+                            {/* <Pressable></Pressable> */}
+                            {/* <Text style={styles.saleText}>{business.images.length} фото</Text> */}
+                            <Pressable onPress={() => openFullscreen(fullscreenImageIndex)}>
+                                <Text style={styles.saleText}>{business.images.length} фото</Text>
+                            </Pressable>
                         </View>}
                     </View>
                     
@@ -155,7 +161,8 @@ export default function categoryId() {
                         end={{ x: 0, y: 0 }}
                         style={styles.cart}
                     >
-                        <Image
+                        <CachedImage
+                            cacheKey={`${business?.id}-category-item-logo`} 
                             source={{uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
                             style={styles.cartLogo}/>
                         <View style={styles.cartInfo}>
@@ -274,7 +281,8 @@ export default function categoryId() {
                 style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
                 animationIn="slideInUp" // анимация при открытии
                 animationOut="slideOutDown" // анимация при закрытии
-                backdropOpacity={0.8} // настройка прозрачности фона
+                backdropOpacity={1} // настройка прозрачности фона
+                backdropColor='white'
                 animationInTiming={300}
                 animationOutTiming={300}
                 backdropTransitionOutTiming={0}
@@ -310,15 +318,25 @@ export default function categoryId() {
                     >
                         {business?.images?.map((item: any, index: number) => (
                             <View key={index} style={styles.fullscreenSlide}>
-                                <Image
+                                <CachedImage
+                                    cacheKey={`${item.id}-category-item-full-slider`}
                                     style={styles.fullscreenImage}
+                                    placeholderContent={( 
+                                        <ActivityIndicator 
+                                          size="small"
+                                          style={{
+                                            flex: 1,
+                                            justifyContent: "center",
+                                          }}
+                                        />
+                                      )}
                                     source={{ uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo }}
                                 />
                             </View>
                         ))}
                     </Swiper>
                     <Pressable style={styles.closeButton} onPress={closeFullscreen}>
-                        <AntDesign name="close" size={30} color="white" />
+                        <AntDesign name="close" size={26} color="white" style={styles.arrowIcon}/>
                     </Pressable>
                 </View>
             </Modal>
@@ -524,7 +542,7 @@ const styles = StyleSheet.create({
     },
     fullscreenImage: {
         width: deviceWidth,
-        height: height,
+        height: deviceHeight,
         resizeMode: 'contain',
     },
     closeButton: {

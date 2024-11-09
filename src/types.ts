@@ -73,5 +73,6 @@ export type IFund = {
   prizm_wallet:string
   prizm_qr_code_url:string
   is_superuser?:boolean
+  prizm_public_key?:string 
 }
 

@@ -1,9 +1,10 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform} from "react-native";
+import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ActivityIndicator} from "react-native";
 import {ICategory} from "@/src/types";
 import {Link, useRouter, useSegments} from "expo-router";
 import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+import CachedImage from "expo-cached-image";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
 const ITEM_HEIGHT = height / 2 -30
@@ -66,11 +67,11 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     
                 }
                 <View style={styles.titleButton}>
-                    <Text style={[styles.title, {marginBottom: 0}]}>{title}</Text>
+                    <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
                     
                 </View>
 
-                {filteredData?.[0]?.id ? <FlatList
+                {filteredData?.length ? <FlatList
                     data={filteredData}
                     renderItem={({item}) =>
                         <Link
@@ -81,14 +82,22 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
 
                                 <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
                                     <Text style={styles.text}>{item.title}</Text>
-                                    <Image style={styles.image_logo} source={{uri: `${apiUrl}${item?.logo}`}}/>
+                                    <CachedImage 
+                                        style={styles.image_logo} 
+                                        source={{uri: `${apiUrl}${item?.logo}`}}
+                                        cacheKey={`${item.id}-category-logo`} 
+                                        placeholderContent={( 
+                                            <ActivityIndicator 
+                                                size="small"
+                                            />
+                                        )} 
+                                    />
                                 </View>
 
                             </Pressable>
                         </Link>
                     }
                     keyExtractor={(item) => item.id.toString()}
-                    // contentContainerStyle={{gap:10}}
                     horizontal={false}
 
                 /> : 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Pressable, Text, View, StyleSheet, Platform, Alert } from "react-native";
+import { Pressable, Text, View, StyleSheet, Platform, Alert, useWindowDimensions } from "react-native";
 import { Entypo, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,7 @@ import {Link, useRouter} from "expo-router";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import { useFocusEffect } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 type IWallet = {
     balance_in_pzm:number;
@@ -33,7 +34,6 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
     const [prizmWallet, setPrizmWallet] = useState('') 
-    const [exchanger, setExchanger] = useState<string>('')
     const logOut = () => {
         asyncStorage.removeItem('username')
         asyncStorage.removeItem('prizm_wallet')
@@ -41,6 +41,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
         asyncStorage.removeItem('user_id')
         router.replace('/pin/setnickname')
     }
+    const { width } = useWindowDimensions();
 
     async function getData() {
         try {
@@ -57,18 +58,17 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
         }
     }
-    async function getExchanger() {
-        try {
+    const { data: exchanger} = useQuery({
+        queryKey: ['exchanger'],
+        queryFn: async () => {
             const response = await fetch(
-                `${apiUrl}/api/v1/exchanger/`,{
-                }
+                `${apiUrl}/api/v1/exchanger/`
             );
             const data = await response.json();
-            setExchanger(data?.exchanger);
-        } catch (error) {
-            console.error("Ошибка при загрузке exchangera:", error);
+            const exchanger = data.exchanger
+            return exchanger;
         }
-    }
+    });
     
 
     useEffect(() => {
@@ -81,7 +81,6 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             }
         }
         fetchUserId();
-        getExchanger();
     }, []);
     
     const fetchHiddenState = async () => {
@@ -133,6 +132,12 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
         }
         return str.length > 13 ? str.slice(0, 12) + '...' : str;
       }
+      const getFontSize = () => {
+        if (width < 350) return 5;
+        if (width < 500) return 5.5;
+        if (width < 600) return 5.8;
+        return 6;
+    };
       
 
     return (
@@ -172,7 +177,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                     <Pressable
                         style={styles.headerPitopi}
                     >
-                        <Link href={exchanger} style={{fontSize:14}}>Обменник</Link>
+                        <Link href={exchanger ?? ''} style={{fontSize:14}}>Обменник</Link>
                     </Pressable>
                     <Pressable
                         style={styles.headerPitopi}
@@ -232,7 +237,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                                 {getTitle(info?.username ?? '')}
                             </Text>
                         </View>
-                        <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : {color:'#6A975E'}]}>
+                        <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : {color:'#fff'}, {fontSize:getFontSize()}]}>
                             {info?.prizm_wallet ?? ''}
                         </Text>
                     </View>
@@ -362,7 +367,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: "space-between",
-        paddingVertical:6
+        paddingVertical:6,
+        paddingBottom:7.5
     },
     headerCartTitle:{
         width:'100%',
@@ -378,10 +384,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     }, 
     cartName:{
-        fontSize:8
+        fontSize:8.5
     }, 
     headerCartWallet:{
-        fontSize:6,
+        // fontSize:6.5,
+        fontWeight: 'bold',
         paddingHorizontal:6,
     },
     headerCartButtonsContainer:{

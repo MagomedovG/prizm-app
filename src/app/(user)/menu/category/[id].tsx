@@ -32,6 +32,7 @@ const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
 import QRCode from 'react-qr-code';
 import { AntDesign } from '@expo/vector-icons';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 const height = Dimensions.get("window").height
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
@@ -41,12 +42,9 @@ export default function categoryId() {
     const { id } = useLocalSearchParams()
     const {theme} = useCustomTheme()
     const [isQrModal, setIsQrModal] = useState(false);
-
-    const [categoryList, setCategoryList] = useState<IBusinessInCategory | null>(null)
     const [isModal, setIsModal] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [prizmWallet, setPrizmWallet] = useState('')
-    const [exchanger, setExchanger] = useState<string>('')
     const [prizmQrCode, setPrizmQrCode] = useState('') 
     const inputRef = useRef(null);
     const copyToClipboard = () => {
@@ -55,20 +53,9 @@ export default function categoryId() {
         }
         Alert.alert('Кошелек скопирован!', prizmWallet)
     };
+    const queryClient = useQueryClient();
 
-    async function getExchanger() {
-        try {
-            const response = await fetch(
-                `${apiUrl}/api/v1/exchanger/`,{
-                }
-            );
-            const data = await response.json();
-            setExchanger(data?.exchanger);
-        } catch (error) {
-            console.error("Ошибка при загрузке exchangera:", error);
-        }
-    }
-
+    const exchanger = queryClient.getQueryData(['exchanger']);
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
@@ -104,20 +91,16 @@ export default function categoryId() {
     };
     
     
-    
+    const { data: categoryList, isLoading: isCategoryListLoading } = useQuery<IBusinessInCategory>({
+        queryKey: ['categoryList', id],
+        queryFn: async () => {
+            const response = await fetch(
+                `${apiUrl}/api/v1/categories/${id}/get-businesses`,
+            );
+            return response.json();
+        },
+    });
     useEffect(() => {
-        async function getData() {
-            try {
-                const response = await fetch(
-                    `${apiUrl}/api/v1/categories/${id}/get-businesses`,
-                );
-                const data = await response.json();
-                setCategoryList(data);
-                console.log(data);  
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-            }
-        }
         const getWallet = async () => {
             try {
                 const url = await AsyncStorage.getItem('prizm_wallet');
@@ -128,9 +111,7 @@ export default function categoryId() {
                 console.error('Ошибка при получении данных из AsyncStorage:', error);
             }
         };
-        getExchanger()
         getWallet()
-        getData();
     }, []);
 
 

@@ -1,10 +1,23 @@
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { PropsWithChildren } from 'react';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 
-const client = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        gcTime: 1000 * 60 * 60, // 1 час
+      },
+    },
+  });
+  
+  const asyncStoragePersister = createAsyncStoragePersister({
+    storage: AsyncStorage,
+  });
 
 export default function QueryProvider({ children }: PropsWithChildren) {
-    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+    return <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: asyncStoragePersister }}>{children}</PersistQueryClientProvider>;
 }
 
 

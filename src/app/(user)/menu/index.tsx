@@ -24,6 +24,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {IWallet} from "@/src/types";
 import Loader from '@/src/components/Loader';
+import { useQuery } from '@tanstack/react-query';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const {width, height} = Dimensions.get("window");
 const deviceWidth = width
@@ -39,55 +40,77 @@ export default function MenuScreen() {
     const [isModal, setIsModal] = useState(false);
     const { changeTheme } = useAsyncTheme();
     const [isChatModal, setIsChatModal] = useState(false);
-    const [categories, setCategories] = useState(null)
-    const [wallets, setWallets] = useState<IWallet[]>([])
-    const [chats, setChats] = useState<IChats | null>(null)
+    // const [categories, setCategories] = useState(null)
+    // const [wallets, setWallets] = useState<IWallet[]>([])
+    // const [chats, setChats] = useState<IChats | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
-    async function getChats() {
-        try{
-            const response = await fetch(`${apiUrl}/api/v1/social-networks/`)
-            const data = await response.json();
-            setChats(data)
-        } catch (err) {
-            console.log(err)
+    // async function getChats() {
+    //     try{
+    //         const response = await fetch(`${apiUrl}/api/v1/social-networks/`)
+    //         const data = await response.json();
+    //         setChats(data)
+    //     } catch (err) {
+    //         console.log(err)
+    //     }
+    // }
+    // useEffect(() => {
+    //     getChats()
+    // }, []);
+
+    const { data: chats, isLoading: isChatsLoading } = useQuery({
+        queryKey: ['chats'],
+        queryFn: async () => {
+            const response = await fetch(`${apiUrl}/api/v1/social-networks/`);
+            return response.json();
         }
-    }
-    useEffect(() => {
-        getChats()
-    }, []);
-    
-    const getData = async () => {
-        try {
-            const response = await fetch(
-                `${apiUrl}/api/v1/categories/`,
-            );
-            const data = await response.json();
-            setCategories(data);
-            
+    });
+    const { data: categories, isLoading: isCategoriesLoading, refetch: refetchCategories } = useQuery({
+        queryKey:['categories'],
+        queryFn:async () => {
+            const response = await fetch(`${apiUrl}/api/v1/categories/`);
             setRefreshing(false)
-
-        } catch (error) {
-            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+            return response.json();
         }
-    }
+    });
+
+    const { data: wallets, isLoading: isWalletsLoading, refetch: refetchWallets } = useQuery({
+        queryKey:['wallets'],
+        queryFn:async () => {
+            const response = await fetch(`${apiUrl}/api/v1/funds/`);
+            return response.json();
+        }
+    });
+    
+    // const getData = async () => {
+    //     try {
+    //         const response = await fetch(
+    //             `${apiUrl}/api/v1/categories/`,
+    //         );
+    //         const data = await response.json();
+    //         setCategories(data);
+            
+    //         setRefreshing(false)
+
+    //     } catch (error) {
+    //         console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
+    //     }
+    // }
 
     
 
-      const getFunds = async () => {
-        try {
-            const response = await fetch(
-                `${apiUrl}/api/v1/funds/`,
-            );
-            const data = await response.json();
-            setWallets(data);
-        } catch (error) {
-            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
-        }
-    }
+    //   const getFunds = async () => {
+    //     try {
+    //         const response = await fetch(
+    //             `${apiUrl}/api/v1/funds/`,
+    //         );
+    //         const data = await response.json();
+    //         setWallets(data);
+    //     } catch (error) {
+    //         console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
+    //     }
+    // }
     useEffect(() => {
-        getFunds()
-        getData();
         setTimeout(() => {
             setIsLoading(false);
         },2000)
@@ -96,8 +119,8 @@ export default function MenuScreen() {
     const [refreshing, setRefreshing] = React.useState(false);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        getFunds()
-        getData();
+        refetchCategories();
+        refetchWallets();
     }, []);
 
     

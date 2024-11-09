@@ -1,10 +1,11 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions} from "react-native";
+import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, ActivityIndicator} from "react-native";
 import {Link, useSegments} from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import React from "react";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {IBusinessInCategory} from '../../types'
+import CachedImage from "expo-cached-image";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
 const ITEM_HEIGHT = height 
@@ -36,7 +37,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                     </Pressable>
                 </Pressable> }
                 <Text style={styles.title}>{title}</Text>
-           {categoryList?.[0] ? <FlatList
+           {categoryList?.length ? <FlatList
                 data={categoryList}
                 style={styles.flatlist}
                 renderItem={({item}) =>
@@ -50,7 +51,11 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                                 resizeMode={FastImage.resizeMode.contain}
                             /> */}
                             <View style={{position:'relative'}}>
-                                <Image source={{uri: `${apiUrl}${item.logo}`}} style={styles.image}/> 
+                                <CachedImage 
+                                    source={{uri: `${apiUrl}${item.logo}`}} 
+                                    style={styles.image}
+                                    cacheKey={`${item.id}-category-itemList-logo`}
+                                /> 
                                 <View style={styles.saleContainer}>
                                     <Text style={styles.sale}>{parseFloat(item?.cashback_size.toString())}%</Text>
                                 </View>
@@ -152,7 +157,6 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '600',
         marginTop: 30,
-        marginLeft:10
     },
     text:{
         marginTop:5,

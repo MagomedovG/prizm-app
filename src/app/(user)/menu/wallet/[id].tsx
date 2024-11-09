@@ -11,7 +11,8 @@ import {
     ScrollView,
     Keyboard,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    ActivityIndicator
 } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
@@ -23,6 +24,7 @@ import QRCode from "react-qr-code";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { IFund } from '@/src/types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 const { width } = Dimensions.get('window');
 const containerWidth = width - 34 - 84 ;
 
@@ -31,18 +33,16 @@ export default function walletId() {
     const [isUpdate, setIsUpdate]=useState(false)
     const router = useRouter();
     const { id } = useLocalSearchParams();
-    const [wallet, setWallet] = useState<IFund | null>(
-        null
-    )
     const [prizmWallet, setPrizmWallet] = useState<string>('')
     const [publicKey, setPublicKey] = useState<string>('')
     const inputRef = useRef(null);
-    const [keyboardStatus, setKeyboardStatus] = useState('Клавиатура закрыта');
-    const [keyboardHeight, setKeyboardHeight] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null); 
+
+    const queryClient = useQueryClient();
+
+    
     useEffect(() => {
         if (isUpdate && inputRef && inputRef.current) {
-            // inputRef.current?.focus();
             setTimeout(() => {
                 inputRef.current?.focus();
             }, 300);
@@ -62,48 +62,34 @@ export default function walletId() {
         if (isUpdate){
             setIsUpdate(false);
         } else if (id === 'user'){
-            router.push('(user)/menu/share-prizm/')
+            router.push('/(user)/menu/share-prizm')
         } else {
             router.back()
         }
         
     }
-
-    async function getFunds() {
-        const userId = await asyncStorage.getItem('user_id')
-
-        try {
+    const { data: wallet, isLoading: isWalletLoading } = useQuery<IFund>({
+        queryKey: ['wallet', id],
+        queryFn: async () => {
+            const userId = await asyncStorage.getItem('user_id')
             const response = await fetch(
                 id !== 'user' ?
                 `${apiUrl}/api/v1/funds/${id}/`
                 : `${apiUrl}/api/v1/users/${userId}/`
-                ,
             );
-            const data = await response.json();
-            setWallet(data);
-            setPrizmWallet(data?.prizm_wallet)
-            setPublicKey(data?.prizm_public_key)
-            console.log(data)
-
-        } catch (error) {
-            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/${id}/`);
-        }
-    }
-    const getWallet = async () => {
-        // try {
-        //     const key = await AsyncStorage.getItem('public_key_hex');
-        //     if (key){
-        //         setPublicKey(JSON.parse(key) || '');
-        //     }
-            
-        // } catch (error) {
-        //     console.error('Ошибка при получении данных из AsyncStorage:', error);
-        // }
-    };
+            return response.json();
+        },
+    });
+    
+    
     useEffect(() => {
-        getFunds()
-        getWallet()
-    },[])
+        if (wallet?.prizm_wallet || wallet?.prizm_public_key){
+            setPrizmWallet(wallet?.prizm_wallet)
+        }
+        if (wallet?.prizm_public_key){
+            setPublicKey(wallet?.prizm_public_key)
+        }
+    },[wallet])
     const updateUserWallet = async () => {
         const userId = await AsyncStorage.getItem('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null;
@@ -122,12 +108,13 @@ export default function walletId() {
                 Alert.alert('Введен некорректный кошелек')
             } else {
                 await asyncStorage.setItem('prizm_wallet', prizmWallet)
+                
             }
         } catch (e) {
             console.log(e);
         } finally {
             setIsUpdate(false);
-            getFunds()
+            queryClient.invalidateQueries({queryKey:['wallet', id],refetchType: 'active'}); 
         }
     }
 
@@ -150,6 +137,19 @@ export default function walletId() {
         }
         return str.length > size ? str.slice(0, size - 1) + '...' : str;
       }
+
+      if (!wallet){
+        return (
+            <ActivityIndicator 
+                size="small"
+                style={{
+                    flex: 1,
+                    justifyContent: "center",
+                }}
+            />
+        )
+      }
+      
 
 
     return (
