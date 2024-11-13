@@ -26,7 +26,7 @@ const CreateWallet = () => {
         setIsModal(false);
         setTimeout(() => {
             router.replace('/(user)/menu');
-        }, 500); 
+        }, 600); 
     };
     
     const copyWalletToClipboard = () => {
@@ -67,7 +67,6 @@ const CreateWallet = () => {
                 },
                 body: JSON.stringify(form),
             });
-            console.log(form)
             const data = await response.json();
             if (!response.ok) {
                 const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'

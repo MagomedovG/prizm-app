@@ -62,6 +62,7 @@ export default function MenuScreen() {
         queryKey: ['chats'],
         queryFn: async () => {
             const response = await fetch(`${apiUrl}/api/v1/social-networks/`);
+            console.log('social-networks')
             return response.json();
         }
     });
@@ -69,6 +70,7 @@ export default function MenuScreen() {
         queryKey:['categories'],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/categories/`);
+            console.log('categories')
             setRefreshing(false)
             return response.json();
         }
@@ -78,6 +80,7 @@ export default function MenuScreen() {
         queryKey:['wallets'],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/funds/`);
+            console.log('funds')
             return response.json();
         }
     });
@@ -128,9 +131,9 @@ export default function MenuScreen() {
         setIsChatModal(!isChatModal)
     }
 
-    if (isLoading){
-        return <Loader />;
-    }
+    // if (isLoading){
+    //     return <Loader />;
+    // }
 
 
     return (

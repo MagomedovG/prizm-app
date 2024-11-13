@@ -18,8 +18,6 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 export default function WalletItem ({ wallet }:WalletItemProps) {
     const segments = useSegments()
     const {theme} = useCustomTheme()
-    console.log(wallet?.logo)
-    console.log(segments)
     return (
         <Link href={`${segments[0]}/menu/wallet/${wallet.id}`} asChild>
             <Pressable style={styles.container}>

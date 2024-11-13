@@ -11,6 +11,7 @@ import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncSto
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import prizm from '@/src/utils/prizmparacalc'
 type IWallet = {
     balance_in_pzm:number;
     balance_in_rub:number;
@@ -19,6 +20,17 @@ type IWallet = {
     prizm_to_rub_exchange_rate:number;
     prizm_wallet:string;
     username:string;
+    para_values?: {
+        amount:number;
+        balance:number;
+        height:number;
+        hold:number;
+        last:number;
+        multiplier:number;
+        requestProcessingTime:number;
+        last_block_height:number;
+        emission_number:number
+    }
 }
 type MainHeaderProps = {
     onDotsPress: (value?: boolean) => void;
@@ -28,6 +40,7 @@ type MainHeaderProps = {
 
 const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => {
     // const { asyncTheme, changeTheme } = useAsyncTheme();
+    const [para, setPara]=useState<number | null>(null)
     const [isHidden, setIsHidden] = useState(false);
     const { theme } = useCustomTheme();
     const [info,setInfo] = useState<IWallet | null>(null)
@@ -58,6 +71,39 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
         }
     }
+    var genesis = 'PRIZM-TE8N-B3VM-JJQH-5NYJB';
+    var maxEmission = 6000000000;
+
+    var calc = new prizm.Para();
+    var LAST_BLOCK_HEIGHT = info?.para_values?.last_block_height; //текущая высота последнего блока в блокчейн
+    var para_status = false;
+    var lastNumber = Number(info?.para_values?.last); //last из метода getPara
+    var amountNumber = Number(info?.para_values?.amount); //amount из метода getPara
+    var balanceNumber = Number(info?.para_values?.balance); //баланс из метода getPara
+    var heightParaNumber = Number(info?.para_values?.height); // высота из метода getPara
+    var emissionNumber = info?.para_values?.emission_number; //текущий баланс генезиса
+
+
+    function updatePayoutValues() {
+        // Рассчет красной зоны
+        para_status = LAST_BLOCK_HEIGHT >= 1200000 && LAST_BLOCK_HEIGHT - heightParaNumber <= 100000 && balanceNumber <= 11000000;
+
+        // Вычисление значений
+        var payout = calc.calc(balanceNumber, amountNumber, lastNumber, emissionNumber, para_status);
+        var payout2 = calc.calc(balanceNumber, amountNumber, lastNumber - 86400, emissionNumber, para_status);
+        var paraDaily = payout2 > payout ? payout2 - payout : 0;
+        setPara(payout.toFixed(8));
+    }
+    useFocusEffect(() => {
+        if (info?.balance_in_pzm && info?.balance_in_pzm !== 0){
+        const intervalId = setInterval(updatePayoutValues, 300); 
+        return () => clearInterval(intervalId);
+        } else {
+            setPara(info?.para_balance ? info?.para_balance : 0.0)
+        }
+    })
+    
+    
     const { data: exchanger} = useQuery({
         queryKey: ['exchanger'],
         queryFn: async () => {
@@ -108,6 +154,8 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             return () => clearInterval(intervalId); 
         }, [refreshData])
     );
+    
+    
 
     const handleChatPress = () => {
         onChatPress(true);
@@ -223,7 +271,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                             {isHidden ? '****' : `B: ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                         </Text>
                         <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                            {isHidden ? '****' : `P: ${info?.para_balance ? info?.para_balance : 0.0} pzm`}
+                            {isHidden ? '****' : `P: ${para  ? para : 0.0} pzm`}
                         </Text>
                     </View>
                 </View>
