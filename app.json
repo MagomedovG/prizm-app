@@ -2,7 +2,7 @@
   "expo": {
     "name": "Vozvrat",
     "slug": "prizm-app",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "prizm",
@@ -29,7 +29,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Vozvrat prizm to use your location."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

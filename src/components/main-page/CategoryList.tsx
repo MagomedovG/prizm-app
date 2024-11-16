@@ -15,10 +15,11 @@ type CategoryListProps = {
     isInput?:boolean,
     isAdminFond?:boolean,
     linkButton?:string,
+    showModal?: () => void,
 }
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-export default function CategoryList ({categories, title, isInput, isAdminFond, linkButton}:CategoryListProps) {
+export default function CategoryList ({categories, title, isInput, isAdminFond, linkButton, showModal}:CategoryListProps) {
     const segments = useSegments();
     console.log(segments);
     const router = useRouter()
@@ -66,6 +67,11 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     </View>
                     
                 }
+                <Pressable style={styles.locationContainer} onPress={showModal}>
+                    <Text style={styles.locationTitle}>
+                        Махачкала
+                    </Text>
+                </Pressable>
                 <View style={styles.titleButton}>
                     <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
                     
@@ -186,6 +192,12 @@ const styles = StyleSheet.create({
     image_logo:{
         width:32,
         aspectRatio:1
+    },
+    locationContainer:{
+        marginLeft:10
+    },
+    locationTitle:{
+        color:'rgba(160, 158, 158, 1)'
     }
 });
 

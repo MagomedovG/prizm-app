@@ -1,83 +1,183 @@
-import {View, Text, TextInput, StyleSheet, Alert} from 'react-native';
-import React, { useState } from 'react';
-import UIButton from '@/src/components/UIButton';
-import {Colors} from '../../constants/Colors';
-import {Link, Redirect, Stack, useRouter} from 'expo-router';
-import {borderColor} from "@/assets/data/colors";
-// import {supabase} from "@/src/lib/supabase";
+import { useState, useEffect } from 'react';
+import { Text, View, Alert } from 'react-native';
+import * as Location from 'expo-location';
 
-const SignInScreen = () => {
-    const [prizm, setPrizm] = useState<string>('');
-    // const [password, setPassword] = useState<string>('');
-    const [loading, setloading] = useState<boolean>(false)
-    const router = useRouter()
-    async function signInWithEmail () {
-        console.log(prizm);
-        if (prizm === '1'){
-            router.push('/(user)/')
-        }
-        // console.warn('dd')
-        // setloading(true)
-        // const { error } = await supabase.auth.signInWithPassword({
-        //     email, password
-        // })
-        // if (error){
-        //     Alert.alert(error.message)
-        // }
-        // setloading(false)
+export default function App() {
+  const [displayCurrentAddress, setDisplayCurrentAddress] = useState('Location Loading...');
+  const [locationServicesEnabled, setLocationServicesEnabled] = useState(false);
+
+  useEffect(() => {
+    checkIfLocationEnabled();
+    getCurrentLocation();
+  }, []);
+
+  // Проверка, включены ли сервисы геолокации
+  const checkIfLocationEnabled = async () => {
+    try {
+      let enabled = await Location.hasServicesEnabledAsync();
+      console.log("Location services enabled:", enabled);
+
+      if (!enabled) {
+        Alert.alert('Location not enabled', 'Please enable your Location', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ]);
+      } else {
+        setLocationServicesEnabled(enabled);
+      }
+    } catch (error) {
+      console.error("Error checking location services:", error.message);
     }
+  };
 
-    return (
-        <View style={styles.container}>
-            <Stack.Screen options={{ title: 'Sign in', headerShown:false }} />
+  // Получение текущей локации
+  const getCurrentLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      console.log("Permission status:", status);
 
-            <Text style={styles.label}>Вставьте адрес кошелька</Text>
-            <TextInput
-                value={prizm}
-                onChangeText={setPrizm}
-                placeholder="PRIZM-1234567890"
-                style={styles.input}
-            />
-            {/*<View  style={styles.textButton}>*/}
-                <UIButton text={loading ? "Входим в систему" : "Ок"} onPress={signInWithEmail} disabled={loading}/>
-            {/*</View>*/}
+      if (status !== 'granted') {
+        Alert.alert('Permission denied', 'Allow the app to use the location services', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ]);
+        return;
+      }
 
-        </View>
-    );
-};
+      // Получение координат
+      const { coords } = await Location.getCurrentPositionAsync();
+      console.log("Coords received from getCurrentPositionAsync:", coords);
 
-const styles = StyleSheet.create({
-    container: {
-        padding: 20,
-        justifyContent: 'center',
-        flex: 1,
-        position:"relative"
-    },
-    label: {
-        color: '#262626',
-        fontSize:35,
-        textAlign:"center",
-        marginBottom: 44,
-        borderColor: borderColor
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: 'gray',
-        padding: 25,
-        marginTop: 5,
-        marginBottom: 20,
-        backgroundColor: '#EFEFEF',
-        borderRadius: 5,
-        color:'#707070',
-        marginHorizontal:42
+      if (coords) {
+        let { latitude, longitude } = coords;
 
-    },
-    textButton: {
-        // position:'absolute',
-        // bottom:40,
-        // width:'100%',
+        console.log("Raw Latitude and Longitude:", latitude, longitude);
 
-    },
-});
+        // Проверяем, что latitude и longitude — это числа
+        if (
+          typeof latitude !== "number" ||
+          typeof longitude !== "number" ||
+          isNaN(latitude) ||
+          isNaN(longitude)
+        ) {
+          console.error("Invalid coordinates:", latitude, longitude);
+          setDisplayCurrentAddress("Unable to fetch valid coordinates.");
+          return;
+        }
 
-export default SignInScreen;
+        console.log("Valid coordinates:", latitude, longitude);
+
+        // Обратное геокодирование
+        try {
+          console.log("Calling reverseGeocodeAsync with:", { latitude, longitude });
+          let response = await Location.reverseGeocodeAsync({
+            latitude,
+            longitude,
+          });
+          console.log("Response from reverseGeocodeAsync:", response);
+
+          for (let item of response) {
+            console.log("Processing response item:", item);
+
+            if (item.name && item.city && item.postalCode) {
+              let address = `${item.name}, ${item.city}, ${item.postalCode}`;
+              setDisplayCurrentAddress(address);
+              return;
+            }
+          }
+
+          // Если не удалось получить полный адрес
+          setDisplayCurrentAddress("Unable to retrieve full address.");
+        } catch (error) {
+          console.error("Error in reverseGeocodeAsync:", error.message);
+          setDisplayCurrentAddress("Error retrieving address.");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching location:", error.message);
+      setDisplayCurrentAddress("Error fetching location.");
+    }
+  };
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>{displayCurrentAddress}</Text>
+      <Text style={{ marginTop: 20 }}>HomeScreen</Text>
+    </View>
+  );
+}
+// import { StyleSheet, Text, Alert, View} from 'react-native'
+// import React, { useEffect, useState } from 'react'
+// import { SafeAreaView } from 'react-native-safe-area-context'
+// import * as Location from 'expo-location'
+
+// const HomeScreen = () => {
+//   const [displayCurrentAddress, setDisplayCurrentAddress] = useState('Location Loading.....');
+//   const [locationServicesEnabled, setLocationServicesEnabled] = useState(false)
+//   useEffect(()=>{
+//    checkIfLocationEnabled();
+//    getCurrentLocation();
+//   },[])
+//   //check if location is enable or not
+//   const checkIfLocationEnabled= async ()=>{
+//     let enabled = await Location.hasServicesEnabledAsync();       //returns true or false
+//     if(!enabled){                     //if not enable 
+//       Alert.alert('Location not enabled', 'Please enable your Location', [
+//         {
+//           text: 'Cancel',
+//           onPress: () => console.log('Cancel Pressed'),
+//           style: 'cancel',
+//         },
+//         {text: 'OK', onPress: () => console.log('OK Pressed')},
+//       ]);
+//     }else{
+//       setLocationServicesEnabled(enabled)         //store true into state
+//     }
+//   }
+//   //get current location
+//   const getCurrentLocation= async ()=>{
+//        let {status} = await Location.requestForegroundPermissionsAsync();  //used for the pop up box where we give permission to use location 
+//       console.log(status);
+//        if(status !== 'granted'){
+//         Alert.alert('Permission denied', 'Allow the app to use the location services', [
+//           {
+//             text: 'Cancel',
+//             onPress: () => console.log('Cancel Pressed'),
+//             style: 'cancel',
+//           },
+//           {text: 'OK', onPress: () => console.log('OK Pressed')},
+//         ]);
+//        }
+
+//          //get current position lat and long
+//        const {coords} = await Location.getCurrentPositionAsync();  
+//        console.log(coords)
+       
+//        if(coords){
+//         const {latitude,longitude} =coords;
+//         console.log(latitude,longitude);
+
+//        //provide lat and long to get the the actual address
+//         let responce = await Location.reverseGeocodeAsync({           
+//           latitude,
+//           longitude
+//         });
+//         console.log(responce);
+//         //loop on the responce to get the actual result
+//         for(let item of responce ){
+//          let address = `${item.name} ${item.city} ${item.postalCode}`
+//           setDisplayCurrentAddress(address)
+//         }
+//            }
+//   }
+  
+//   return (
+//     <SafeAreaView>
+//       <View><Text>{displayCurrentAddress}</Text></View>
+//       <Text>HomeScreen</Text>
+//     </SafeAreaView>
+//   )
+// }
+
+// export default HomeScreen
+

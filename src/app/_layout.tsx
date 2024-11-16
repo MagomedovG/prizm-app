@@ -3,16 +3,14 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import QueryProvider from "@/src/providers/QueryProvider";
-import CustomThemeProvider from "@/src/providers/CustomThemeProvider";
 SplashScreen.preventAutoHideAsync();
 import { Alert, LogBox } from 'react-native';
+import CustomThemeProvider from '../providers/CustomThemeProvider';
+import QueryProvider from '../providers/QueryProvider';
 
 LogBox.ignoreAllLogs(true); 
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require('../../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -37,7 +35,7 @@ export default function RootLayout() {
   
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? CustomDefaultTheme : CustomDefaultTheme}>
+    <ThemeProvider value={CustomDefaultTheme}>
         <QueryProvider>
             <CustomThemeProvider>
               <Stack screenOptions={{headerShown:false}}>

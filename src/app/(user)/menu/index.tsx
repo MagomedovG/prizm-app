@@ -25,6 +25,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import {IWallet} from "@/src/types";
 import Loader from '@/src/components/Loader';
 import { useQuery } from '@tanstack/react-query';
+import LocationInput from '@/src/components/LocationInput';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const {width, height} = Dimensions.get("window");
 const deviceWidth = width
@@ -40,29 +41,16 @@ export default function MenuScreen() {
     const [isModal, setIsModal] = useState(false);
     const { changeTheme } = useAsyncTheme();
     const [isChatModal, setIsChatModal] = useState(false);
-    // const [categories, setCategories] = useState(null)
-    // const [wallets, setWallets] = useState<IWallet[]>([])
-    // const [chats, setChats] = useState<IChats | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-
-    // async function getChats() {
-    //     try{
-    //         const response = await fetch(`${apiUrl}/api/v1/social-networks/`)
-    //         const data = await response.json();
-    //         setChats(data)
-    //     } catch (err) {
-    //         console.log(err)
-    //     }
-    // }
-    // useEffect(() => {
-    //     getChats()
-    // }, []);
-
+    const [isShowLocationList, setIsShowLocationList] = useState(false)
+    const [countries, setCountries] = useState([
+        {title:'Makhachkala'},{title:'Kaspiysk'},{title:'Хасавюрт'}
+    ])
+    const [filteredCountries, setFilteredCountries] = useState()
     const { data: chats, isLoading: isChatsLoading } = useQuery({
         queryKey: ['chats'],
         queryFn: async () => {
             const response = await fetch(`${apiUrl}/api/v1/social-networks/`);
-            console.log('social-networks')
             return response.json();
         }
     });
@@ -70,7 +58,6 @@ export default function MenuScreen() {
         queryKey:['categories'],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/categories/`);
-            console.log('categories')
             setRefreshing(false)
             return response.json();
         }
@@ -80,44 +67,19 @@ export default function MenuScreen() {
         queryKey:['wallets'],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/funds/`);
-            console.log('funds')
             return response.json();
         }
     });
     
-    // const getData = async () => {
-    //     try {
-    //         const response = await fetch(
-    //             `${apiUrl}/api/v1/categories/`,
-    //         );
-    //         const data = await response.json();
-    //         setCategories(data);
-            
-    //         setRefreshing(false)
-
-    //     } catch (error) {
-    //         console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/categories/`);
-    //     }
-    // }
-
     
-
-    //   const getFunds = async () => {
-    //     try {
-    //         const response = await fetch(
-    //             `${apiUrl}/api/v1/funds/`,
-    //         );
-    //         const data = await response.json();
-    //         setWallets(data);
-    //     } catch (error) {
-    //         console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/funds/`);
-    //     }
-    // }
     useEffect(() => {
         setTimeout(() => {
             setIsLoading(false);
         },2000)
     }, []);
+    const handleFilteredCounties = (data:[]) => {
+        setFilteredCountries(data);
+    };
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
     const onRefresh = React.useCallback(() => {
@@ -131,10 +93,9 @@ export default function MenuScreen() {
         setIsChatModal(!isChatModal)
     }
 
-    // if (isLoading){
-    //     return <Loader />;
-    // }
-
+    if (isLoading){
+        return <Loader/>;
+    }
 
     return (
         <View style={{ flex: 1 }}>
@@ -239,6 +200,41 @@ export default function MenuScreen() {
                         <AntDesign name="close" size={30} color="white" />
                     </Pressable>
             </Modal>
+            <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                onBackButtonPress={()=>setIsShowLocationList(false)} 
+                animationIn={'slideInUp'}
+                isVisible={isShowLocationList}
+                onSwipeComplete={()=>setIsShowLocationList(false)}
+                onBackdropPress={()=>setIsShowLocationList(false)}
+                animationInTiming={300}
+                animationOut='slideOutDown'
+                animationOutTiming={300}
+                backdropTransitionOutTiming={0}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.locationModal}
+                statusBarTranslucent
+            >
+                <View style={{width:'80%',height:'50%'}}>
+                    <View style={styles.locationModalView}>
+                        <View style={{}}>
+                            <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти место'/>
+                            <FlatList
+                                style={{marginLeft:13, marginTop:5}}
+                                data={filteredCountries}
+                                renderItem={({item})=> <Text style={{fontSize:18}}>{item.title}</Text>}
+                                contentContainerStyle={{ gap: 8 }}
+                            />
+                        </View>
+                    </View>
+                </View>
+                <Pressable style={styles.closeButton} onPress={()=>setIsShowLocationList(false)}>
+                        <AntDesign name="close" size={30} color="white" />
+                </Pressable>
+            </Modal>
 
             <View style={{ flex: 1 }} >
                 <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)}/>
@@ -260,7 +256,6 @@ export default function MenuScreen() {
                             showsHorizontalScrollIndicator={false}
                         />
                     </LinearGradient>
-
                     <ScrollView
                         style={styles.container}
                         refreshControl={
@@ -270,7 +265,7 @@ export default function MenuScreen() {
                             />
                         }
                     >
-                        <CategoryList categories={categories} title="Категории" isInput={true} />
+                        <CategoryList categories={categories} title="Категории" isInput={true} showModal={()=>setIsShowLocationList(true)}/>
                     </ScrollView>
                 </View>
             </View>
@@ -279,6 +274,30 @@ export default function MenuScreen() {
 }
 
 const styles = StyleSheet.create({
+    locationModal:{
+        margin: 0,
+        justifyContent: 'center',
+        alignItems:'center',
+        zIndex:3,
+        position:'relative'
+    },
+    locationModalView: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        paddingHorizontal: 18,
+        paddingTop:23,
+        paddingBottom:26,
+        alignItems: 'center',
+        shadowColor: '#000',
+        width: '100%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
     closeButton: {
         position: 'absolute',
         top: 40,
