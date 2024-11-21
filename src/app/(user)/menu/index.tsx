@@ -44,8 +44,9 @@ export default function MenuScreen() {
     const [isLoading, setIsLoading] = useState(true)
     const [isShowLocationList, setIsShowLocationList] = useState(false)
     const [countries, setCountries] = useState([
-        {title:'Makhachkala'},{title:'Kaspiysk'},{title:'Хасавюрт'}
+        {title:'Makhachkala',id:1},{title:'Kaspiysk',id:2},{title:'Хасавюрт',id:3}
     ])
+    const [locationId, setLocationId] = useState<number | null>(null)
     const [filteredCountries, setFilteredCountries] = useState()
     const { data: chats, isLoading: isChatsLoading } = useQuery({
         queryKey: ['chats'],
@@ -88,7 +89,11 @@ export default function MenuScreen() {
         refetchWallets();
     }, []);
 
-    
+    const pressOnCity = (id:number)=> {
+        console.log(id)
+        setLocationId(id)
+        setIsShowLocationList(false)
+    }
     const toggleChatModal = () => {
         setIsChatModal(!isChatModal)
     }
@@ -225,7 +230,15 @@ export default function MenuScreen() {
                             <FlatList
                                 style={{marginLeft:13, marginTop:5}}
                                 data={filteredCountries}
-                                renderItem={({item})=> <Text style={{fontSize:18}}>{item.title}</Text>}
+                                renderItem={({item})=> (
+                                    <>
+                                        <Pressable onPress={()=>pressOnCity(item.id)}>
+                                            <Text style={[locationId === item.id ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.title}</Text>
+                                        </Pressable>
+                                        
+                                    </>
+                                    
+                                )}
                                 contentContainerStyle={{ gap: 8 }}
                             />
                         </View>

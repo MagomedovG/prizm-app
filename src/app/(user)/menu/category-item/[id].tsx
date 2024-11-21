@@ -12,6 +12,7 @@ import {
     Alert,
     StatusBar,
     ActivityIndicator,
+    FlatList,
 } from "react-native";
 import { Animated,Clipboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -178,16 +179,98 @@ export default function categoryId() {
                         </View>
                     </LinearGradient>
 
-                    <Text style={styles.subTitle}>Адрес:</Text>
-                    <Link href={business?.map_url ? business?.map_url : ''} asChild >
-                        <Pressable>
-                            {({pressed}) => (
-                                <View>
-                                    <Text style={[styles.text, {textDecorationLine:'underline',color:theme === 'purple' ? '#6F1AEC' : '#375A2C',}]}>{business?.address}</Text>
-                                </View>
-                            )}
-                        </Pressable>
-                    </Link>
+                    {business?.map_url &&
+                        <>
+                            <Text style={styles.subTitle}>Адрес:</Text>
+                            <Link href={business?.map_url ? business?.map_url : ''} asChild >
+                                <Pressable>
+                                    {({pressed}) => (
+                                        <View>
+                                            <Text style={[styles.text, {textDecorationLine:'underline',color:theme === 'purple' ? '#6F1AEC' : '#375A2C',}]}>{business?.address}</Text>
+                                        </View>
+                                    )}
+                                </Pressable>
+                            </Link>
+                        </>
+                        }
+                        <Text style={styles.subTitle}>Контакты:</Text>
+                        {business?.contacts.length && business?.contacts.length > 1 ?
+                            <>
+                                
+                                <FlatList
+                                    data={[...business?.contacts,{
+                                        value: "https://whatsapp.com",
+                                        contact_type: {
+                                            name: "WhatsApp",
+                                            text_color: "FFFFFF",
+                                            background_color: "33CC33",
+                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
+                                            contact_value_type: "url",
+                                            order_number: 2
+                                        },
+                                        business: 2
+                                    },{
+                                        value: "+79997779977",
+                                        contact_type: {
+                                            name: "Телефон",
+                                            text_color: "313131",
+                                            background_color: "D9D9D9",
+                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
+                                            contact_value_type: "tel",
+                                            order_number: 2
+                                        },
+                                        business: 2
+                                    }]}
+                                    columnWrapperStyle={styles.row} // Стили для строки
+                                    contentContainerStyle={styles.listContainer} 
+                                    renderItem={({item}) => (
+                                        <Link href={item.contact_type.contact_value_type === 'phone_number' ? `tel:${item.value}` : item.value} style={[styles.contactContainer,{backgroundColor:`#${item.contact_type.background_color}`}]} asChild>
+                                            <Pressable>
+                                                <View style={{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',gap:10, margin:0, padding:0}}>
+                                                    <CachedImage
+                                                        cacheKey={`${id}-business-contact-logo-${item.value}`} 
+                                                        style={{width:27, height:27, borderRadius:50}}
+                                                        source={{uri: `${apiUrl}/${item.contact_type.logo}`}}
+                                                    />
+                                                    <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}]}>
+                                                        {item.contact_type.name}
+                                                    </Text>
+                                                </View>
+                                                
+                                            </Pressable>
+                                         </Link>
+                                        
+                                    )}
+                                    numColumns={[...business?.contacts, {
+                                        value: "https://whatsapp.com",
+                                        contact_type: {
+                                            name: "WhatsApp",
+                                            text_color: "FFFFFF",
+                                            background_color: "33CC33",
+                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
+                                            contact_value_type: "url",
+                                            order_number: 2
+                                        },
+                                        business: 2
+                                    },{
+                                        value: "https://whatsapp.com",
+                                        contact_type: {
+                                            name: "WhatsApp",
+                                            text_color: "FFFFFF",
+                                            background_color: "33CC33",
+                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
+                                            contact_value_type: "url",
+                                            order_number: 2
+                                        },
+                                        business: 2
+                                    }].length > 2 ? 3 : business?.contacts.length} 
+                                    keyExtractor={(item) => item.value}
+                                    // horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                />
+                            </>
+                            : <Text style={{fontWeight:600, fontSize:17, color:'rgba(0, 0, 0, 0.6)'}}>Нет контактов</Text>
+                        }
                     <Text style={styles.subTitle}>Как получить vozvrat pzm</Text>
                     <View>
                         <View style={{display:'flex', flexDirection:'row', gap:13, alignItems:'center'}}>
@@ -346,6 +429,23 @@ export default function categoryId() {
 };
 
 const styles = StyleSheet.create({
+    listContainer: {
+        gap: 7,
+      },
+      row: {
+        justifyContent: 'space-between', 
+        gap:5,
+      },
+      contactContainer: {
+        flex: 1, 
+        padding: 10,
+        borderRadius: 8,
+      },
+      contactText: {
+        textAlign: 'center',
+        fontWeight: 600,
+        fontSize: 15,
+      },
     qrimage:{
         marginHorizontal: 13,
         marginBottom:23,

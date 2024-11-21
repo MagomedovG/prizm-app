@@ -95,9 +95,10 @@ export default function categoryId() {
         queryKey: ['categoryList', id],
         queryFn: async () => {
             const response = await fetch(
-                `${apiUrl}/api/v1/categories/${id}/get-businesses`,
+                `${apiUrl}/api/v1/categories/${id}/get-businesses/?locality-id=1&locality-type=region`,
             );
-            return response.json();
+            const data = await response.json();
+            return data;
         },
     });
     useEffect(() => {
@@ -119,7 +120,7 @@ export default function categoryId() {
 
     const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
     const handleFilteredData = (data:any) => {
-        setFilteredData(data);
+        setFilteredData(data)
     };
     
 

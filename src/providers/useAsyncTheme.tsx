@@ -4,21 +4,22 @@ import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
 export const useAsyncTheme = () => {
     const [asyncTheme, setAsyncTheme] = useState('purple');
-    const {theme, setTheme} = useCustomTheme()
-    const loadTheme = async () => {
-        try {
-            const savedTheme = await AsyncStorage.getItem('theme');
-            if (savedTheme !== null) {
-                setAsyncTheme(savedTheme);
-                setTheme(savedTheme)
-            } else {
-                const savedTheme = await AsyncStorage.setItem('theme',asyncTheme);
-            }
-        } catch (error) {
-            console.error('Failed to load theme', error);
-        }
-    };
+    const {setTheme} = useCustomTheme()
+    
     useEffect(() => {
+        const loadTheme = async () => {
+            try {
+                const savedTheme = await AsyncStorage.getItem('theme');
+                if (savedTheme !== null) {
+                    setAsyncTheme(savedTheme);
+                    setTheme(savedTheme)
+                } else {
+                    await AsyncStorage.setItem('theme',asyncTheme);
+                }
+            } catch (error) {
+                console.error('Failed to load theme', error);
+            }
+        };
         loadTheme();
     }, []);
 

@@ -63,9 +63,10 @@ export default function feedbackId() {
             );
             let data = await response.json();
             setIsMineFeedbacks(data)
+            console.log('my feedback', data);
             
         } catch (error) {
-            console.error("Ошибка при загрузке данных фидбэков:", error);
+            console.error("Ошибка при загрузке данных моего отзыва:", error);
         }
     }
     async function getFeedbacks() {

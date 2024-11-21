@@ -1,4 +1,4 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, ActivityIndicator} from "react-native";
+import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, ActivityIndicator, useWindowDimensions} from "react-native";
 import {Link, useSegments} from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
@@ -7,7 +7,7 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {IBusinessInCategory} from '../../types'
 import CachedImage from "expo-cached-image";
 const { width, height } = Dimensions.get('window');
-const ITEM_WIDTH = width / 2 - 26 ; // Оставляем немного пространства для отступов
+const ITEM_WIDTH = width / 2 - 26; // Оставляем немного пространства для отступов
 const ITEM_HEIGHT = height 
 type CategoryListProps = {
     categoryList:  IBusinessInCategory | null,
@@ -21,6 +21,10 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
     const segments = useSegments();
     console.log(segments);
     const { theme } = useCustomTheme();
+    const {height, width} = useWindowDimensions();
+    // const ITEMWIDTH = width / 2 - 26; 
+    const isSingleColumn = categoryList && categoryList.length <= 7;
+    // const isSingleColumn = true
     const handleWalletPress = () => {
         onWalletPress(true);
     };
@@ -37,43 +41,43 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                     </Pressable>
                 </Pressable> }
                 <Text style={styles.title}>{title}</Text>
-           {categoryList?.length ? <FlatList
-                data={categoryList}
-                style={styles.flatlist}
-                renderItem={({item}) =>
-                    <Link href={`/${segments[0]}/menu/category-item/${item.id}/`} asChild>
-                       <Pressable style={styles.itemContainer} onPress={() => {console.log(item, item.id)}}>
-                            {/* <FastImage
-                                style={styles.image}
-                                source={{
-                                    uri: `${apiUrl}${item.logo}`,
-                                }}
-                                resizeMode={FastImage.resizeMode.contain}
-                            /> */}
-                            <View style={{position:'relative'}}>
-                                <CachedImage 
-                                    source={{uri: `${apiUrl}${item.logo}`}} 
-                                    style={styles.image}
-                                    cacheKey={`${item.id}-category-itemList-logo`}
-                                /> 
-                                <View style={styles.saleContainer}>
-                                    <Text style={styles.sale}>{parseFloat(item?.cashback_size.toString())}%</Text>
+                {categoryList?.length ? (
+                <FlatList
+                    data={categoryList}
+                    style={[styles.flatlist, isSingleColumn && { width: '100%' }]}
+                    renderItem={({ item }) => (
+                        <Link href={`/${segments[0]}/menu/category-item/${item.id}/`} asChild>
+                            <Pressable 
+                                style={[
+                                    styles.itemContainer, 
+                                    isSingleColumn ? { width: '100%'} : { width: width / 2 - 2 }
+                                ]}
+                                onPress={() => { console.log(item, item.id); }}
+                            >
+                                <View style={{ position: 'relative' }}>
+                                    <CachedImage 
+                                        source={{ uri: `${apiUrl}${item.logo}` }} 
+                                        style={[styles.image,isSingleColumn ? { width: '100%',height:height / 5.1 } : { width: width / 2 - 26 ,height:110}]}
+                                        cacheKey={`${item.id}-category-itemList-logo`}
+                                    />
+                                    <View style={styles.saleContainer}>
+                                        <Text style={styles.sale}>{parseFloat(item?.cashback_size.toString())}%</Text>
+                                    </View>
                                 </View>
-                            </View>
-                            <Text style={styles.text}>{item.title ? item.title : 'Без названия'}</Text>
-                           
-                       </Pressable>
-                   </Link>
-            }
-                numColumns={2} // Указываем количество колонок
-                keyExtractor={(item) => item.id.toString()} // Добавляем keyExtractor для уникальности
-                contentContainerStyle={{gap:11}}
-                columnWrapperStyle={{gap:6}}
-            /> : 
-            <Text style={{color:'gray', marginTop:ITEM_HEIGHT / 3, fontSize:18, width:'100%', textAlign:'center'}}>
-                Нет подходящих бизнесов
-            </Text>
-        }
+                                <Text style={styles.text}>{item.title || 'Без названия'}</Text>
+                            </Pressable>
+                        </Link>
+                    )}
+                    numColumns={isSingleColumn ? 1 : 2}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={{ gap: 11 }}
+                    columnWrapperStyle={!isSingleColumn && { gap: 6 }}
+                />
+            ) : (
+                <Text style={{ color: 'gray', marginTop: ITEM_HEIGHT / 3, fontSize: 18, width: '100%', textAlign: 'center' }}>
+                    Нет подходящих бизнесов
+                </Text>
+            )}
         </View>
     );
 }
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     image: {
-        height:110,
+        
         objectFit:'cover',
         borderRadius: 13,
         borderWidth:1,

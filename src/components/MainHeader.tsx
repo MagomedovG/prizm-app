@@ -48,11 +48,11 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
     const router = useRouter();
     const [prizmWallet, setPrizmWallet] = useState('') 
     const logOut = () => {
-        // asyncStorage.removeItem('username')
-        // asyncStorage.removeItem('prizm_wallet')
-        // asyncStorage.removeItem('is_superuser');
-        // asyncStorage.removeItem('user_id')
-        // router.replace('/pin/setnickname')
+        asyncStorage.removeItem('username')
+        asyncStorage.removeItem('prizm_wallet')
+        asyncStorage.removeItem('is_superuser');
+        asyncStorage.removeItem('user_id')
+        router.replace('/pin/setnickname')
     }
     const { width } = useWindowDimensions();
 

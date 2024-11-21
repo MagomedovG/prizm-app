@@ -29,7 +29,18 @@ export type ICategoryItem = {
   items: ICategoryItemList
 
 };
-
+type BusinessContacts = {
+  value: string;
+  contact_type:{
+    name:string;
+    text_color:string;
+    background_color:string;
+    logo:string;
+    contact_value_type:string;
+    order_number:number;
+  };
+  business:number;
+}
 
 
 export interface ICategotyInBusinessInCategory  {
@@ -58,6 +69,8 @@ export type IBusiness = {
   average_rating:any
   map_url:string
   category: ICategotyInBusinessInCategory
+  contacts: BusinessContacts[];
+  user_rating_value: null | number
 }
 export type IFeedbacks = {
   id:number

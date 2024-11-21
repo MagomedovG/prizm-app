@@ -5,6 +5,7 @@ import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import CachedImage from "expo-cached-image";
+import useLocation from "@/src/providers/useLocation";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
 const ITEM_HEIGHT = height / 2 -30
@@ -26,7 +27,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     const [filteredData, setFilteredData] = useState<any>([]);
     const {theme} = useCustomTheme()
     const [keyboardHeight, setKeyboardHeight] = useState(0);
-
+    const { currentAddress,longtitude,latitude, locationServicesEnabled, error } = useLocation();
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
             setKeyboardHeight(event.endCoordinates.height);
@@ -35,9 +36,6 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
         const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
             setKeyboardHeight(0);
         });
-
-        
-
         return () => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
@@ -69,7 +67,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                 }
                 <Pressable style={styles.locationContainer} onPress={showModal}>
                     <Text style={styles.locationTitle}>
-                        Махачкала
+                        {longtitude + '    ' + latitude}
                     </Text>
                 </Pressable>
                 <View style={styles.titleButton}>
