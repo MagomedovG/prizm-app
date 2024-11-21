@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useCustomTheme } from '../providers/CustomThemeProvider';
+import { useAutocomplete } from '../api/localityAutocomplete';
 
 const DismissKeyboard = ({ children }:any) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -12,16 +13,13 @@ const DismissKeyboard = ({ children }:any) => (
 const LocationInput = ({ data, onFilteredData, placeholder }:any) => {
     const [query, setQuery] = useState('');
     const { theme } = useCustomTheme();
+    const { data: filteredCountries, isLoading, error } = useAutocomplete(query, true);
     useEffect(() => {
         if (query) {
-            const filtered = data.filter((item:any) => 
-                item?.title.toLowerCase().includes(query?.toLowerCase()) 
-        );
-            onFilteredData(filtered);
-        } else {
-            onFilteredData(data);
+            onFilteredData(filteredCountries);
         }
-    }, [query, data]);
+        console.log(filteredCountries)
+    }, [filteredCountries]);
 
     return (
         <DismissKeyboard>

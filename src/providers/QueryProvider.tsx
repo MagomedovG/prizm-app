@@ -7,7 +7,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        gcTime: 1000 * 60 * 20, // 20 минут
+        gcTime: 1000 * 60 * 0.5, // 20 минут
       },
     },
   });

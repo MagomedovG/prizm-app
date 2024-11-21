@@ -1,4 +1,4 @@
-import {Link, Stack} from 'expo-router';
+import {Link, Stack, useFocusEffect} from 'expo-router';
 import {
     View,
     FlatList,
@@ -22,10 +22,11 @@ import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import {IWallet} from "@/src/types";
+import {AutocompleteResponse, IWallet,ILocation} from "@/src/types";
 import Loader from '@/src/components/Loader';
 import { useQuery } from '@tanstack/react-query';
 import LocationInput from '@/src/components/LocationInput';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const {width, height} = Dimensions.get("window");
 const deviceWidth = width
@@ -43,10 +44,9 @@ export default function MenuScreen() {
     const [isChatModal, setIsChatModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true)
     const [isShowLocationList, setIsShowLocationList] = useState(false)
-    const [countries, setCountries] = useState([
-        {title:'Makhachkala',id:1},{title:'Kaspiysk',id:2},{title:'Хасавюрт',id:3}
-    ])
-    const [locationId, setLocationId] = useState<number | null>(null)
+    const [countries, setCountries] = useState<ILocation[]>([])
+    const [localityType, setLocalityType] = useState('')
+    const [localityId, setLocalityId] = useState('')
     const [filteredCountries, setFilteredCountries] = useState()
     const { data: chats, isLoading: isChatsLoading } = useQuery({
         queryKey: ['chats'],
@@ -67,7 +67,8 @@ export default function MenuScreen() {
     const { data: wallets, isLoading: isWalletsLoading, refetch: refetchWallets } = useQuery({
         queryKey:['wallets'],
         queryFn:async () => {
-            const response = await fetch(`${apiUrl}/api/v1/funds/`);
+            const response = await fetch(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`);
+            console.log('fund',`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
             return response.json();
         }
     });
@@ -78,7 +79,8 @@ export default function MenuScreen() {
             setIsLoading(false);
         },2000)
     }, []);
-    const handleFilteredCounties = (data:[]) => {
+    
+    const handleFilteredCounties = (data:AutocompleteResponse) => {
         setFilteredCountries(data);
     };
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -88,11 +90,29 @@ export default function MenuScreen() {
         refetchCategories();
         refetchWallets();
     }, []);
-
-    const pressOnCity = (id:number)=> {
-        console.log(id)
-        setLocationId(id)
+    const getLocationTypeAndId = async () => {
+        const localLocationId = await AsyncStorage.getItem('locality-id')
+        const localLocationType = await AsyncStorage.getItem('locality-type')
+        setLocalityId(localLocationId ? localLocationId : '')
+        setLocalityType(localLocationType ? localLocationType : '')
+        console.log(localLocationId, localLocationType, 'local')
+    }
+    useFocusEffect(
+        React.useCallback(() => {
+            getLocationTypeAndId()
+        }, [])
+    )
+    const pressOnCity = (location: ILocation)=> {
+        AsyncStorage.setItem('locality-type',location.type)
+        AsyncStorage.setItem('locality-id',location.id.toString())
         setIsShowLocationList(false)
+        setLocalityId(location.id.toString())
+        setLocalityType(location.type)
+        setTimeout(()=>{
+            refetchWallets();
+        },100)
+        console.log(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
+        
     }
     const toggleChatModal = () => {
         setIsChatModal(!isChatModal)
@@ -232,13 +252,14 @@ export default function MenuScreen() {
                                 data={filteredCountries}
                                 renderItem={({item})=> (
                                     <>
-                                        <Pressable onPress={()=>pressOnCity(item.id)}>
-                                            <Text style={[locationId === item.id ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.title}</Text>
+                                        <Pressable onPress={()=>pressOnCity(item)}>
+                                            <Text style={[localityType === item.type && localityId === item.id.toString() ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.full_name}</Text>
                                         </Pressable>
                                         
                                     </>
                                     
                                 )}
+                                keyExtractor={(item)=> item.id + item.type}
                                 contentContainerStyle={{ gap: 8 }}
                             />
                         </View>

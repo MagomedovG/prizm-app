@@ -88,4 +88,14 @@ export type IFund = {
   is_superuser?:boolean
   prizm_public_key?:string 
 }
+export interface ILocation {
+  id: number;
+  name: string;
+  full_name: string;
+  type: string;
+}
 
+export type AutocompleteResponse = {
+  locations?: ILocation[];
+  regions?: ILocation[];
+}

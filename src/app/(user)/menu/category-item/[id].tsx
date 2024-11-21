@@ -198,29 +198,7 @@ export default function categoryId() {
                             <>
                                 
                                 <FlatList
-                                    data={[...business?.contacts,{
-                                        value: "https://whatsapp.com",
-                                        contact_type: {
-                                            name: "WhatsApp",
-                                            text_color: "FFFFFF",
-                                            background_color: "33CC33",
-                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
-                                            contact_value_type: "url",
-                                            order_number: 2
-                                        },
-                                        business: 2
-                                    },{
-                                        value: "+79997779977",
-                                        contact_type: {
-                                            name: "Телефон",
-                                            text_color: "313131",
-                                            background_color: "D9D9D9",
-                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
-                                            contact_value_type: "tel",
-                                            order_number: 2
-                                        },
-                                        business: 2
-                                    }]}
+                                    data={business?.contacts}
                                     columnWrapperStyle={styles.row} // Стили для строки
                                     contentContainerStyle={styles.listContainer} 
                                     renderItem={({item}) => (
@@ -241,31 +219,8 @@ export default function categoryId() {
                                          </Link>
                                         
                                     )}
-                                    numColumns={[...business?.contacts, {
-                                        value: "https://whatsapp.com",
-                                        contact_type: {
-                                            name: "WhatsApp",
-                                            text_color: "FFFFFF",
-                                            background_color: "33CC33",
-                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
-                                            contact_value_type: "url",
-                                            order_number: 2
-                                        },
-                                        business: 2
-                                    },{
-                                        value: "https://whatsapp.com",
-                                        contact_type: {
-                                            name: "WhatsApp",
-                                            text_color: "FFFFFF",
-                                            background_color: "33CC33",
-                                            logo: "/media/logos/contact_buttons/channels4_profile.jpg",
-                                            contact_value_type: "url",
-                                            order_number: 2
-                                        },
-                                        business: 2
-                                    }].length > 2 ? 3 : business?.contacts.length} 
+                                    numColumns={business?.contacts.length > 2 ? 3 : business?.contacts.length} 
                                     keyExtractor={(item) => item.value}
-                                    // horizontal={true}
                                     showsHorizontalScrollIndicator={false}
                                 />
                             </>

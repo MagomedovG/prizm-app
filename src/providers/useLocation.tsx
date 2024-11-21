@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 const useLocation = () => {
-  const [currentAddress, setCurrentAddress] = useState<string>('Нет данных о местоположении');
+  const [currentAddress, setCurrentAddress] = useState<string>('не указано местоположение');
   const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [latitude, setLatitude]=useState('')
@@ -17,52 +19,44 @@ const useLocation = () => {
   const checkIfLocationEnabled = async () => {
     try {
       const enabled = await Location.hasServicesEnabledAsync();
-    //   if (!enabled) {
-    //     Alert.alert('Location not enabled', 'Please enable your Location', [
-    //       { text: 'Cancel', style: 'cancel' },
-    //       { text: 'OK', onPress: () => console.log('OK Pressed') },
-    //     ]);
-    //   }
+    
       setLocationServicesEnabled(enabled);
     } catch (err) {
       setError('Error checking location services.');
       console.error(err);
     }
   };
-
+  const getServerLocation = async (lat, lon) => {
+    try {
+      const response = await fetch(`${apiUrl}/api/v1/localities/get-locality-by-coordinates/?latlon=${lat},${lon}`)
+      const data = await response.json()
+      console.log(data);
+      if (response.ok){
+        setCurrentAddress(data.full_name)
+        AsyncStorage.setItem('locality-type',data.type)
+        AsyncStorage.setItem('locality-id',data.id.toString())
+      }
+    } catch (e) {
+      console.log('Ошибка получения локации по координатам',lat,lon,' На ручку',`${apiUrl}/api/v1/localities/get-locality-by-coordinates/?latlon=${lat},${lon}`)
+    }
+  }
   // Получение текущей локации и адреса
   const getCurrentLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission denied', 'Allow the app to use the location services', [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'OK', onPress: () => console.log('OK Pressed') },
-        ]);
-        setError('Location permission denied.');
+        
         return;
       }
-
+      //api/v1/localities/get-locality-by-coordinates/?latlon=
       const { coords } = await Location.getCurrentPositionAsync();
       if (coords) {
         const { latitude, longitude } = coords;
+          getServerLocation(latitude, longitude)
         console.log('latitude, longitude',latitude, longitude)
         setLatitude(latitude.toString());
         setLongtitude(longitude.toString());
-        if (typeof latitude === 'number' && typeof longitude === 'number') {
-          const response = await Location.reverseGeocodeAsync({ latitude, longitude });
-          for (const item of response) {
-            if (item.name && item.city && item.postalCode) {
-              const address = `${item.name}, ${item.city}`;
-              
-              setCurrentAddress(address);
-              return;
-            }
-          }
-          setCurrentAddress('Unable to retrieve full address.');
-        } else {
-          setError('Invalid coordinates received.');
-        }
+        
       }
     } catch (err) {
       setError('Error fetching location.');

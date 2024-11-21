@@ -67,7 +67,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                 }
                 <Pressable style={styles.locationContainer} onPress={showModal}>
                     <Text style={styles.locationTitle}>
-                        {longtitude + '    ' + latitude}
+                        {currentAddress}
                     </Text>
                 </Pressable>
                 <View style={styles.titleButton}>
