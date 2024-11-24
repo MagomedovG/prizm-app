@@ -25,7 +25,7 @@ export default function WalletItem ({ wallet }:WalletItemProps) {
                     <CachedImage
                         source={{ uri: `${apiUrl}${wallet?.logo}` }}
                         style={styles.logo}
-                        cacheKey={`${wallet.id}-wallet-logo`} 
+                        cacheKey={`${wallet.id}-${wallet?.logo}-wallet-logo`} 
                         placeholderContent={( 
                             <ActivityIndicator 
                               size="small"

@@ -1,11 +1,11 @@
 import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ActivityIndicator} from "react-native";
 import {ICategory} from "@/src/types";
-import {Link, useRouter, useSegments} from "expo-router";
+import {Link, useFocusEffect, useRouter, useSegments} from "expo-router";
 import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import CachedImage from "expo-cached-image";
-import useLocation from "@/src/providers/useLocation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
 const ITEM_HEIGHT = height / 2 -30
@@ -25,9 +25,11 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     console.log(segments);
     const router = useRouter()
     const [filteredData, setFilteredData] = useState<any>([]);
+    const [localityName,setLocalityName]=useState('')
     const {theme} = useCustomTheme()
     const [keyboardHeight, setKeyboardHeight] = useState(0);
-    const { currentAddress,longtitude,latitude, locationServicesEnabled, error } = useLocation();
+
+    // const { currentAddress,longtitude,latitude, locationServicesEnabled, error } = useLocation();
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
             setKeyboardHeight(event.endCoordinates.height);
@@ -41,7 +43,16 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
             keyboardDidShowListener.remove();
         };
     }, []);
-
+    const getLocationTypeAndId = async () => {
+        const localLocationName = await AsyncStorage.getItem('locality-full-name')
+        setLocalityName(localLocationName ? localLocationName : 'не указано местоположение')
+        console.log( localLocationName, 'local')
+    }
+    useFocusEffect(
+        React.useCallback(() => {
+            getLocationTypeAndId()
+        }, [showModal])
+    )
     useEffect(() => {
         setFilteredData(categories); // Обновление данных при изменении пропсов
     }, [categories]);
@@ -65,15 +76,17 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     </View>
                     
                 }
-                <Pressable style={styles.locationContainer} onPress={showModal}>
-                    <Text style={styles.locationTitle}>
-                        {currentAddress}
-                    </Text>
-                </Pressable>
-                <View style={styles.titleButton}>
-                    <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
-                    
+                <View style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                    <View style={styles.titleButton}>
+                        <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
+                    </View>
+                    <Pressable style={styles.locationContainer} onPress={showModal}>
+                        <Text style={styles.locationTitle}>
+                            {localityName ? localityName : 'не указано местоположение'}
+                        </Text>
+                    </Pressable>
                 </View>
+                
 
                 {filteredData?.length ? <FlatList
                     data={filteredData}
@@ -89,7 +102,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                                     <CachedImage 
                                         style={styles.image_logo} 
                                         source={{uri: `${apiUrl}${item?.logo}`}}
-                                        cacheKey={`${item.id}-category-logo`} 
+                                        cacheKey={`${item.id}-${item?.logo}-category-logo`} 
                                         placeholderContent={( 
                                             <ActivityIndicator 
                                                 size="small"
@@ -192,10 +205,17 @@ const styles = StyleSheet.create({
         aspectRatio:1
     },
     locationContainer:{
-        marginLeft:10
+        marginRight:10,
+        borderWidth:1,
+        borderColor:'#B4B4B4',
+        borderRadius:8,
+        paddingHorizontal:6,
+        paddingVertical:3
     },
     locationTitle:{
-        color:'rgba(160, 158, 158, 1)'
+        fontSize:14,
+        color:'#B4B4B4',
+        lineHeight:15.5
     }
 });
 

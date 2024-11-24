@@ -22,6 +22,7 @@ import { ru } from 'date-fns/locale';
 import Entypo from '@expo/vector-icons/Entypo';
 import { IFeedbacks,IBusiness } from '@/src/types';
 import PostRating from '@/src/components/PostRating';
+import CachedImage from 'expo-cached-image';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 
@@ -201,9 +202,11 @@ export default function feedbackId() {
                  }
             >
                 <View style={styles.cartHeader}>
-                    <Image
-                       source={{ uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
-                       style={[styles.cartLogo, {borderColor: theme === 'purple' ? '#957ABC' : '#4D7440', borderWidth:1}]} />
+                    <Image 
+                    //    cacheKey={`${business?.id}-${business?.logo}-category-item-logo`} 
+                       source={{uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
+                       style={[styles.cartLogo, {borderColor: theme === 'purple' ? '#957ABC' : '#4D7440', borderWidth:1}]} 
+                    />
                     <View style={styles.cartInfo}>
                         <Text style={styles.cartTitle}>{business?.title}</Text>
                         <Text style={styles.cartSubtitle}>{business?.short_description}</Text>

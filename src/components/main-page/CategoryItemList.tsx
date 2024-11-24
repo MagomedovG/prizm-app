@@ -23,7 +23,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
     const { theme } = useCustomTheme();
     const {height, width} = useWindowDimensions();
     // const ITEMWIDTH = width / 2 - 26; 
-    const isSingleColumn = categoryList && categoryList.length <= 7;
+    const isSingleColumn = categoryList && categoryList?.length <= 7;
     // const isSingleColumn = true
     const handleWalletPress = () => {
         onWalletPress(true);
@@ -58,7 +58,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                                     <CachedImage 
                                         source={{ uri: `${apiUrl}${item.logo}` }} 
                                         style={[styles.image,isSingleColumn ? { width: '100%',height:height / 5.1 } : { width: width / 2 - 26 ,height:110}]}
-                                        cacheKey={`${item.id}-category-itemList-logo`}
+                                        cacheKey={`${item.logo}-${item.id}-category-itemList-logo`}
                                     />
                                     <View style={styles.saleContainer}>
                                         <Text style={styles.sale}>{parseFloat(item?.cashback_size.toString())}%</Text>
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     },
     image: {
         
-        objectFit:'cover',
+        objectFit:'contain',
         borderRadius: 13,
         borderWidth:1,
         borderColor:'#898989'

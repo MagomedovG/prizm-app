@@ -48,6 +48,18 @@ export default function MenuScreen() {
     const [localityType, setLocalityType] = useState('')
     const [localityId, setLocalityId] = useState('')
     const [filteredCountries, setFilteredCountries] = useState()
+    const getLocationTypeAndId = async () => {
+        const localLocationId = await AsyncStorage.getItem('locality-id')
+        const localLocationType = await AsyncStorage.getItem('locality-type')
+        setLocalityId(localLocationId ? localLocationId : '')
+        setLocalityType(localLocationType ? localLocationType : '')
+        console.log(localLocationId, localLocationType, 'local')
+    }
+    useFocusEffect(
+        React.useCallback(() => {
+            getLocationTypeAndId()
+        }, [])
+    )
     const { data: chats, isLoading: isChatsLoading } = useQuery({
         queryKey: ['chats'],
         queryFn: async () => {
@@ -56,22 +68,41 @@ export default function MenuScreen() {
         }
     });
     const { data: categories, isLoading: isCategoriesLoading, refetch: refetchCategories } = useQuery({
-        queryKey:['categories'],
-        queryFn:async () => {
-            const response = await fetch(`${apiUrl}/api/v1/categories/`);
-            setRefreshing(false)
-            return response.json();
-        }
+        queryKey:['categories',localityId,localityType],
+        queryFn: async () => {
+                const response = await fetch(`${apiUrl}/api/v1/categories/?locality-id=${localityId}&locality-type=${localityType}`);
+                console.log('refreshCategories',`${apiUrl}/api/v1/categories/?locality-id=${localityId}&locality-type=${localityType}`)
+                return await response.json();
+        },
+        enabled: !!localityId && !!localityType, 
     });
 
     const { data: wallets, isLoading: isWalletsLoading, refetch: refetchWallets } = useQuery({
-        queryKey:['wallets'],
+        queryKey:['wallets',localityId,localityType],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`);
             console.log('fund',`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
+            
             return response.json();
-        }
+        },
+        enabled: !!localityId && !!localityType, 
     });
+
+    const pressOnCity = (location: ILocation)=> {
+        AsyncStorage.setItem('locality-type',location.type)
+        AsyncStorage.setItem('locality-id',location.id.toString())
+        AsyncStorage.setItem('locality-full-name', location.full_name);
+        setIsShowLocationList(false)
+        setLocalityId(location.id.toString())
+        setLocalityType(location.type)
+        setTimeout(()=>{
+            refetchCategories()
+            refetchWallets();
+            console.log(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
+        },100)
+        
+        
+    }
     
     
     useEffect(() => {
@@ -89,31 +120,9 @@ export default function MenuScreen() {
         setRefreshing(true);
         refetchCategories();
         refetchWallets();
+        setTimeout(()=>setRefreshing(false),1000)
     }, []);
-    const getLocationTypeAndId = async () => {
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
-        setLocalityId(localLocationId ? localLocationId : '')
-        setLocalityType(localLocationType ? localLocationType : '')
-        console.log(localLocationId, localLocationType, 'local')
-    }
-    useFocusEffect(
-        React.useCallback(() => {
-            getLocationTypeAndId()
-        }, [])
-    )
-    const pressOnCity = (location: ILocation)=> {
-        AsyncStorage.setItem('locality-type',location.type)
-        AsyncStorage.setItem('locality-id',location.id.toString())
-        setIsShowLocationList(false)
-        setLocalityId(location.id.toString())
-        setLocalityType(location.type)
-        setTimeout(()=>{
-            refetchWallets();
-        },100)
-        console.log(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
-        
-    }
+    
     const toggleChatModal = () => {
         setIsChatModal(!isChatModal)
     }
@@ -271,7 +280,7 @@ export default function MenuScreen() {
             </Modal>
 
             <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)}/>
+                <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)} isWallet={!!wallets}/>
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -299,7 +308,7 @@ export default function MenuScreen() {
                             />
                         }
                     >
-                        <CategoryList categories={categories} title="Категории" isInput={true} showModal={()=>setIsShowLocationList(true)}/>
+                        <CategoryList categories={categories} title="Категории" isInput={true} showModal={()=>setIsShowLocationList(true)} />
                     </ScrollView>
                 </View>
             </View>

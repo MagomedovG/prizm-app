@@ -8,16 +8,12 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
-      },
-      "android": {
-        "allowBackup": false
       }
     },
     "preview": {
       "distribution": "internal",
       "android": {
-        "buildType": "apk",
-        "allowBackup": false
+        "buildType": "apk"
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
@@ -26,17 +22,11 @@
     "production": {
       "env": {
         "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
-      },
-      "android": {
-        "allowBackup": false
       }
     },
     "test": {
       "env": {
         "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
-      },
-      "android": {
-        "allowBackup": false
       }
     }
   },

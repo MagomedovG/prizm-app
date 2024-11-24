@@ -92,16 +92,29 @@ export default function categoryId() {
         setIsQrModal(false); // Закрываем QR модалку
     };
     
-    
+    const getLocationTypeAndId = async () => {
+        const localLocationId = await AsyncStorage.getItem('locality-id')
+        const localLocationType = await AsyncStorage.getItem('locality-type')
+        setLocalityId(localLocationId ? localLocationId : '')
+        setLocalityType(localLocationType ? localLocationType : '')
+        console.log(localLocationId, localLocationType, 'local category')
+    }
+    useFocusEffect(
+        React.useCallback(() => {
+            getLocationTypeAndId()
+        }, [])
+    )
     const { data: categoryList, isLoading: isCategoryListLoading } = useQuery<IBusinessInCategory>({
-        queryKey: ['categoryList', id],
+        queryKey: ['categoryList', id, localityId, localityType],
         queryFn: async () => {
             const response = await fetch(
                 `${apiUrl}/api/v1/categories/${id}/get-businesses/?locality-id=${localityId}&locality-type=${localityType}`,
             );
             const data = await response.json();
+            console.log('category',data);
             return data;
         },
+        enabled: !!localityId && !!localityType
     });
     useEffect(() => {
         const getWallet = async () => {
@@ -116,18 +129,7 @@ export default function categoryId() {
         };
         getWallet()
     }, []);
-    const getLocationTypeAndId = async () => {
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
-        setLocalityId(localLocationId ? localLocationId : '')
-        setLocalityType(localLocationType ? localLocationType : '')
-        console.log(localLocationId, localLocationType, 'local category')
-    }
-    useFocusEffect(
-        React.useCallback(() => {
-            getLocationTypeAndId()
-        }, [])
-    )
+    
 
 
 

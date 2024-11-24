@@ -124,7 +124,7 @@ export default function categoryId() {
                         {business?.images?.map((item:any, index:number) => (
                                 <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
                                     <CachedImage
-                                        cacheKey={`${item.id}-category-item-preview-slider`} 
+                                        cacheKey={`${item.id}-${item.image}-category-item-preview-slider`} 
                                         style={styles.image}
                                         source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
                                     />
@@ -163,12 +163,18 @@ export default function categoryId() {
                         style={styles.cart}
                     >
                         <CachedImage
-                            cacheKey={`${business?.id}-category-item-logo`} 
+                            cacheKey={`${business?.id}-${business?.logo}-category-item-logo`} 
                             source={{uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
-                            style={styles.cartLogo}/>
+                            style={styles.cartLogo}
+                        />
                         <View style={styles.cartInfo}>
                             <View>
-                                <Text style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.title}</Text>
+                                <Text numberOfLines={2} style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText, business?.title && business?.title.length > 27 ? {fontSize:19} : {fontSize:22}]}>
+                                    {business?.title}
+                                    </Text>
+                                    {/* <Text numberOfLines={2} style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText, business?.title && business?.title.length > 27 ? {fontSize:19} : {fontSize:22}]}>
+                                    {business?.title}
+                                    </Text> */}
                                 <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.short_description}</Text>
                             </View>
                             <View style={styles.cartSaleContainer}>
@@ -194,23 +200,23 @@ export default function categoryId() {
                         </>
                         }
                         <Text style={styles.subTitle}>Контакты:</Text>
-                        {business?.contacts.length && business?.contacts.length > 1 ?
+                        {business?.contacts.length && business?.contacts.length >= 1 ?
                             <>
                                 
                                 <FlatList
                                     data={business?.contacts}
-                                    columnWrapperStyle={styles.row} // Стили для строки
+                                    columnWrapperStyle={business?.contacts.length > 1 ? styles.row : undefined} // Стили для строки
                                     contentContainerStyle={styles.listContainer} 
                                     renderItem={({item}) => (
                                         <Link href={item.contact_type.contact_value_type === 'phone_number' ? `tel:${item.value}` : item.value} style={[styles.contactContainer,{backgroundColor:`#${item.contact_type.background_color}`}]} asChild>
                                             <Pressable>
-                                                <View style={{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',gap:10, margin:0, padding:0}}>
+                                                <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},business?.contacts.length > 2 ? {gap:7} : {gap:10}]}>
                                                     <CachedImage
-                                                        cacheKey={`${id}-business-contact-logo-${item.value}`} 
-                                                        style={{width:27, height:27, borderRadius:50}}
+                                                        cacheKey={`${id}-business-contact-logo-${item.contact_type.contact_value_type}-${item.contact_type.name}`} 
+                                                        style={{width:business?.contacts?.length > 2 ? 23 : 27, height:business?.contacts && business?.contacts?.length > 2 ? 23 : 27, borderRadius:50}}
                                                         source={{uri: `${apiUrl}/${item.contact_type.logo}`}}
                                                     />
-                                                    <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}]}>
+                                                    <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}, business?.contacts && business?.contacts?.length > 2  ? {fontSize: 13.5} : {fontSize: 16}]}>
                                                         {item.contact_type.name}
                                                     </Text>
                                                 </View>
@@ -357,7 +363,7 @@ export default function categoryId() {
                         {business?.images?.map((item: any, index: number) => (
                             <View key={index} style={styles.fullscreenSlide}>
                                 <CachedImage
-                                    cacheKey={`${item.id}-category-item-full-slider`}
+                                    cacheKey={`${item.id}-${item.image}-category-item-full-slider`}
                                     style={styles.fullscreenImage}
                                     placeholderContent={( 
                                         <ActivityIndicator 
@@ -399,7 +405,7 @@ const styles = StyleSheet.create({
       contactText: {
         textAlign: 'center',
         fontWeight: 600,
-        fontSize: 15,
+        
       },
     qrimage:{
         marginHorizontal: 13,
@@ -515,7 +521,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'space-between',
         flexDirection: 'column',
-        height: 85,
+        // height: 85,
         paddingBottom: 3
     },
     cartSubtitle: {
@@ -524,7 +530,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
     },
     cartTitle: {
-        fontSize: 22,
         color: 'white',
         fontWeight: '600'
     },

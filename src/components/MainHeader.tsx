@@ -36,9 +36,10 @@ type MainHeaderProps = {
     onDotsPress: (value?: boolean) => void;
     onChatPress: (value?: boolean) => void;
     refreshData: boolean;
+    isWallet:boolean
 }
 
-const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => {
+const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderProps) => {
     // const { asyncTheme, changeTheme } = useAsyncTheme();
     const [para, setPara]=useState<number | null>(null)
     const [isHidden, setIsHidden] = useState(false);
@@ -193,7 +194,8 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
             colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
             start={{ x: 1, y: 0 }}
             end={{ x: 0, y: 0 }}
-            style={styles.headerContainer}
+            style={[styles.headerContainer, !isWallet ? {borderBottomLeftRadius: 12,
+                borderBottomRightRadius: 12} : {}]}
         >
             <View style={styles.headerTitleContainer}>
                 <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
@@ -292,7 +294,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                     <View style={styles.headerCartButtonsContainer}>
                         <View style={styles.cartButton}>
                             <FontAwesome5 name="long-arrow-alt-up" size={7} color={theme === 'purple' ? "white" : "black"}/>
-                            { Platform.OS === 'ios' ? 
+                            {Platform.OS === 'ios' ? 
                                 <View style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
                                     <Link href="/(user)/menu/share-prizm" style={[{
                                             fontSize:11,
@@ -312,7 +314,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress }:MainHeaderProps) => 
                                 ]}>
                                     отправить
                                 </Text>
-                            </Link>   } 
+                            </Link>} 
                         </View>
                         <View  style={styles.cartButton}>
                             <FontAwesome5 name="long-arrow-alt-down" size={7} color={theme === 'purple' ? "white" : "black"} />
@@ -343,7 +345,8 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal:16,
         padding: 25,
-        paddingBottom: 20
+        paddingBottom: 20,
+        
     },
     headerTitleContainer: {
         display: 'flex',

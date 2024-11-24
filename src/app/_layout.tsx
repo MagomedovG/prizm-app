@@ -7,6 +7,7 @@ SplashScreen.preventAutoHideAsync();
 import { Alert, LogBox } from 'react-native';
 import CustomThemeProvider from '../providers/CustomThemeProvider';
 import QueryProvider from '../providers/QueryProvider';
+import AppStateHandler from '../components/AppStateHandler';
 
 LogBox.ignoreAllLogs(true); 
 
@@ -35,13 +36,15 @@ export default function RootLayout() {
   
 
   return (
-    <ThemeProvider value={CustomDefaultTheme}>
+      <ThemeProvider value={CustomDefaultTheme}>
         <QueryProvider>
             <CustomThemeProvider>
               <Stack screenOptions={{headerShown:false}}>
               </Stack>
             </CustomThemeProvider>
         </QueryProvider>
-    </ThemeProvider>
+        <AppStateHandler/>
+      </ThemeProvider>
+    
   );
 }
