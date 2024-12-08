@@ -36,6 +36,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 const height = Dimensions.get("window").height
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 
 export default function categoryId() {
@@ -267,7 +268,7 @@ export default function categoryId() {
                                 value={prizmWallet}
                             />
                             <View style={styles.copyButtonContainer}>
-                                <AntDesign name="copy1" size={15} color="#262626" />
+                                <FontAwesome5 name="copy" size={15} color="gray" />
                             </View>
                         </Pressable>
 

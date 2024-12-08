@@ -12,7 +12,8 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
-    ActivityIndicator
+    ActivityIndicator,
+    StatusBar
 } from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
@@ -24,9 +25,11 @@ import QRCode from "react-qr-code";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { IFund } from '@/src/types';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 const { width } = Dimensions.get('window');
 const containerWidth = width - 34 - 84 ;
+const statusBarHeight = StatusBar.currentHeight || 0;
 
 export default function walletId() {
     const [isFocused, setIsFocused]=useState(false)
@@ -155,16 +158,22 @@ export default function walletId() {
     return (
         <>
             <KeyboardAvoidingView
-                style={{ flex: 1 }}
+                style={{ flex: 1, position:'relative' }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
             >
+                {id === 'user' && <Link href='/(user)/menu/wallet/secret-phrase' asChild>
+                    <Pressable style={{position:'absolute',top:statusBarHeight + 21,left: 27,zIndex:100}}>
+                        <MaterialCommunityIcons name="key-outline" size={24} color="gray"/>
+                    </Pressable>
+                </Link>}
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ position: 'relative', flex: 1}} ref={scrollViewRef} >
                     <Stack.Screen options={{
                         headerShown: false,
                         header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
                     }} />
                     <View style={[styles.container, {marginVertical:28}]}>
+                        
                         <Text style={[styles.name, {marginTop:80}]}>{ id === 'user' ? 'Мой кошелек' : wallet?.title}</Text>
                         {wallet?.prizm_qr_code_url &&
                             <View style={styles.image}>
@@ -195,7 +204,7 @@ export default function walletId() {
                                     onBlur={() => setIsFocused(false)} 
                                 />
                                 <View style={styles.copyButtonContainer}>
-                                    <AntDesign name="copy1" size={15} color="#262626" />
+                                    <FontAwesome5 name="copy" size={15} color="gray" />
                                 </View>
                             </Pressable>
                             
@@ -218,7 +227,7 @@ export default function walletId() {
                                             value={getTitle(publicKey, 28)}
                                         />
                                         <View style={styles.copyButtonContainer}>
-                                            <AntDesign name="copy1" size={15} color="#262626" />
+                                            <FontAwesome5 name="copy" size={15} color="gray" />
                                         </View>
                                     </Pressable>
                                 </View>

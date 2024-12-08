@@ -5,6 +5,7 @@ import UIButton from "@/src/components/UIButton";
 import {AntDesign} from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 const deviceWidth = Dimensions.get("window").width;
 const { width, height } = Dimensions.get('window');
@@ -78,6 +79,7 @@ const CreateWallet = () => {
                 await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
                 await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
                 await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
+                await asyncStorage.setItem("secret-phrase", secretPhrase);
                 replaceToMenu() 
             }
         } catch (error) {
@@ -100,6 +102,7 @@ const CreateWallet = () => {
                     setSecretPhrase(data?.secret_phrase)
                     setPrizmWallet(data?.account_rs)
                     setPublicKey(data?.public_key_hex)
+                    await asyncStorage.setItem(data?.secret_phrase, 'secret-phrase')
                     await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.account_rs))
                     await asyncStorage.setItem('public_key_hex', JSON.stringify(data?.public_key_hex))
                 }
@@ -143,7 +146,7 @@ const CreateWallet = () => {
                             placeholderTextColor='#8C8C8C'
                         />
                         <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
-                            <AntDesign name="copy1" size={15} color="#262626" />
+                            <FontAwesome5 name="copy" size={15} color="gray" />
                         </View>
                     </Pressable>
                     

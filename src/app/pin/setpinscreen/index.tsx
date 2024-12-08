@@ -1,16 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated, Pressable, StatusBar } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useRouter } from 'expo-router';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { AntDesign, FontAwesome6 } from '@expo/vector-icons';
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import NetInfo from '@react-native-community/netinfo';
 import * as Location from 'expo-location';
-
+import Modal from 'react-native-modal';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-const { width } = Dimensions.get('window');
+// const { width } = Dimensions.get('window');
+const {width, height} = Dimensions.get("window");
+const deviceWidth = width
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 const MARGIN_PIN = width / 14;
 
 const SetPinScreen = () => {
@@ -22,10 +26,11 @@ const SetPinScreen = () => {
     const [isError, setIsError] = useState(false);
     const { theme } = useCustomTheme();
     const [currentAddress, setCurrentAddress] = useState<string>('не указано местоположение');
-  const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean>(false);
-  const [latitude, setLatitude] = useState<string>('');
-  const [longitude, setLongitude] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
+    const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean>(false);
+    const [latitude, setLatitude] = useState<string>('');
+    const [longitude, setLongitude] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
+    const [isModal, setIsModal] = useState(false)
 
   useEffect(() => {
     checkIfLocationEnabled();
@@ -235,39 +240,84 @@ const SetPinScreen = () => {
     
 
     return (
-        <View style={styles.container}>
-            <Stack.Screen options={{ title: 'SetPin', headerShown: false }} />
-            <View style={styles.pinContainer}>
-                <Text style={{ color: '#6A6A6A', marginBottom: 30, fontSize: 18 }}>
-                    {storedPinHash ? (confirming ? 'Подтвердите код-пароль' : 'Введите код-пароль') : (confirming ? 'Подтвердите код-пароль' : 'Придумайте код-пароль')}
-                </Text>
-                <View style={styles.pinDisplay}>
-                    {Array(5).fill().map((_, i) => (
-                        <Animated.View
-                            key={i}
-                            style={[
-                                styles.pinDot, 
-                                { 
-                                    backgroundColor: pin.length > i ? (theme === 'purple' ? '#6F1AEC' : '#32933C') : 'transparent', 
-                                    borderColor: isError ? 'red' : (theme === 'purple' ? '#6F1AEC' : '#32933C') 
-                                }, 
-                                { transform: [{ translateX: shakeAnimation }] }
-                            ]} 
-                        />
-                    ))}
-                </View>
-                <View style={styles.pinButtons}>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0].map((num) => (
-                        <TouchableOpacity key={num} style={styles.pinButton} onPress={() => handlePress(num.toString())}>
-                            <Text style={styles.pinButtonText}>{num}</Text>
+        <>
+            <View style={styles.container}>
+                <Stack.Screen options={{ title: 'SetPin', headerShown: false }} />
+                <View style={styles.pinContainer}>
+                    <Text style={{ color: '#6A6A6A', fontSize: 18 }}>
+                        {storedPinHash ? (confirming ? 'Подтвердите' : 'Введите код') : (confirming ? 'Подтвердите' : 'Придумайте')}
+                    </Text>
+                    <Text style={{ color: '#6A6A6A', marginBottom: 50, fontSize: 18 }}>
+                        {storedPinHash ? (confirming ? 'код-пароль' : 'для входа') : (confirming ? 'код-пароль' : 'код-пароль')}
+                    </Text>
+                    <View style={styles.pinDisplay}>
+                        {Array(5).fill().map((_, i) => (
+                            <Animated.View
+                                key={i}
+                                style={[
+                                    styles.pinDot, 
+                                    { 
+                                        backgroundColor: pin.length > i ? (theme === 'purple' ? '#6F1AEC' : '#32933C') : 'transparent', 
+                                        borderColor: isError ? 'red' : (theme === 'purple' ? '#6F1AEC' : '#32933C') 
+                                    }, 
+                                    { transform: [{ translateX: shakeAnimation }] }
+                                ]} 
+                            />
+                        ))}
+                    </View>
+                    {storedPinHash && <Pressable onPress={()=>setIsModal(true)}>
+                        <Text style={{color:'#CBA8FF', fontSize:16, marginBottom:15}}>
+                            не помню код-пароль
+                        </Text>
+                    </Pressable>}
+                    <View style={styles.pinButtons}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0].map((num) => (
+                            <TouchableOpacity key={num} style={styles.pinButton} onPress={() => handlePress(num.toString())}>
+                                <Text style={styles.pinButtonText}>{num}</Text>
+                            </TouchableOpacity>
+                        ))}
+                        <TouchableOpacity style={styles.pinButton} onPress={handleDelete}>
+                            <FontAwesome6 name="delete-left" size={24} color="black" />
                         </TouchableOpacity>
-                    ))}
-                    <TouchableOpacity style={styles.pinButton} onPress={handleDelete}>
-                        <FontAwesome6 name="delete-left" size={24} color="black" />
-                    </TouchableOpacity>
+                    </View>
                 </View>
+                
             </View>
-        </View>
+            <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                animationIn={'slideInUp'}
+                isVisible={isModal}
+                onSwipeComplete={()=>setIsModal(false)}
+                onBackdropPress={()=>setIsModal(false)}
+                onBackButtonPress={()=>setIsModal(false)}
+                animationInTiming={200}
+                animationOut='slideOutDown'
+                animationOutTiming={500}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.modal}
+                backdropTransitionOutTiming={0}
+                statusBarTranslucent
+            >   
+                <View style={styles.centeredView}>
+                    <View style={styles.modalViewContainer}>
+                        <Text style={styles.modalTitle}>
+                            аыуаоыуаоыуаоол
+                            оыушщаоыщдушаоы
+                            доаыщоаыэжшоаы
+                            ы
+                            уаыщзуоаыщшуоаыжэщшуоаы
+                            ыщшаоыщушао
+                        </Text>
+                    </View>
+                </View>
+                <Pressable style={styles.closeButton} onPress={()=>setIsModal(false)}>
+                        <AntDesign name="close" size={30} color="white" />
+                </Pressable>
+            </Modal>
+        </>
     );
 };
 
@@ -282,12 +332,12 @@ const styles = StyleSheet.create({
     },
     pinDisplay: {
         flexDirection: 'row',
-        marginBottom: 24,
+        marginBottom: 120,
     },
     pinDot: {
         width: 16,
         height: 16,
-        marginHorizontal: 12,
+        marginHorizontal: 15,
         borderRadius: 8,
         borderWidth: 2,
     },
@@ -310,6 +360,42 @@ const styles = StyleSheet.create({
     pinButtonText: {
         fontSize: 36,
         color: '#000',
+        // fontWeight: 'bold',
+    },
+    centeredView: {
+        justifyContent: 'center',
+    },
+    modal: {
+        margin: 0,
+        justifyContent: 'center',
+        position:'relative',
+        
+    },
+    modalViewContainer:{
+        backgroundColor: '#f5f5f5',
+        borderRadius: 20,
+        // alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        // height: 20,
+        marginHorizontal:50,
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        paddingVertical:27,
+        paddingHorizontal:20,
+    },
+    modalTitle:{
+        fontSize:16,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 111,
     },
 });
 

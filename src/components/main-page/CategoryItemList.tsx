@@ -69,7 +69,7 @@ export default function CategoryItemList ({categoryList, title, isBonus, isAdmin
                         </Link>
                     )}
                     numColumns={isSingleColumn ? 1 : 2}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => isSingleColumn ? item.id.toString() : item.title}
                     contentContainerStyle={{ gap: 11 }}
                     columnWrapperStyle={!isSingleColumn && { gap: 6 }}
                 />

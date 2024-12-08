@@ -12,7 +12,7 @@ import {
 import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Modal from "react-native-modal";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
@@ -27,6 +27,8 @@ import Loader from '@/src/components/Loader';
 import { useQuery } from '@tanstack/react-query';
 import LocationInput from '@/src/components/LocationInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import TaxiIcon from '@/src/components/Icons/TaxiIcon';
+import BusinessIcon from '@/src/components/Icons/BusinessIcon';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const {width, height} = Dimensions.get("window");
 const deviceWidth = width
@@ -55,6 +57,24 @@ export default function MenuScreen() {
         setLocalityType(localLocationType ? localLocationType : '')
         console.log(localLocationId, localLocationType, 'local')
     }
+    const lastScrollY = useRef(0);
+    const [isTextVisible, setIsTextVisible] = useState(false);
+
+    // const onScroll = (event: any) => {
+    //     const currentScrollY = event.nativeEvent.contentOffset.y;
+
+    //     const deltaY = currentScrollY - lastScrollY.current;
+
+    //     if (deltaY > 100) {
+    //         setIsTextVisible(true);
+    //         lastScrollY.current = currentScrollY; 
+    //     }
+
+    //     if (deltaY < -100) {
+    //         setIsTextVisible(false);
+    //         lastScrollY.current = currentScrollY;
+    //     }
+    // };
     useFocusEffect(
         React.useCallback(() => {
             getLocationTypeAndId()
@@ -132,7 +152,7 @@ export default function MenuScreen() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1,position:'relative' }}>
             <Stack.Screen
                 options={{
                     headerShown: false,
@@ -280,7 +300,7 @@ export default function MenuScreen() {
             </Modal>
 
             <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)} isWallet={!!wallets}/>
+                <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)} isWallet={wallets?.length > 0}/>
                 <View>
                     <LinearGradient
                         colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
@@ -301,6 +321,8 @@ export default function MenuScreen() {
                     </LinearGradient>
                     <ScrollView
                         style={styles.container}
+                        // scrollEventThrottle={16}
+                        // onScroll={onScroll}
                         refreshControl={
                             <RefreshControl
                                 refreshing={refreshing}
@@ -310,13 +332,47 @@ export default function MenuScreen() {
                     >
                         <CategoryList categories={categories} title="Категории" isInput={true} showModal={()=>setIsShowLocationList(true)} />
                     </ScrollView>
+                    
                 </View>
             </View>
+            {/* {isTextVisible && (
+                        <Link href='/(user)/menu/partners' style={styles.fixedTextContainer}>
+                            <Text style={styles.fixedText}>сотрудничество</Text>
+                        </Link>
+                    )} */}
+                    
+        <View style={styles.tabBar}>
+            <Link href='/(user)/menu/taxi' style={styles.tabBarItem} asChild>
+                <Pressable>
+                    <TaxiIcon/>
+                </Pressable>
+                
+            </Link>
+            <Link href='/(user)/menu/partners'  style={styles.tabBarItem} asChild>
+                <Pressable>
+                    <BusinessIcon/>
+                </Pressable>
+            </Link>
+        </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    fixedTextContainer: {
+        position: "absolute",
+        bottom: 23,
+        right: 11,
+        backgroundColor: "#F5F5F5",
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        zIndex: 100,
+    },
+    fixedText: {
+        color: "#828282",
+        fontSize: 14,
+    },
     locationModal:{
         margin: 0,
         justifyContent: 'center',
@@ -422,6 +478,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         marginHorizontal: 6,
+        // flex:1
     },
     image: {
         width: "100%",
@@ -459,4 +516,25 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         position:'relative'
     },
+    tabBar: {
+        position: 'absolute', 
+        bottom: 0,          
+        left: 0,      
+        right: 0,
+        height: 55,        
+        backgroundColor: '#fff', 
+        flexDirection: 'row', 
+        justifyContent: 'space-around', 
+        alignItems: 'center',
+        borderTopWidth: 1,    
+        borderTopColor: '#ccc', 
+        zIndex:999
+    },
+    tabBarItem:{
+        flex:1,
+        display: 'flex',
+        flexDirection: 'row', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+    }
 });

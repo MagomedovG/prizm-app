@@ -67,7 +67,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
             style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 35) }]}
             // style={styles.container}
                 // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
+                keyboardVerticalOffset={0} 
         >
                 
                 {isInput && 

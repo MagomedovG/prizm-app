@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Pressable, Text, View, StyleSheet, Platform, Alert, useWindowDimensions } from "react-native";
-import { Entypo, Feather } from '@expo/vector-icons';
+import { Pressable, Text, View, StyleSheet, Platform, Alert, useWindowDimensions, StatusBar, Dimensions } from "react-native";
+import { AntDesign, Entypo, Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
@@ -12,6 +12,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import prizm from '@/src/utils/prizmparacalc'
+import Modal from 'react-native-modal';
+const {width, height} = Dimensions.get("window");
+const deviceWidth = width
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 type IWallet = {
     balance_in_pzm:number;
     balance_in_rub:number;
@@ -47,13 +52,11 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
     const [info,setInfo] = useState<IWallet | null>(null)
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
+    const [isLogout, setIsLogout] = useState(false)
     const [prizmWallet, setPrizmWallet] = useState('') 
     const logOut = () => {
-        asyncStorage.removeItem('username')
-        asyncStorage.removeItem('prizm_wallet')
-        asyncStorage.removeItem('is_superuser');
-        asyncStorage.removeItem('user_id')
-        router.replace('/pin/setnickname')
+        asyncStorage.clear()
+        router.replace('/pin/setpinscreen')
     }
     const { width } = useWindowDimensions();
 
@@ -190,152 +193,194 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
       
 
     return (
-        <LinearGradient
-            colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
-            start={{ x: 1, y: 0 }}
-            end={{ x: 0, y: 0 }}
-            style={[styles.headerContainer, !isWallet ? {borderBottomLeftRadius: 12,
-                borderBottomRightRadius: 12} : {}]}
-        >
-            <View style={styles.headerTitleContainer}>
-                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
-                      <Pressable
-                         onPress={logOut}
-                    >  
-                        <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
-                    </Pressable> 
-                    <Pressable onPress={toggleHidden} style={{paddingBottom:4, padding:7.5}}>
-                        <Feather name={!isHidden ? "eye-off" : "eye"} size={15} color={theme === 'purple' ? 'white' : 'black'} />
-                    </Pressable>
-                </View>
-
-                <View style={[styles.headerProfileGroup, {position:'relative'}]}>
-                    <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText,{
-                            position:'absolute',
-                            top:-26,
-                            right:0,
-                        }]}>
-                            {info?.username}
-                    </Text>
-                    <Pressable
-                            onPress={handleDotsPress}
-                    >
-                        <View>
-                            <Entypo name="dots-three-horizontal" size={18} color={theme === 'purple' ? 'white' : 'black'} style={{padding:10, paddingRight:5}} />
-                        </View>
-                    </Pressable>
-                    <Pressable
-                        style={styles.headerPitopi}
-                    >
-                        <Link href={exchanger ?? ''} style={{fontSize:14}}>Обменник</Link>
-                    </Pressable>
-                    <Pressable
-                        style={styles.headerPitopi}
-                        onPress={handleChatPress}
-                    >
-                        <Text style={{fontSize:14}}>Чаты</Text>
-                    </Pressable>
-                </View>
-            </View>
-            <View style={styles.headerFirstListItems}>
-                <View style={[{borderRadius:5, height:26},styles.headerFirstListItem]}>
-                    <Text
-                        style={[
-                            {fontWeight:'bold',lineHeight:23.5},
-                            theme === 'purple' ? { color: '#56007B' } : styles.blackText,
-                        ]}
-                    >
-                        <Text style={{ fontSize: 18}}>
-                            Баланс:
+        <>
+            <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                onBackButtonPress={()=>setIsLogout(false)} 
+                animationIn={'slideInUp'}
+                isVisible={isLogout}
+                onSwipeComplete={()=>setIsLogout(false)}
+                onBackdropPress={()=>setIsLogout(false)}
+                animationInTiming={300}
+                animationOut='slideOutDown'
+                animationOutTiming={300}
+                backdropTransitionOutTiming={0}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.logoutModal}
+                statusBarTranslucent
+            >
+                <View style={{width:'80%',height:'50%',alignItems: 'center',
+        justifyContent: 'center',}}>
+                    <View style={styles.modalView}>
+                        <Text style={{fontSize:18, fontWeight:'bold', textAlign:'center', marginBottom:14, marginTop:10}}>
+                            Вы уверены, что хотите выйти из аккаунта?
                         </Text>
-                        <Text style={{ fontSize: 20 }}>
-                            {isHidden ? ' ****' : ` ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} `}
+                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
+                            <Pressable onPress={() => logOut()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Выйти</Text>
+                            </Pressable>
+                            <Pressable onPress={() => setIsLogout(false)} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                <Text style={{fontSize:18,textAlign:'center'}}>Остаться</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+                <Pressable style={styles.closeButton} onPress={() => setIsLogout(false)}>
+                        <AntDesign name="close" size={30} color="white" />
+                </Pressable>
+            </Modal>
+        
+            <LinearGradient
+                colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 0 }}
+                style={[styles.headerContainer, !isWallet ? {borderBottomLeftRadius: 12,
+                    borderBottomRightRadius: 12} : {}]}
+            >
+                <View style={styles.headerTitleContainer}>
+                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
+                        <Pressable
+                        >  
+                            <Text style={[styles.headerTitle, theme === 'purple' ? styles.whiteText : styles.blackText]}>В кошельке</Text>
+                        </Pressable> 
+                        <Pressable onPress={toggleHidden} style={{paddingBottom:4, padding:7.5}}>
+                            <Feather name={!isHidden ? "eye-off" : "eye"} size={15} color={theme === 'purple' ? 'white' : 'black'} />
+                        </Pressable>
+                    </View>
+
+                    <View style={[styles.headerProfileGroup, {position:'relative'}]}>
+                        <Pressable onPress={()=>setIsLogout(true)} style={{
+                                    position:'absolute',
+                                    top:-23,
+                                    right:0,
+                                }}>
+                            <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                                    Выйти
+                            </Text>
+                        </Pressable>
+                        <Pressable
+                                onPress={handleDotsPress}
+                        >
+                            <View>
+                                <Entypo name="dots-three-horizontal" size={18} color={theme === 'purple' ? 'white' : 'black'} style={{padding:10, paddingRight:5}} />
+                            </View>
+                        </Pressable>
+                        <Pressable
+                            style={styles.headerPitopi}
+                        >
+                            <Link href={exchanger ?? ''} style={{fontSize:14}}>Обменник</Link>
+                        </Pressable>
+                        <Pressable
+                            style={styles.headerPitopi}
+                            onPress={handleChatPress}
+                        >
+                            <Text style={{fontSize:14}}>Чаты</Text>
+                        </Pressable>
+                    </View>
+                </View>
+                <View style={styles.headerFirstListItems}>
+                    <View style={[{borderRadius:5, height:26},styles.headerFirstListItem]}>
+                        <Text
+                            style={[
+                                {fontWeight:'bold',lineHeight:23.5},
+                                theme === 'purple' ? { color: '#56007B' } : styles.blackText,
+                            ]}
+                        >
+                            <Text style={{ fontSize: 18}}>
+                                Баланс:
+                            </Text>
+                            <Text style={{ fontSize: 20 }}>
+                                {isHidden ? ' ****' : ` ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} `}
+                            </Text>
+                            <Text style={{ fontSize: 12 }}>
+                                {isHidden ? '' : `РУБ.`}
+                            </Text>
+                        </Text>
+                    </View>
+                    <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15,lineHeight:15}]}>
+                        <Text style={{ fontSize: 15 }}>
+                            {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(5) : 0} `}
                         </Text>
                         <Text style={{ fontSize: 12 }}>
-                            {isHidden ? '' : `РУБ.`}
+                            РУБ.
                         </Text>
+                        
                     </Text>
                 </View>
-                <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15,lineHeight:15}]}>
-                    <Text style={{ fontSize: 15 }}>
-                        {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(5) : 0} `}
-                    </Text>
-                    <Text style={{ fontSize: 12 }}>
-                        РУБ.
-                    </Text>
-                    
-                </Text>
-            </View>
-            <View style={styles.headerSecondList}>
-                <View style={styles.headerList}>
-                    <View style={styles.headerListItems}>
-                        <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                            {isHidden ? '****' : `B: ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
-                        </Text>
-                        <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                            {isHidden ? '****' : `P: ${para  ? para : 0.0} pzm`}
-                        </Text>
-                    </View>
-                </View>
-                <View style={styles.headerCartButtonContainer}>
-                    <View style={[styles.headerCartContainer,{backgroundColor: theme === 'purple' ? '#772899' : '#BAEAAE'} ]}>
-                        <View style={[styles.headerCartTitle, {backgroundColor: theme === 'purple' ? '#56007B' : '#6A975E'}]}>
-                            <Text style={[styles.cartTitle,styles.whiteText ]}>
-                                PZM Wallet
+                <View style={styles.headerSecondList}>
+                    <View style={styles.headerList}>
+                        <View style={styles.headerListItems}>
+                            <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                                {isHidden ? '****' : `B: ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                             </Text>
-                            <Text style={[styles.cartName,styles.whiteText]}>
-                                {getTitle(info?.username ?? '')}
+                            <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                                {isHidden ? '****' : `P: ${para  ? para : 0.0} pzm`}
                             </Text>
                         </View>
-                        <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : {color:'#fff'}, {fontSize:getFontSize()}]}>
-                            {info?.prizm_wallet ?? ''}
-                        </Text>
                     </View>
-                    <View style={styles.headerCartButtonsContainer}>
-                        <View style={styles.cartButton}>
-                            <FontAwesome5 name="long-arrow-alt-up" size={7} color={theme === 'purple' ? "white" : "black"}/>
-                            {Platform.OS === 'ios' ? 
-                                <View style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
-                                    <Link href="/(user)/menu/share-prizm" style={[{
+                    <View style={styles.headerCartButtonContainer}>
+                        <View style={[styles.headerCartContainer,{backgroundColor: theme === 'purple' ? '#772899' : '#BAEAAE'} ]}>
+                            <View style={[styles.headerCartTitle, {backgroundColor: theme === 'purple' ? '#56007B' : '#6A975E'}]}>
+                                <Text style={[styles.cartTitle,styles.whiteText ]}>
+                                    PZM Wallet
+                                </Text>
+                                <Text style={[styles.cartName,styles.whiteText]}>
+                                    {getTitle(info?.username ?? '')}
+                                </Text>
+                            </View>
+                            <Text style={[styles.headerCartWallet,theme === 'purple' ? styles.whiteText : {color:'#fff'}, {fontSize:getFontSize()}]}>
+                                {info?.prizm_wallet ?? ''}
+                            </Text>
+                        </View>
+                        <View style={styles.headerCartButtonsContainer}>
+                            <View style={styles.cartButton}>
+                                <FontAwesome5 name="long-arrow-alt-up" size={7} color={theme === 'purple' ? "white" : "black"}/>
+                                {Platform.OS === 'ios' ? 
+                                    <View style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
+                                        <Link href="/(user)/menu/share-prizm" style={[{
+                                                fontSize:11,
+                                                lineHeight:10
+                                            }, 
+                                            theme === 'purple' ? {color:'#2E0E5D'} : {}
+                                        ]}>
+                                            отправить
+                                        </Link>
+                                    </View>
+                                : <Link href="/(user)/menu/share-prizm" style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
+                                    <Text style={[{
                                             fontSize:11,
                                             lineHeight:10
                                         }, 
                                         theme === 'purple' ? {color:'#2E0E5D'} : {}
                                     ]}>
                                         отправить
-                                    </Link>
-                                </View>
-                            : <Link href="/(user)/menu/share-prizm" style={[{height:19},styles.cartButtonLink,theme === 'purple' ? { backgroundColor:'#fff'} : {backgroundColor:'#fff'}]}>
-                                <Text style={[{
-                                        fontSize:11,
-                                        lineHeight:10
-                                    }, 
-                                    theme === 'purple' ? {color:'#2E0E5D'} : {}
-                                ]}>
-                                    отправить
-                                </Text>
-                            </Link>} 
-                        </View>
-                        <View  style={styles.cartButton}>
-                            <FontAwesome5 name="long-arrow-alt-down" size={7} color={theme === 'purple' ? "white" : "black"} />
-                            <Link href="/(user)/menu/wallet/user" style={[styles.cartButtonLink, {borderWidth:0.5,height:19}, theme === 'purple' ? {borderColor:'#fff'} : {}]}>
-                                <Text style={[
-                                        {
-                                            fontSize:11,
-                                            lineHeight:10
-                                        }, 
-                                        theme === 'purple' ? {color:'#fff'} : {}
-                                    ]}>
-                                    получить
-                                </Text>
-                            </Link>
-                            
+                                    </Text>
+                                </Link>} 
+                            </View>
+                            <View  style={styles.cartButton}>
+                                <FontAwesome5 name="long-arrow-alt-down" size={7} color={theme === 'purple' ? "white" : "black"} />
+                                <Link href="/(user)/menu/wallet/user" style={[styles.cartButtonLink, {borderWidth:0.5,height:19}, theme === 'purple' ? {borderColor:'#fff'} : {}]}>
+                                    <Text style={[
+                                            {
+                                                fontSize:11,
+                                                lineHeight:10
+                                            }, 
+                                            theme === 'purple' ? {color:'#fff'} : {}
+                                        ]}>
+                                        получить
+                                    </Text>
+                                </Link>
+                                
+                            </View>
                         </View>
                     </View>
                 </View>
-            </View>
-            
-        </LinearGradient>
+                
+            </LinearGradient>
+        </>
     );
 };
 
@@ -483,6 +528,34 @@ const styles = StyleSheet.create({
     },
     blackText: {
         color: 'black'
+    },
+    modalView: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        paddingTop:16,
+        paddingBottom:26,
+        alignItems: 'center',
+        shadowColor: '#000',
+        width: '100%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    logoutModal:{
+        margin: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 111,
     },
 });
 
