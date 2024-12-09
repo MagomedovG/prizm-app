@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
     Text,
     View,
-    Image,
     StyleSheet,
     Pressable,
     TextInput,
@@ -11,13 +10,11 @@ import {
     Platform,
     Alert,
     StatusBar,
-    ActivityIndicator,
     FlatList,
 } from "react-native";
-import { Animated,Clipboard } from 'react-native';
+import { Clipboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Link, Stack, useLocalSearchParams, useRouter, useSegments} from "expo-router";
-import CachedImage from 'expo-cached-image'
+import {Link, Stack, useLocalSearchParams} from "expo-router";
 import {defaultLogo} from "@/assets/data/categories";
 import { AntDesign } from '@expo/vector-icons';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -27,7 +24,7 @@ import {lightColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Swiper from 'react-native-swiper'
 import { IBusiness } from '@/src/types';
-
+import {Image} from 'expo-image'
 import QRCode from 'react-qr-code';
 import Modal from "react-native-modal";
 import { useQuery } from '@tanstack/react-query';
@@ -42,7 +39,6 @@ const ITEM_WIDTH = width - 25;
 export default function categoryId() {
     const {theme} = useCustomTheme()
     const { id } = useLocalSearchParams()
-    // const [business, setBusiness] = useState<IBusiness | null>(null)
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -108,7 +104,6 @@ export default function categoryId() {
         setIsFullscreen(false);
     };
 
-    const segments = useSegments();
 
     if (isBusinessLoading){
         return <Text>Loading...</Text>
@@ -125,10 +120,10 @@ export default function categoryId() {
                         }}>
                         {business?.images?.map((item:any, index:number) => (
                                 <Pressable key={index} onPress={() => openFullscreen(index)} style={styles.slide}>
-                                    <CachedImage
-                                        cacheKey={`${item.id}-${item.image}-category-item-preview-slider`} 
+                                    <Image
                                         style={styles.image}
                                         source={{uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo}}
+                                        cachePolicy={'memory-disk'}
                                     />
                                 </Pressable>
                             
@@ -144,14 +139,11 @@ export default function categoryId() {
                 }}/>
 
                 <View style={{marginBottom:180}}>
-                    {/* borderColor:'#535353', */}
                     <View style={styles.saleContainer}>
                         <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
                             <Text style={styles.saleText}>Vozvrat pzm { business?.cashback_size ? parseFloat(business?.cashback_size?.toString()) : 0}%</Text>
                         </View>
                         {business?.images  &&  <View style={[styles.sale, {borderColor: theme === 'purple' ?  '#852DA5' : '#BAEAAC'}]}>
-                            {/* <Pressable></Pressable> */}
-                            {/* <Text style={styles.saleText}>{business.images.length} фото</Text> */}
                             <Pressable onPress={() => openFullscreen(fullscreenImageIndex)}>
                                 <Text style={styles.saleText}>{business.images.length} фото</Text>
                             </Pressable>
@@ -164,25 +156,23 @@ export default function categoryId() {
                         end={{ x: 0, y: 0 }}
                         style={styles.cart}
                     >
-                        <CachedImage
-                            cacheKey={`${business?.id}-${business?.logo}-category-item-logo`} 
+                        <Image
+                            // cacheKey={`${business?.id}-${business?.logo}-category-item-logo`} 
                             source={{uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
                             style={styles.cartLogo}
+                            cachePolicy={'memory-disk'}
                         />
                         <View style={styles.cartInfo}>
                             <View>
                                 <Text numberOfLines={2} style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText, business?.title && business?.title.length > 27 ? {fontSize:19} : {fontSize:22}]}>
                                     {business?.title}
                                     </Text>
-                                    {/* <Text numberOfLines={2} style={[styles.cartTitle, theme === 'purple' ? styles.purpleText : styles.greenText, business?.title && business?.title.length > 27 ? {fontSize:19} : {fontSize:22}]}>
-                                    {business?.title}
-                                    </Text> */}
                                 <Text style={[styles.cartSubtitle, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.short_description}</Text>
                             </View>
                             <View style={styles.cartSaleContainer}>
                                 <Entypo name="star" size={24} color={theme === 'purple' ? 'white' : '#070907'} />
                                 <Text style={[{fontSize:15,color:'white', marginLeft:7, marginRight:17}, theme === 'purple' ? styles.purpleText : styles.greenText]}>{business?.ratings_number}</Text>
-                                <Link href={`${segments[0]}/menu/category-item/feedback/${business?.id}`} style={[theme === 'purple' ? styles.purpleText : styles.greenText, {fontSize:15,textDecorationLine:'underline', paddingBottom:2}]}>Отзывы</Link>
+                                <Link href={`/(user)/menu/category-item/feedback/${business?.id}`} style={[theme === 'purple' ? styles.purpleText : styles.greenText, {fontSize:15,textDecorationLine:'underline', paddingBottom:2}]}>Отзывы</Link>
                             </View>
                         </View>
                     </LinearGradient>
@@ -213,10 +203,11 @@ export default function categoryId() {
                                         <Link href={item.contact_type.contact_value_type === 'phone_number' ? `tel:${item.value}` : item.value} style={[styles.contactContainer,{backgroundColor:`#${item.contact_type.background_color}`}]} asChild>
                                             <Pressable>
                                                 <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},business?.contacts.length > 2 ? {gap:7} : {gap:10}]}>
-                                                    <CachedImage
-                                                        cacheKey={`${id}-business-contact-logo-${item.contact_type.contact_value_type}-${item.contact_type.name}`} 
+                                                    <Image
+                                                        // cacheKey={`${id}-business-contact-logo-${item.contact_type.contact_value_type}-${item.contact_type.name}`} 
                                                         style={{width:business?.contacts?.length > 2 ? 23 : 27, height:business?.contacts && business?.contacts?.length > 2 ? 23 : 27, borderRadius:50}}
                                                         source={{uri: `${apiUrl}/${item.contact_type.logo}`}}
+                                                        cachePolicy={'memory-disk'}
                                                     />
                                                     <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}, business?.contacts && business?.contacts?.length > 2  ? {fontSize: 13.5} : {fontSize: 16}]}>
                                                         {item.contact_type.name}
@@ -364,19 +355,10 @@ export default function categoryId() {
                     >
                         {business?.images?.map((item: any, index: number) => (
                             <View key={index} style={styles.fullscreenSlide}>
-                                <CachedImage
-                                    cacheKey={`${item.id}-${item.image}-category-item-full-slider`}
+                                <Image
                                     style={styles.fullscreenImage}
-                                    placeholderContent={( 
-                                        <ActivityIndicator 
-                                          size="small"
-                                          style={{
-                                            flex: 1,
-                                            justifyContent: "center",
-                                          }}
-                                        />
-                                      )}
                                     source={{ uri: item?.image ? `${apiUrl}${item.image}` : defaultLogo }}
+                                    cachePolicy={'memory-disk'}
                                 />
                             </View>
                         ))}

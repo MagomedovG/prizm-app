@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import CachedImage from "expo-cached-image";
 import { Link } from "expo-router";
 import { ScrollView, View,Text, FlatList, Pressable,StyleSheet, Dimensions } from "react-native";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
-
+import {Image} from 'expo-image'
 
 
 export default function PartnersScreen() {
@@ -21,7 +20,7 @@ export default function PartnersScreen() {
         },
     });
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
             <View>
                 <Text>
                     уа ыуларыушгарыуша
@@ -47,10 +46,10 @@ export default function PartnersScreen() {
                             <Link href={item.contact_type.contact_value_type === 'phone_number' ? `tel:${item.value}` : item.value} style={[styles.contactContainer,{backgroundColor:`#${item.contact_type.background_color}`}]} asChild>
                                 <Pressable>
                                     <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},business?.contacts.length > 2 ? {gap:7} : {gap:10}]}>
-                                        <CachedImage
-                                            cacheKey={`business-contact-logo-${item.contact_type.contact_value_type}-${item.contact_type.name}`} 
+                                        <Image
                                             style={{width:business?.contacts?.length > 2 ? 23 : 27, height:business?.contacts && business?.contacts?.length > 2 ? 23 : 27, borderRadius:50}}
                                             source={{uri: `${apiUrl}/${item.contact_type.logo}`}}
+                                            cachePolicy={'memory-disk'}
                                         />
                                         <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}, business?.contacts && business?.contacts?.length > 2  ? {fontSize: 13.5} : {fontSize: 16}]}>
                                             {item.contact_type.name}
@@ -68,7 +67,7 @@ export default function PartnersScreen() {
                 </>
                 : <Text style={{fontWeight:600, fontSize:17, color:'rgba(0, 0, 0, 0.6)'}}>Нет контактов</Text>
             }
-        </ScrollView>
+        </View>
     )
 }
 const styles = StyleSheet.create({

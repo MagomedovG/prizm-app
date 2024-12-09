@@ -6,7 +6,7 @@ import {
     Pressable,
     ScrollView,
     Dimensions,
-    Platform, RefreshControl,
+    RefreshControl,
     StatusBar
 } from "react-native";
 import Entypo from '@expo/vector-icons/Entypo';
@@ -22,7 +22,7 @@ import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import {AutocompleteResponse, IWallet,ILocation} from "@/src/types";
+import {AutocompleteResponse,ILocation} from "@/src/types";
 import Loader from '@/src/components/Loader';
 import { useQuery } from '@tanstack/react-query';
 import LocationInput from '@/src/components/LocationInput';
@@ -34,11 +34,7 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
-type IChats = {
-    whatsapp:string,
-    youtube:string,
-    telegram:string,
-}
+
 export default function MenuScreen() {
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
@@ -49,7 +45,7 @@ export default function MenuScreen() {
     const [countries, setCountries] = useState<ILocation[]>([])
     const [localityType, setLocalityType] = useState('')
     const [localityId, setLocalityId] = useState('')
-    const [filteredCountries, setFilteredCountries] = useState()
+    const [filteredCountries, setFilteredCountries] = useState<AutocompleteResponse | null>(null)
     const getLocationTypeAndId = async () => {
         const localLocationId = await AsyncStorage.getItem('locality-id')
         const localLocationType = await AsyncStorage.getItem('locality-type')
@@ -57,24 +53,7 @@ export default function MenuScreen() {
         setLocalityType(localLocationType ? localLocationType : '')
         console.log(localLocationId, localLocationType, 'local')
     }
-    const lastScrollY = useRef(0);
-    const [isTextVisible, setIsTextVisible] = useState(false);
 
-    // const onScroll = (event: any) => {
-    //     const currentScrollY = event.nativeEvent.contentOffset.y;
-
-    //     const deltaY = currentScrollY - lastScrollY.current;
-
-    //     if (deltaY > 100) {
-    //         setIsTextVisible(true);
-    //         lastScrollY.current = currentScrollY; 
-    //     }
-
-    //     if (deltaY < -100) {
-    //         setIsTextVisible(false);
-    //         lastScrollY.current = currentScrollY;
-    //     }
-    // };
     useFocusEffect(
         React.useCallback(() => {
             getLocationTypeAndId()
@@ -321,8 +300,6 @@ export default function MenuScreen() {
                     </LinearGradient>
                     <ScrollView
                         style={styles.container}
-                        // scrollEventThrottle={16}
-                        // onScroll={onScroll}
                         refreshControl={
                             <RefreshControl
                                 refreshing={refreshing}
@@ -335,11 +312,6 @@ export default function MenuScreen() {
                     
                 </View>
             </View>
-            {/* {isTextVisible && (
-                        <Link href='/(user)/menu/partners' style={styles.fixedTextContainer}>
-                            <Text style={styles.fixedText}>сотрудничество</Text>
-                        </Link>
-                    )} */}
                     
         <View style={styles.tabBar}>
             <Link href='/(user)/menu/taxi' style={styles.tabBarItem} asChild>

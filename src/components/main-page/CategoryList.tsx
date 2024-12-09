@@ -1,14 +1,15 @@
-import {FlatList, Image, Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ActivityIndicator} from "react-native";
+import { Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform} from "react-native";
 import {ICategory} from "@/src/types";
 import {Link, useFocusEffect, useRouter, useSegments} from "expo-router";
 import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-import CachedImage from "expo-cached-image";
+import {Image} from 'expo-image'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get('window');
-const ITEM_WIDTH = width / 3 - 20; // Оставляем немного пространства для отступов
+const ITEM_WIDTH = width / 3 - 20;
 const ITEM_HEIGHT = height / 2 -30
+
 
 type CategoryListProps = {
     title?:string,
@@ -29,7 +30,6 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     const {theme} = useCustomTheme()
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-    // const { currentAddress,longtitude,latitude, locationServicesEnabled, error } = useLocation();
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
             setKeyboardHeight(event.endCoordinates.height);
@@ -54,19 +54,14 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
         }, [showModal])
     )
     useEffect(() => {
-        setFilteredData(categories); // Обновление данных при изменении пропсов
+        setFilteredData(categories); 
     }, [categories]);
     const handleFilteredData = (data:[]) => {
         setFilteredData(data);
     };
-    const handleAdminPage = () => {
-        router.push(`${linkButton}`)
-    }
     return (
         <KeyboardAvoidingView
             style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 35) }]}
-            // style={styles.container}
-                // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={0} 
         >
                 
@@ -88,41 +83,32 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                 </View>
                 
 
-                {filteredData?.length ? <FlatList
-                    data={filteredData}
-                    renderItem={({item}) =>
-                        <Link
-                            href={`${segments[0]}/menu/category/${item.id}`}
-                            asChild
-                        >
-                            <Pressable style={Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer}>
+                {filteredData?.length ? filteredData.map((item:any, index:number) => (
+                    <Link
+                        href={`/(user)/menu/category/${item.id}`}
+                        key={index}
+                        asChild
+                    >
+                        <Pressable style={Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer}>
 
-                                <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
-                                    <Text style={styles.text}>{item.title}</Text>
-                                    <CachedImage 
-                                        style={styles.image_logo} 
-                                        source={{uri: `${apiUrl}${item?.logo}`}}
-                                        cacheKey={`${item.id}-${item?.logo}-category-logo`} 
-                                        placeholderContent={( 
-                                            <ActivityIndicator 
-                                                size="small"
-                                            />
-                                        )} 
-                                    />
-                                </View>
+                            <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
+                                <Text style={styles.text}>{item.title}</Text>
+                                <Image 
+                                    style={styles.image_logo} 
+                                    source={{uri: `${apiUrl}${item?.logo}`}}
+                                    cachePolicy={'memory-disk'}
+                                />
+                            </View>
 
-                            </Pressable>
-                        </Link>
-                    }
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal={false}
-
-                /> : 
-                        <Text style={{color:'gray', marginTop:ITEM_HEIGHT / 4, fontSize:18, width:'100%', textAlign:'center'}}>
-                            Нет подходящих категорий
-                        </Text>
-                         
-                    }
+                        </Pressable>
+                    </Link>
+                )) 
+                : 
+                    <Text style={{color:'gray', marginTop:ITEM_HEIGHT / 4, fontSize:18, width:'100%', textAlign:'center'}}>
+                        Нет подходящих категорий
+                    </Text>
+                        
+                }
         </KeyboardAvoidingView>
         
     );

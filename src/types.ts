@@ -53,7 +53,7 @@ export interface IBusinessesInBusinessInCategory extends ICategotyInBusinessInCa
 } 
 export interface IBusinessInCategory {
   category: ICategotyInBusinessInCategory
-  businesses: IBusinessInCategory[]
+  businesses: IBusiness[]
 }
 export type IBusiness = {
   id:number

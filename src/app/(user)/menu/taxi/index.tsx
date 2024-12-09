@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { Pressable, ScrollView } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { Text, View, FlatList, StyleSheet, StatusBar, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, StatusBar, Dimensions } from 'react-native';
 import TaxiItem from '@/src/components/TaxiItem';
 import UIButton from '@/src/components/UIButton';
-const height = Dimensions.get("window").height
 const statusBarHeight = StatusBar.currentHeight || 0;
 export default function TaxiScreen () {
     const [localityName,setLocalityName]=useState('')
@@ -52,12 +51,9 @@ export default function TaxiScreen () {
                         </Text>
                     </Pressable>
                     <View  style={{paddingBottom:150}}>
-                        <FlatList
-                            data={taxiList}
-                            renderItem={({item})=><TaxiItem item={item}/>}
-                            // contentContainerStyle={{ gap: 9 }}
-                            style={[styles.taxiList]}
-                        />
+                        {taxiList && taxiList.map((taxi,index)=>(
+                            <TaxiItem item={taxi} key={index}/>
+                        ))}
                     </View>
                 
                 </View>

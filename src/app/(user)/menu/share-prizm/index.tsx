@@ -286,8 +286,8 @@ const SharePrizm = () => {
                         {
                             <View style={{marginBottom:50}}>
                                 {transactionList && transactionList.map((item, index)=>( 
-                                    <View style={{marginBottom:9}}>
-                                        <TransactionItem num={item.number} key={index}/>
+                                    <View style={{marginBottom:9}} key={index}>
+                                        <TransactionItem num={item.number}/>
                                     </View>
                                 ))}
                             </View>
