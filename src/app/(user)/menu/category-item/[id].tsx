@@ -26,16 +26,17 @@ import {LinearGradient} from "expo-linear-gradient";
 import {lightColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import Swiper from 'react-native-swiper'
-const { width, height } = Dimensions.get('window');
 import { IBusiness } from '@/src/types';
-const deviceWidth = Dimensions.get("window").width;
+
 import QRCode from 'react-qr-code';
 import Modal from "react-native-modal";
 import { useQuery } from '@tanstack/react-query';
 const statusBarHeight = StatusBar.currentHeight || 0;
-const deviceHeight = height + statusBarHeight
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+const { width, height } = Dimensions.get('window');
+const deviceHeight = height + statusBarHeight
+const deviceWidth = width;
 const ITEM_WIDTH = width - 25;
 
 export default function categoryId() {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView, Dimensions, StatusBar, FlatList} from "react-native";
+import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView, Dimensions, StatusBar, FlatList, ActivityIndicator, Modal} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {borderColor} from "@/assets/data/colors";
@@ -11,12 +11,17 @@ import StaticButton from '@/src/components/StaticButton';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import TransactionItem from '@/src/components/TransactionItem';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const height = Dimensions.get("window").height
+const { width, height } = Dimensions.get('window');
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
+import { BarCodeScanner } from "expo-barcode-scanner";
+
+const deviceWidth = width;
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
+    const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [count,setCount]=useState<number | null | string>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,11 +29,11 @@ const SharePrizm = () => {
     const [course, setCourse] = useState<number | null>(null)
     const router = useRouter();
     const [checked, setChecked] = useState(false);
+    const [isScanner, setIsScanner] = useState(false)
     const { theme } = useCustomTheme();
-
     const [transactionList, setTransactionList] = useState([{number:1}, {number:2}, {number:3}, {number:4}, {number:5}, {number:6}, {number:7}, {number:8}, {number:9}, {number:10}])
-
-    const [secretPhrase, setSecretPhrase] = useState(null);
+    const [permission, requestPermission] = useCameraPermissions();
+    const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
     // Функция загрузки секретной фразы из AsyncStorage
     const loadSecretPhrase = async () => {
         try {
@@ -47,7 +52,21 @@ const SharePrizm = () => {
     useEffect(() => {
         loadSecretPhrase();
     }, []);
-
+    const askCameraPermission = async () => {
+        const { status } = await BarCodeScanner.requestPermissionsAsync();
+        console.log(status)
+        if (permission?.granted) {
+          setHasPermission(true);
+        }
+      };
+    
+    useEffect(() => {
+        askCameraPermission();
+      }, []);
+      const handleAfterScanned = ({ data, type }: any) => {
+        setIsScanner(false)
+        console.log(data);
+    };
     const copyWalletToClipboard = () => {
         Clipboard.setString(wallet);
         Alert.alert('Кошелек скопирован!','');
@@ -152,108 +171,212 @@ const SharePrizm = () => {
     
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={[styles.container, {marginTop:deviceHeight/4.5}]}>
-                <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
-                <View style={{paddingHorizontal: 26, width: '100%'}}>
-                    <Text style={styles.title}>
-                        Перевести pzm
-                    </Text>
-                    <View style={[styles.pressable, {marginBottom: 8}]}>
-                        <TextInput
-                            style={[styles.input,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
-                            editable={true}
-                            placeholder={'Кошелек получателя'}
-                            value={wallet}
-                            onChangeText={setWallet}
-                            placeholderTextColor='#8C8C8C'
-                        />
-                        <Pressable style={styles.scanIconContainer}>
-                            <AntDesign name="scan1" size={24} color="black" />
-                        </Pressable>
-                    </View>
-                    <View style={[styles.pressable, ]}>
-                        <TextInput
-                            style={[styles.input,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'},  errorMessage || Number(count) > calculateMaxTransfer(balance) ? styles.inputError : null, balance === 0 || Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}
-                            editable={true}
-                            onChangeText={validateCount}
-                            placeholder={'Сумма pzm'}
-                            value={count}
-                            keyboardType={"numeric"}
-                            placeholderTextColor='#8C8C8C'
-                            type={'number'}
-                        />
-                        <View style={styles.convertToRubContainer}>
-                            <Text style={styles.convertToRubText}>
-                                {count * course > 0 ? parseFloat((count * course).toFixed(2)) : 0} руб
-                            </Text>
-                        </View>
-                        
-                    </View>
-                    {errorMessage && <Text style={[styles.errorText, {color:'#C85557'}]}>{errorMessage}</Text>}
-                    {!errorMessage && !count && <Text style={styles.errorText}>коммисия сети 0,5% (не менее 0,05 и не более 10 pzm)</Text>}
-                    {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${parseFloat(getComission(count).toFixed(3))} pzm`}</Text>}
-                    {!secretPhrase && <Pressable 
-                        onPress={copySidToClipboard} 
-                        style={[
-                            styles.pressable, 
-                            {
-                                flex: 1,
-                                justifyContent: 'center',
-                                marginTop: 5,
-                                
-                            }
-                        ]}
-                    >
-                        <TextInput
-                            style={[styles.textArea,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
-                            editable={true}
-                            multiline={true}
-                            onChangeText={setSid}
-                            placeholder={'Парольная фраза'}
-                            value={sid}
-                            placeholderTextColor='#8C8C8C'
-                        />
-                        
-                    </Pressable>}
-                    {!secretPhrase && <View style={{display:'flex', flexDirection:'row', alignItems:'center', gap:5}}>
-                        <Pressable
-                            role="checkbox"
-                            aria-checked={checked}
-                            // style={[styles.checkboxBase, checked && theme === 'purple' ? styles.checkboxPurpleChecked : checked && theme === 'green' ? styles.checkboxGreenChecked : {}]}
-                            style={[styles.checkboxBase, checked && styles.checkboxPurpleChecked]}
-                            onPress={() => setChecked(!checked)}>
-                            {checked && <Ionicons name="checkmark-sharp" size={17} color="white" />}
-                        </Pressable>
-                        <Text style={styles.checkboxText}>cохранить мою парольную фразу</Text>
-                    </View>}
-                    <View style={{marginTop: 20}}>
-                        <StaticButton text={`Перевести ${count ? `${count} ` : ''}pzm`} disabled={!!errorMessage || (!secretPhrase && !!!sid) || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
-                    </View>
-                    <Text style={styles.transactionsTitle}>
-                        История транзакций
-                    </Text>
-                    <FlatList
-                        data={transactionList}
-                        renderItem={({item, index})=><TransactionItem num={item.number}/>}
-                        keyExtractor={(item, index)=> `${index}`}
-                        contentContainerStyle={{ gap: 9 }}
-                        style={{marginBottom:50}}
-                    />
+        <>
+        
+            {isScanner ?
+            <View style={{
+                    flex: 1,
+                    justifyContent: "center",
+                }}> 
+                
+                <View style={styles.fullscreenSlide}>
                     
+                    <CameraView
+                        barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+                        onBarcodeScanned={handleAfterScanned}
+                        style={styles.Scanner}
+                        facing='back'
+                    >
+
+                    </CameraView>
+                    <Pressable style={styles.closeButton} onPress={()=>setIsScanner(false)}>
+                            <AntDesign name="close" size={22} color="white" style={styles.xIcon}/>
+                        </Pressable>
                 </View>
-            </View>
-        </ScrollView>
+            </View> :
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={[styles.container, {marginTop:deviceHeight/4.5}]}>
+                    <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
+                    
+                    <View style={{paddingHorizontal: 26, width: '100%'}}>
+                        <Text style={styles.title}>
+                            Перевести pzm
+                        </Text>
+                        <View style={[styles.pressable, {marginBottom: 8}]}>
+                            <TextInput
+                                style={[styles.input,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
+                                editable={true}
+                                placeholder={'Кошелек получателя'}
+                                value={wallet}
+                                onChangeText={setWallet}
+                                placeholderTextColor='#8C8C8C'
+                            />
+                            <Pressable style={styles.scanIconContainer} onPress={()=>setIsScanner(true)}>
+                                <AntDesign name="scan1" size={24} color="black" />
+                            </Pressable>
+                        </View>
+                        <View style={[styles.pressable, ]}>
+                            <TextInput
+                                style={[styles.input,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'},  errorMessage || Number(count) > calculateMaxTransfer(balance) ? styles.inputError : null, balance === 0 || Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}
+                                editable={true}
+                                onChangeText={validateCount}
+                                placeholder={'Сумма pzm'}
+                                value={count}
+                                keyboardType={"numeric"}
+                                placeholderTextColor='#8C8C8C'
+                                type={'number'}
+                            />
+                            <View style={styles.convertToRubContainer}>
+                                <Text style={styles.convertToRubText}>
+                                    {count * course > 0 ? parseFloat((count * course).toFixed(2)) : 0} руб
+                                </Text>
+                            </View>
+                            
+                        </View>
+                        {errorMessage && <Text style={[styles.errorText, {color:'#C85557'}]}>{errorMessage}</Text>}
+                        {!errorMessage && !count && <Text style={styles.errorText}>коммисия сети 0,5% (не менее 0,05 и не более 10 pzm)</Text>}
+                        {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${parseFloat(getComission(count).toFixed(3))} pzm`}</Text>}
+                        {!secretPhrase && <Pressable 
+                            onPress={copySidToClipboard} 
+                            style={[
+                                styles.pressable, 
+                                {
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    marginTop: 5,
+                                    
+                                }
+                            ]}
+                        >
+                            <TextInput
+                                style={[styles.textArea,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
+                                editable={true}
+                                multiline={true}
+                                onChangeText={setSid}
+                                placeholder={'Парольная фраза'}
+                                value={sid}
+                                placeholderTextColor='#8C8C8C'
+                            />
+                            
+                        </Pressable>}
+                        {!secretPhrase && <View style={{display:'flex', flexDirection:'row', alignItems:'center', gap:5}}>
+                            <Pressable
+                                role="checkbox"
+                                aria-checked={checked}
+                                // style={[styles.checkboxBase, checked && theme === 'purple' ? styles.checkboxPurpleChecked : checked && theme === 'green' ? styles.checkboxGreenChecked : {}]}
+                                style={[styles.checkboxBase, checked && styles.checkboxPurpleChecked]}
+                                onPress={() => setChecked(!checked)}>
+                                {checked && <Ionicons name="checkmark-sharp" size={17} color="white" />}
+                            </Pressable>
+                            <Text style={styles.checkboxText}>cохранить мою парольную фразу</Text>
+                        </View>}
+                        <View style={{marginTop: 20}}>
+                            <StaticButton text={`Перевести ${count ? `${count} ` : ''}pzm`} disabled={!!errorMessage || (!secretPhrase && !!!sid) || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
+                        </View>
+                        <Text style={styles.transactionsTitle}>
+                            История транзакций
+                        </Text>
+                        {/* <FlatList
+                            data={transactionList}
+                            renderItem={({item, index})=><TransactionItem num={item.number}/>}
+                            keyExtractor={(item, index)=> `${index}`}
+                            contentContainerStyle={{ gap: 9 }}
+                            style={{marginBottom:50}}
+                        /> */}
+                        {
+                            <View style={{marginBottom:50}}>
+                                {transactionList && transactionList.map((item, index)=>( 
+                                    <View style={{marginBottom:9}}>
+                                        <TransactionItem num={item.number} key={index}/>
+                                    </View>
+                                ))}
+                            </View>
+                        }
+                        
+                    </View>
+                </View>
+                
+                
+                {/* <Modal
+                    isVisible={isScanner} // это свойство отвечает за видимость модалки
+                    onSwipeComplete={()=> setIsScanner(false)} // закрытие модалки при свайпе вниз
+                    swipeDirection="down" // определяем направление свайпа
+                    deviceWidth={deviceWidth}
+                    deviceHeight={deviceHeight}
+                    style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
+                    animationIn="slideInUp" // анимация при открытии
+                    animationOut="slideOutDown" // анимация при закрытии
+                    backdropOpacity={1} // настройка прозрачности фона
+                    backdropColor='white'
+                    animationInTiming={300}
+                    animationOutTiming={300}
+                    backdropTransitionOutTiming={0}
+                    onBackButtonPress={()=>setIsScanner(false)}
+                    statusBarTranslucent
+                >
+                    <View style={styles.fullscreenContainer}>
+                        <View style={styles.fullscreenSlide}>
+                            <BarCodeScanner
+                                onBarCodeScanned={handleAfterScanned}
+                                style={styles.Scanner}
+                            />
+                        </View>
+                        <Pressable style={styles.closeButton} onPress={()=>setIsScanner(false)}>
+                            <AntDesign name="close" size={26} color="white" style={styles.xIcon}/>
+                        </Pressable>
+                    </View>
+                </Modal> */}
+            </ScrollView>
+            }
+        </>
     );
 };
 
 export default SharePrizm;
 
 const styles = StyleSheet.create({
+    fullscreenContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullscreenSlide: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // position:'relative'
+    },
+    closeButton: {
+        position: 'absolute',
+        top: statusBarHeight + 10,
+        right: 20,
+        zIndex: 11111,
+    },
+    xIcon: {
+        color: 'grey',
+        padding:4,
+        backgroundColor:'white',
+        borderRadius:50
+    },
+    Scanner: {
+        width: '100%',
+        height: "100%",
+        display: "flex",
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "black",
+    },
     scanIconContainer: {
         position: 'absolute',
-        right: 10,
-        top: '50%',
+        display: "flex",
+        justifyContent: 'center',
+        alignItems: 'center',
+        right:0,
+        paddingRight: 10,
+        paddingLeft: 10,
+        width:50,
+        height:50,
+        bottom: -9,
         transform: [{ translateY: -12 }], // выравнивание по центру
     },
     transactionsTitle:{

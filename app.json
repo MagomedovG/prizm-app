@@ -34,7 +34,15 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Vozvrat prizm to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Разрешите Vozvrat prizm получать данные о вашем местоположении"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Разрешите Vozvrat prizm использовать вашу камеру",
+          "microphonePermission": "Разрешите Vozvrat prizm использовать ваш микрофон",
+          "recordAudioAndroid": true
         }
       ]
     ],
