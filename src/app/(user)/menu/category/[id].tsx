@@ -153,7 +153,7 @@ export default function categoryId() {
             }}/>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Поиск" isCategoryItem/>
-                <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={handleWalletPress} />
+                <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={(value)=>handleWalletPress(value)} />
             </ScrollView>
             
             <Modal

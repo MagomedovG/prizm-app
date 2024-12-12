@@ -6,10 +6,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { useFocusEffect } from '@react-navigation/native';
+import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+
 const SetWallet = () => {
 
     const [name, setName] = useState('');
     const router = useRouter();
+    const { theme } = useCustomTheme();
 
     const postForm = async () => {
         const username = await asyncStorage.getItem('username')
@@ -84,7 +87,7 @@ const SetWallet = () => {
                 <Text style={styles.title}>
                     Вставьте адрес кошелька
                 </Text>
-                <View style={styles.inputContainer}>
+                <View style={[styles.inputContainer, theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
                     <TextInput
                         placeholder="PRIZM-1234-..."
                         value={name}

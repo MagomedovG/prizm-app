@@ -18,6 +18,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 
 const deviceWidth = width;
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useQuery } from '@tanstack/react-query';
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
@@ -34,15 +35,59 @@ const SharePrizm = () => {
     const [transactionList, setTransactionList] = useState([{number:1}, {number:2}, {number:3}, {number:4}, {number:5}, {number:6}, {number:7}, {number:8}, {number:9}, {number:10}])
     const [permission, requestPermission] = useCameraPermissions();
     const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
-    // Функция загрузки секретной фразы из AsyncStorage
-    const loadSecretPhrase = async () => {
+    const [addressatPublicKey, setAddressatPublicKey] = useState('')
+    const [userWallet, setUserWallet] = useState()
+
+    const { data: transactions, isLoading: isTransactionsLoading, refetch: refetchTransactions } = useQuery({
+        queryKey:['transactions',userWallet],
+        queryFn: async () => {
+                const response = await fetch(`${apiUrl}/api/v1/wallet/get-transactions/?wallet=${userWallet}`);
+                console.log('refresuserWallet',`${apiUrl}/api/v1/wallet/get-transactions/?wallet=${userWallet}}`)
+                return await response.json();
+        },
+        enabled: !!userWallet, 
+    });
+    function splitQrText(qrtext:string) {
+        if (typeof qrtext !== 'string' || !qrtext.includes(':')) {
+            return { error: 'Invalid format: String must contain a colon.' };
+        }
+    
+        const [beforeColon, afterColon] = qrtext.split(/:(.+)/);
+    
+        if (!beforeColon || !afterColon) {
+            return { error: 'Invalid format: Both parts must be non-empty.' };
+        }
+    
+        return { beforeColon, afterColon };
+    }
+    const scanQrCode = async (afterColon:string | undefined) => {
+        try {
+            if (!afterColon) return;
+            const response = await fetch(`${apiUrl}/api/v1/wallet/get-data-by-public-key/?public-key=${afterColon}`)
+            const data = await response.json()
+            if (response.ok){
+                setAddressatPublicKey(data?.public_key_hex)
+                setWallet(data?.account_rs)
+                console.log('adressantpublic_key_hex',data?.public_key_hex)
+            } else {
+                console.log('Try Error to fetch qr code text')
+            }
+        } catch {
+            console.log('Error to fetch qr code text')
+        }
+    }
+    const loadSecretPhraseAndWallet = async () => {
         try {
             // const storedPhrase = 'await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase")await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secrawait AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");et-phrase");;'
             const storedPhrase = await AsyncStorage.getItem("secret-phrase");
+            const storedWallet = await AsyncStorage.getItem("prizm_wallet");
             if (storedPhrase) {
                 setSecretPhrase(storedPhrase);
             } else {
                 setSecretPhrase(null);
+            }
+            if (storedWallet) {
+                setUserWallet(storedWallet)
             }
         } catch (error) {
             console.error("Ошибка загрузки секретной фразы:", error);
@@ -50,7 +95,7 @@ const SharePrizm = () => {
     };
 
     useEffect(() => {
-        loadSecretPhrase();
+        loadSecretPhraseAndWallet();
     }, []);
     const askCameraPermission = async () => {
         const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -65,7 +110,9 @@ const SharePrizm = () => {
       }, []);
       const handleAfterScanned = ({ data, type }: any) => {
         setIsScanner(false)
-        console.log(data);
+        const result = splitQrText(data)
+        scanQrCode(result?.afterColon)
+        console.log(result, result.afterColon, result.beforeColon);
     };
     const copyWalletToClipboard = () => {
         Clipboard.setString(wallet);
@@ -130,13 +177,16 @@ const SharePrizm = () => {
     }
     useEffect(()=>{
         getData()
+        console.log(secretPhrase)
     },[])
+    
     const postForm = async () => {
         setIsLoading(true);
         const form = {
-            secret_phrase:sid,
+            secret_phrase:secretPhrase || sid,
             recipient_wallet:wallet,
-            prizm_amount:count
+            prizm_amount:count,
+            ...(addressatPublicKey && { recipient_public_key: addressatPublicKey })
         };
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
@@ -154,14 +204,19 @@ const SharePrizm = () => {
                   );
             }
             if (response.ok){
+                if (!secretPhrase && checked){
+                    await asyncStorage.setItem("secret-phrase", sid)
+                    console.log('secret phrase memoried')
+                }
                 setSid('')
                 setCount(null)
                 setWallet('')
                 router.replace('/(user)/menu');
             } else if (data && !data?.header) {
-                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data;
+                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data.recipient_public_key?.[0] || data;
                 Alert.alert(message);
-            } 
+            }  
+            // await asyncStorage.setItem("secret-phrase", secretPhrase);
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
         } finally {
@@ -208,7 +263,11 @@ const SharePrizm = () => {
                                 editable={true}
                                 placeholder={'Кошелек получателя'}
                                 value={wallet}
-                                onChangeText={setWallet}
+                                onChangeText={(str)=>{
+                                    setWallet(str)
+                                    setAddressatPublicKey('')
+                                }
+                                }
                                 placeholderTextColor='#8C8C8C'
                             />
                             <Pressable style={styles.scanIconContainer} onPress={()=>setIsScanner(true)}>
@@ -271,7 +330,7 @@ const SharePrizm = () => {
                             <Text style={styles.checkboxText}>cохранить мою парольную фразу</Text>
                         </View>}
                         <View style={{marginTop: 20}}>
-                            <StaticButton text={`Перевести ${count ? `${count} ` : ''}pzm`} disabled={!!errorMessage || (!secretPhrase && !!!sid) || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || !sid || !wallet ? console.log('') : postForm()}}/>
+                            <StaticButton text={`Перевести ${count ? `${count} ` : ''}pzm`} disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || (!secretPhrase && !sid) || !wallet ? console.log('d') : postForm()}}/>
                         </View>
                         <Text style={styles.transactionsTitle}>
                             История транзакций
@@ -285,9 +344,9 @@ const SharePrizm = () => {
                         /> */}
                         {
                             <View style={{marginBottom:50}}>
-                                {transactionList && transactionList.map((item, index)=>( 
+                                {transactions && transactions.map((item, index)=>( 
                                     <View style={{marginBottom:9}} key={index}>
-                                        <TransactionItem num={item.number}/>
+                                        <TransactionItem item={item}/>
                                     </View>
                                 ))}
                             </View>

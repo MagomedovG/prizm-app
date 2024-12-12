@@ -219,10 +219,10 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                             Вы уверены, что хотите выйти из аккаунта?
                         </Text>
                         <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
-                            <Pressable onPress={() => logOut()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
+                            <Pressable onPress={() => logOut()} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}, theme === 'purple' ? {backgroundColor:'#41146D',borderColor:'#41146D'} : {backgroundColor:"#32933C",borderColor:"#32933C"}]}>
                                 <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Выйти</Text>
                             </Pressable>
-                            <Pressable onPress={() => setIsLogout(false)} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                            <Pressable onPress={() => setIsLogout(false)} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
                                 <Text style={{fontSize:18,textAlign:'center'}}>Остаться</Text>
                             </Pressable>
                         </View>
@@ -385,6 +385,12 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
 };
 
 const styles = StyleSheet.create({
+    purpleBackground:{
+        backgroundColor:'#41146D'
+    },
+    greenBackground:{
+        backgroundColor:"#32933C"
+    },
     headerContainer: {
         borderBottomWidth: 0,
         width: '100%',
@@ -403,7 +409,8 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 22,
         color: 'white',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        lineHeight:24
     },
     headerProfileGroup: {
         display: 'flex',

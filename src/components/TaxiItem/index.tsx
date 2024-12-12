@@ -1,28 +1,34 @@
 import { Link } from "expo-router";
-import { View, Text, Platform, Image, StyleSheet } from "react-native";
+import { View, Text, Platform, StyleSheet } from "react-native";
+import {Image} from 'expo-image'
 import { RFValue } from "react-native-responsive-fontsize";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 
 export default function TaxiItem({item}:any){
+    const { theme } = useCustomTheme();
 
     return (
         <View style={{marginHorizontal:23}}>
             <View style={Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer}>
                 <View style={[styles.container,{width:'40%'}]}>
-                    <View style={styles.logo}>
-
-                    </View>
+                    <Image
+                        source={{ uri: `${apiUrl}${item?.logo}` }}
+                        style={styles.logo}
+                        cachePolicy={'memory-disk'}
+                    />
                     <Text style={styles.title} numberOfLines={2}>
-                        {item.title}
+                        {item.name}
                     </Text>
                 </View>
                 <View style={styles.container}>
                     <View style={styles.sumContainer}>
-                        <Text style={[styles.sum, {fontWeight: 'bold'}]}>
-                            {parseFloat(item?.cashbackSize.toFixed(2).toString())}%
+                        <Text style={[styles.sum, {fontWeight: 'bold'}, theme === 'purple' ? {} : {color:'#32933C'}]}>
+                            {parseFloat(Number(item?.cashback_size)?.toFixed(2))}%
                         </Text>
                     </View>
-                    <Link href={`tel:${item.telNumber}`} style={styles.sumContainer}>
-                        <Text style={styles.sum}>
+                    <Link href={`tel:${item.phone_number}`} style={styles.sumContainer}>
+                        <Text style={[styles.sum, theme === 'purple' ? {} : {color:'#32933C'}]}>
                             Позвонить
                         </Text>
                     </Link>
@@ -85,7 +91,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 9,
         paddingVertical: 6,
         backgroundColor: '#F5F5F5',
-        borderRadius: 4,
+        borderRadius: 8,
     },
     sum: {
         fontSize: RFValue(15, 812),

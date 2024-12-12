@@ -3,13 +3,17 @@ import React from 'react';
 import { useState } from 'react';
 import { Pressable, ScrollView } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 import { Text, View, StyleSheet, StatusBar, Dimensions } from 'react-native';
 import TaxiItem from '@/src/components/TaxiItem';
 import UIButton from '@/src/components/UIButton';
+import { useQuery } from '@tanstack/react-query';
 const statusBarHeight = StatusBar.currentHeight || 0;
 export default function TaxiScreen () {
     const [localityName,setLocalityName]=useState('')
+    const [localityType, setLocalityType] = useState('')
+    const [localityId, setLocalityId] = useState('')
     const router = useRouter()
     const backToMenu = () => {
         router.back()
@@ -30,9 +34,22 @@ export default function TaxiScreen () {
         {title:'Такси анжи',cashbackSize:5,telNumber:89999999999},
         {title:'Такси анжи2',cashbackSize:12.78000,telNumber:89999999999},
     ])
+    const { data: taxis, isLoading: isTaxisLoading, refetch: refetchTaxis } = useQuery({
+        queryKey:['taxis',localityId,localityType],
+        queryFn: async () => {
+                const response = await fetch(`${apiUrl}/api/v1/taxi/get-taxis-for-locality/?locality-id=${localityId}&locality-type=${localityType}`);
+                console.log('refreshCategories',`${apiUrl}/api/v1/taxi/get-taxis-for-locality/?locality-id=${localityId}&locality-type=${localityType}`)
+                return await response.json();
+        },
+        enabled: !!localityId && !!localityType, 
+    });
     const getLocationTypeAndId = async () => {
         const localLocationName = await AsyncStorage.getItem('locality-full-name')
         setLocalityName(localLocationName ? localLocationName : 'не указано местоположение')
+        const localLocationId = await AsyncStorage.getItem('locality-id')
+        const localLocationType = await AsyncStorage.getItem('locality-type')
+        setLocalityId(localLocationId ? localLocationId : '')
+        setLocalityType(localLocationType ? localLocationType : '')
         console.log( localLocationName, 'local')
     }
     useFocusEffect(
@@ -51,7 +68,7 @@ export default function TaxiScreen () {
                         </Text>
                     </Pressable>
                     <View  style={{paddingBottom:150}}>
-                        {taxiList && taxiList.map((taxi,index)=>(
+                        {taxis && taxis.map((taxi,index)=>(
                             <TaxiItem item={taxi} key={index}/>
                         ))}
                     </View>

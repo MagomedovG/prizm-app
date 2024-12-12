@@ -23,7 +23,7 @@ title?: string;
 isBonus?: boolean;
 isAdmin?: boolean;
 buttonLink?: string;
-onWalletPress?: () => void;
+onWalletPress?: (value:boolean) => void;
 };
 
 export default function CategoryItemList({
@@ -38,7 +38,7 @@ const { height, width } = useWindowDimensions();
 const isSingleColumn = !!categoryList && categoryList.length <= 7;
 
 const handleWalletPress = () => {
-    onWalletPress?.();
+    onWalletPress?.(true);
 };
 
 const renderCategoryItem = ({ item }: { item: IBusiness }) => (
@@ -63,7 +63,7 @@ const renderCategoryItem = ({ item }: { item: IBusiness }) => (
             cachePolicy="memory-disk"
         />
         <View style={styles.saleContainer}>
-            <Text style={styles.sale}>
+            <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'}]}>
             {parseFloat(item.cashback_size.toString())}%
             </Text>
         </View>

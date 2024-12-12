@@ -3,9 +3,13 @@ import {StyleSheet, View, Text, TextInput} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
+
 const SetNickName = () => {
     const [name, setName] = useState<any>('');
     const router = useRouter();
+    const { theme } = useCustomTheme();
+
 
     useEffect(()=> {
         const getAsyncName = async () => {
@@ -41,7 +45,7 @@ const SetNickName = () => {
                 <Text style={styles.title}>
                     Придумайте имя пользователя
                 </Text>
-                <View style={styles.inputContainer}>
+                <View style={[styles.inputContainer, theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
                     <TextInput
                         placeholder="Имя пользователя"
                         value={name}

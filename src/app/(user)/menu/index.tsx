@@ -315,14 +315,16 @@ export default function MenuScreen() {
                     
         <View style={styles.tabBar}>
             <Link href='/(user)/menu/taxi' style={styles.tabBarItem} asChild>
-                <Pressable>
+                <Pressable style={styles.tabBarItemContainer}>
                     <TaxiIcon/>
+                    <Text style={{color:"#ccc",fontSize:12}}>такси</Text>
                 </Pressable>
                 
             </Link>
             <Link href='/(user)/menu/partners'  style={styles.tabBarItem} asChild>
-                <Pressable>
+                <Pressable style={styles.tabBarItemContainer}>
                     <BusinessIcon/>
+                    <Text style={{color:"#ccc",fontSize:12}}>партнёрам</Text>
                 </Pressable>
             </Link>
         </View>
@@ -331,6 +333,11 @@ export default function MenuScreen() {
 }
 
 const styles = StyleSheet.create({
+    tabBarItemContainer:{
+        display: 'flex',
+        flexDirection:'column',
+        alignItems: 'center',
+    },
     fixedTextContainer: {
         position: "absolute",
         bottom: 23,
@@ -493,7 +500,7 @@ const styles = StyleSheet.create({
         bottom: 0,          
         left: 0,      
         right: 0,
-        height: 55,        
+        height: 59,        
         backgroundColor: '#fff', 
         flexDirection: 'row', 
         justifyContent: 'space-around', 

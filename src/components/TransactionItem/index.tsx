@@ -1,28 +1,53 @@
 import { View, Text, StyleSheet } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-
-export default function TransactionItem({num}:Number) {
+type TransactionType = "received" | "para" | "sent";
+type TransactionItem = {
+    item:{
+        sender:string,
+        recipient:string,
+        amount:number,
+        fee:number,
+        datetime:string,
+        type:TransactionType,
+    }
+}
+export default function TransactionItem({item}:TransactionItem) {
+    const transactionType = {
+        received:{
+            color:'#2C9E6E',
+            title:'Получено'
+        },
+        para:{
+            color:'#41146D',
+            title:'Парамайнинг'
+        },
+        sent:{
+            color:'#F84646',
+            title:'Отправлено'
+        },
+    }
+    const typeData = transactionType[item.type]; 
     return (
         <View style={styles.container}>
             <View style={styles.infoContainer}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>
-                        Отправлено
+                    <Text style={[styles.title,  { color: typeData.color }]}>
+                        {typeData.title}
                         <Text style={styles.dateTime}>
-                            {'   '}01.01.2025 14:67
+                            {'   ' + item.datetime}
                         </Text>
                     </Text>
                 </View>
                 <Text style={styles.recipient}>
-                    Получатель: PRIZM-FKFK-EFKF-3455
+                    {item.type === 'sent' ? 'Получатель:' : 'Отправитель'} {item.type === 'sent' ? item.recipient : item.sender}
                 </Text>
                 <Text style={styles.comission}>
-                    Комиссия сети: 0.25
+                    Комиссия сети: {item.fee}
                 </Text>
             </View>
             <View style={styles.sumContainer}>
-                <Text style={styles.sum}>
-                    -50 {num}
+                <Text style={[styles.sum, { color: typeData.color }]}>
+                    {item.type === 'sent' ? '-' : '+'}{parseFloat(item.amount.toString())}
                 </Text>
             </View>
         </View>
@@ -52,7 +77,7 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     title: {
-        fontSize: RFValue(15, 812), // 812 — высота экрана Pixel 8 Pro
+        fontSize: RFValue(15, 812), 
         lineHeight: RFValue(17.5, 812),
     },
     dateTime: {
