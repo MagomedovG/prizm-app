@@ -1,57 +1,67 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { ScrollView, View,Text, FlatList, Pressable,StyleSheet, Dimensions } from "react-native";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 import {Image} from 'expo-image'
+import { useState } from "react";
+import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export default function PartnersScreen() {
-    const { data: business, isLoading: isBusinessLoading } = useQuery({
-        queryKey: ['business'],
+    const [localityType, setLocalityType] = useState('')
+    const [localityId, setLocalityId] = useState('')
+    const getLocationTypeAndId = async () => {
+        const localLocationId = await AsyncStorage.getItem('locality-id')
+        const localLocationType = await AsyncStorage.getItem('locality-type')
+        setLocalityId(localLocationId ? localLocationId : '')
+        setLocalityType(localLocationType ? localLocationType : '')
+        console.log(localLocationId, localLocationType, 'local')
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getLocationTypeAndId()
+        }, [])
+    )
+    const { data: partners, isLoading: isPartnersLoading } = useQuery({
+        queryKey: ['partners'],
         queryFn: async () => {
             const response = await fetch(
-                `${apiUrl}/api/v1/business/2/`,
+                `${apiUrl}/api/v1/partnership/get-contacts-for-partners?locality-id=${localityId}&locality-type=${localityType}`,
             );
             const data = await response.json();
-            const business = data.business;
-            return business;
+            // const business = data.business;
+            return data;
         },
+        enabled: !!localityId && !!localityType, 
     });
     return (
         <View style={styles.container}>
             <View>
                 <Text>
-                    уа ыуларыушгарыуша
-                    щжшоаыужщоаыужщаоыэ
-                    ыушщзэоаэыоа
-                    ыошщыоуа
-                    ыаоы
-                    щаоыузшаоыущо
-                    щаоышуоаыу
-
-                    ыощуаыоуашыуа
-                    ышроащшыоаэышоуаэы
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum rem quod ipsam perspiciatis amet omnis velit aliquid aut tempora tempore doloribus maiores accusantium qui id itaque, magni saepe deleniti reiciendis?
                 </Text>
             </View>
             <Text style={styles.subTitle}>Контакты:</Text>
-            {business?.contacts.length && business?.contacts.length >= 1 ?
+            {partners.length && partners.length >= 1 ?
                 <>
                     <FlatList
-                        data={business?.contacts}
-                        columnWrapperStyle={business?.contacts.length > 1 ? styles.row : undefined} 
+                        data={partners}
+                        columnWrapperStyle={partners?.length > 1 ? styles.row : undefined} 
                         contentContainerStyle={styles.listContainer} 
                         renderItem={({item}) => (
                             <Link href={item.contact_type.contact_value_type === 'phone_number' ? `tel:${item.value}` : item.value} style={[styles.contactContainer,{backgroundColor:`#${item.contact_type.background_color}`}]} asChild>
                                 <Pressable>
-                                    <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},business?.contacts.length > 2 ? {gap:7} : {gap:10}]}>
+                                    <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},partners?.length > 2 ? {gap:7} : {gap:10}]}>
                                         <Image
-                                            style={{width:business?.contacts?.length > 2 ? 23 : 27, height:business?.contacts && business?.contacts?.length > 2 ? 23 : 27, borderRadius:50}}
+                                            style={{width:partners?.length > 2 ? 23 : 27, height:partners && partners?.length > 2 ? 23 : 27, borderRadius:50}}
                                             source={{uri: `${apiUrl}/${item.contact_type.logo}`}}
                                             cachePolicy={'memory-disk'}
                                         />
-                                        <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}, business?.contacts && business?.contacts?.length > 2  ? {fontSize: 13.5} : {fontSize: 16}]}>
+                                        <Text style={[styles.contactText,{color:`#${item.contact_type.text_color}`}, partners && partners?.length > 2  ? {fontSize: 13.5} : {fontSize: 16}]}>
                                             {item.contact_type.name}
                                         </Text>
                                     </View>
@@ -60,7 +70,7 @@ export default function PartnersScreen() {
                                 </Link>
                             
                         )}
-                        numColumns={business?.contacts.length > 2 ? 3 : business?.contacts.length} 
+                        numColumns={partners.length > 2 ? 3 : partners.length} 
                         keyExtractor={(item) => item.value}
                         showsHorizontalScrollIndicator={false}
                     />

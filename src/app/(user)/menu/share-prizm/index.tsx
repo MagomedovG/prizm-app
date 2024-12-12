@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
         // borderColor: borderColor
     },
     textArea: {
-        height: 178,
-        paddingVertical: 16,
+        height: 120,
+        paddingVertical: 10,
         paddingHorizontal: 13,
         backgroundColor: '#fff',
         borderWidth: 1,
