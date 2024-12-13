@@ -62,13 +62,13 @@ export default function TaxiScreen () {
             <ScrollView>
                 <View style={styles.container}>
                     <Text style={styles.title}>Такси</Text>
-                    <Pressable style={styles.locationContainer} onPress={getLocationTypeAndId}>
+                    <Pressable style={styles.locationContainer} onPress={refetchTaxis}>
                         <Text style={styles.locationTitle}>
                             {localityName ? localityName : 'не указано местоположение'}
                         </Text>
                     </Pressable>
                     <View  style={{paddingBottom:150}}>
-                        {taxis && taxis.map((taxi,index)=>(
+                        {taxis && taxis?.length > 0 && taxis?.map((taxi,index)=>(
                             <TaxiItem item={taxi} key={index}/>
                         ))}
                     </View>

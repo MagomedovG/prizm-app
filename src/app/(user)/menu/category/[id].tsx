@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     container: {
         display:'flex',
         flexDirection:'column',
-        width: ITEM_WIDTH,
+        // width: ITEM_WIDTH,
         paddingHorizontal: 10,
         paddingTop: 36,
         alignSelf: 'center',

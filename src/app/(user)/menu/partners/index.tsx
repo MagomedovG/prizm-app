@@ -46,7 +46,7 @@ export default function PartnersScreen() {
                 </Text>
             </View>
             <Text style={styles.subTitle}>Контакты:</Text>
-            {partners.length && partners.length >= 1 ?
+            {partners && partners?.length > 0 ?
                 <>
                     <FlatList
                         data={partners}

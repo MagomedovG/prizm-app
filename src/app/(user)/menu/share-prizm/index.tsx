@@ -188,6 +188,7 @@ const SharePrizm = () => {
             prizm_amount:count,
             ...(addressatPublicKey && { recipient_public_key: addressatPublicKey })
         };
+        console.log(form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
@@ -197,6 +198,7 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
+            console.log(data)
             if (data?.header && data?.description){
                 Alert.alert(
                     data?.header, 
@@ -240,7 +242,9 @@ const SharePrizm = () => {
                         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
                         onBarcodeScanned={handleAfterScanned}
                         style={styles.Scanner}
+                        flash='on'
                         facing='back'
+                        zoom={0}
                     >
 
                     </CameraView>

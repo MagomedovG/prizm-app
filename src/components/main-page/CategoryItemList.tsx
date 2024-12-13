@@ -63,12 +63,14 @@ const renderCategoryItem = ({ item }: { item: IBusiness }) => (
             cachePolicy="memory-disk"
         />
         <View style={styles.saleContainer}>
-            <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'}]}>
-            {parseFloat(item.cashback_size.toString())}%
+            <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'},]}>
+                {parseFloat(item.cashback_size.toString())}%
             </Text>
         </View>
         </View>
-        <Text style={styles.text}>{item.title || "Без названия"}</Text>
+        <Text style={[styles.text,isSingleColumn
+                ? { width: "100%" }
+                : { width: width / 2 - 33,},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
     </Pressable>
     </Link>
 );

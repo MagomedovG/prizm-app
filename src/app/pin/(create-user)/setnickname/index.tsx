@@ -31,7 +31,7 @@ const SetNickName = () => {
     }
     
     const handleNameChange = (text: string) => {
-            const allowedCharsRegex = /^[a-zA-Z0-9._@]*$/;
+            const allowedCharsRegex = /^[a-zA-Zа-яА-Я0-9._@]*$/;
             if (allowedCharsRegex.test(text)) {
                 setName(text);
             }
@@ -55,7 +55,7 @@ const SetNickName = () => {
                     />
                 </View>
                 <Text style={styles.suggest}>
-                    Имя пользователя может содержать только латинские буквы (a-z, A-Z), цифры и символы @, _, .
+                    Имя пользователя может содержать только буквы, цифры и символы @, _, .
                 </Text>
             </View>
             <UIButton text='Ок' onPress={setNickName}/>
