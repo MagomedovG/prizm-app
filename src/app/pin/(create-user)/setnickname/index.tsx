@@ -1,15 +1,21 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput} from "react-native";
+import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-
+import { Ionicons } from '@expo/vector-icons';
+import Modal from "react-native-modal";
+const {width, height} = Dimensions.get("window");
+const deviceWidth = width
+const statusBarHeight = StatusBar.currentHeight || 0;
+const deviceHeight = height + statusBarHeight
 const SetNickName = () => {
     const [name, setName] = useState<any>('');
     const router = useRouter();
     const { theme } = useCustomTheme();
-
+    const [checked, setChecked] = useState(false);
+    const [isModal, setIsModal] = useState(false)
 
     useEffect(()=> {
         const getAsyncName = async () => {
@@ -57,8 +63,54 @@ const SetNickName = () => {
                 <Text style={styles.suggest}>
                     Имя пользователя может содержать только буквы, цифры и символы @, _, .
                 </Text>
+                <View style={styles.checkboxContainer}>
+                        <Pressable
+                            role="checkbox"
+                            aria-checked={checked}
+                            style={[styles.checkboxBase, checked && (theme === 'purple' ? styles.checkboxPurpleChecked : styles.checkboxGreenChecked), theme === 'purple' ? {} : {borderColor:"#32933C"}]}
+                            onPress={() => setChecked(!checked)}>
+                            {checked && <Ionicons name="checkmark-sharp" size={17} color="white" />}
+                        </Pressable>
+                        <Pressable onPress={()=>setIsModal(true)}>
+                            <Text style={styles.checkboxText}>
+                                я ознакомлен c {''}
+                                
+                                    <Text style={theme === "purple" ? {color:'#41146D'} : {color:"#32933C"}}>
+                                        здесь ссылка
+                                    </Text>
+                            </Text>
+                        </Pressable>
+                    </View>
             </View>
-            <UIButton text='Ок' onPress={setNickName}/>
+            <UIButton text='Ок' onPress={setNickName} disabled={!checked || !name}/>
+            <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                animationIn={'slideInUp'}
+                isVisible={isModal}
+                // onSwipeComplete={()=>setIsModal(false)}
+                // onBackdropPress={()=>setIsModal(false)}
+                onBackButtonPress={()=>setIsModal(false)}
+                animationInTiming={200}
+                animationOut='slideOutDown'
+                animationOutTiming={500}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.modal}
+                backdropTransitionOutTiming={0}
+                statusBarTranslucent
+            >   
+                <View style={styles.centeredView}>
+                    <View style={styles.modalViewContainer}>
+                        <Text style={styles.modalTitle}>
+                            Соглашение...
+                        </Text>
+                    </View>
+                </View>
+                <UIButton text="Ознакомился" onPress={()=>setIsModal(false)}/>
+
+            </Modal>
         </View>
     );
 };
@@ -66,6 +118,73 @@ const SetNickName = () => {
 export default SetNickName;
 
 const styles = StyleSheet.create({
+    centeredView: {
+        
+        justifyContent: 'flex-end',
+    },
+    modal: {
+        margin: 0,
+        justifyContent: 'flex-end',
+        position:'relative',
+        
+    },
+    modalViewContainer:{
+        backgroundColor: '#f5f5f5',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        // alignItems: 'center',
+        shadowColor: '#000',
+        width: '100%',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        height:height - 100,
+        paddingVertical:26,
+        paddingHorizontal:21,
+    },
+    modalTitle:{
+        fontSize:20,
+        fontWeight: 'bold',
+    },
+    checkboxBase: {
+        width: 21,
+        height: 21,
+
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4,
+        borderWidth: 1,
+        borderColor: '#957ABC',
+        backgroundColor: 'transparent',
+        marginTop:4,
+        marginLeft:5
+      },
+      checkboxPurpleChecked: {
+        backgroundColor: '#41146D',
+      },
+      checkboxGreenChecked: {
+        backgroundColor: '#32933C',
+      },
+      checkboxContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 7,
+        marginBottom: 20,
+        // position: 'absolute',
+        // bottom: '-100%',
+        // left: '12%',
+    },
+    checkboxText: {
+        fontSize: 14,
+        lineHeight: 18, // Немного больше для центрирования относительно чекбокса
+        // marginLeft: 6,  // Расстояние от чекбокса до текста
+        textAlignVertical: 'center', // Для текстового центрирования
+    },
     createWallet:{
         marginHorizontal:42,
         alignItems: 'center',

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated, Pressable, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated, Pressable, StatusBar, TextInput,Clipboard } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useRouter } from 'expo-router';
-import { AntDesign, FontAwesome6 } from '@expo/vector-icons';
+import { AntDesign, FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import NetInfo from '@react-native-community/netinfo';
 import * as Location from 'expo-location';
@@ -31,11 +31,33 @@ const SetPinScreen = () => {
     const [longitude, setLongitude] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const [isModal, setIsModal] = useState(false)
-
+    const [isLogout, setIsLogout] = useState(false)
+    const [userName, setUserName] = useState<string | null>(null)
+    const [prizmWallet, setPrizmWallet] = useState<string | null>(null)
+    const [isShowLogoutContent, setIsShowLogoutContent]  = useState(false)
+    const logOut = () => {
+        AsyncStorage.clear()
+        router.replace('/pin/setpinscreen')
+    }
   useEffect(() => {
     checkIfLocationEnabled();
     getCurrentLocation();
   }, []);
+  useEffect(() => {
+    async function fetchUserId() {
+        const storedUserName = await AsyncStorage.getItem('user_id');
+        const storedPrizmWallet = await AsyncStorage.getItem('prizm_wallet');
+        if (storedPrizmWallet) {
+            setPrizmWallet(storedPrizmWallet); 
+        } 
+        if (storedUserName) {
+            setUserName(storedUserName); 
+        } else {
+            console.error('User ID не найден в asyncStorage');
+        }
+    }
+    fetchUserId();
+}, []);
 
   const checkIfLocationEnabled = async () => {
     try {
@@ -236,6 +258,26 @@ const SetPinScreen = () => {
             Alert.alert('Аутентификация не удалась');
         }
     };
+    const copyWalletToClipboard = () => {
+        if (prizmWallet && typeof prizmWallet === "string" ) {
+            Clipboard.setString(prizmWallet);
+        }
+        if (prizmWallet){
+            Alert.alert('Кошелек скопирован!', prizmWallet)
+        } else {
+            Alert.alert('Кошелек не найден, войдите в систему!')
+        }
+    };
+    const copyNameToClipboard = () => {
+        if (userName && typeof userName === "string" ) {
+            Clipboard.setString(userName);
+        }
+        if (userName){
+            Alert.alert('Имя пользователя скопировано!', userName)
+        } else {
+            Alert.alert('Имя пользователя не найдено, войдите в систему!')
+        }
+    };
 
     
 
@@ -266,7 +308,7 @@ const SetPinScreen = () => {
                         ))}
                     </View>
                     {storedPinHash && <Pressable onPress={()=>setIsModal(true)}>
-                        <Text style={{color:'#CBA8FF', fontSize:16, marginBottom:15}}>
+                        <Text style={{color:theme === 'purple' ? '#CBA8FF' : 'rgba(106,151,92,0.6)', fontSize:16, marginBottom:15}}>
                             не помню код-пароль
                         </Text>
                     </Pressable>}
@@ -288,9 +330,18 @@ const SetPinScreen = () => {
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isModal}
-                onSwipeComplete={()=>setIsModal(false)}
-                onBackdropPress={()=>setIsModal(false)}
-                onBackButtonPress={()=>setIsModal(false)}
+                onSwipeComplete={()=>{
+                    setIsModal(false)
+                    setIsShowLogoutContent(false)
+                }}
+                onBackdropPress={()=>{
+                    setIsModal(false)
+                    setIsShowLogoutContent(false)
+                }}
+                onBackButtonPress={()=>{
+                    setIsModal(false)
+                    setIsShowLogoutContent(false)
+                }}
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
@@ -303,25 +354,138 @@ const SetPinScreen = () => {
             >   
                 <View style={styles.centeredView}>
                     <View style={styles.modalViewContainer}>
-                        <Text style={styles.modalTitle}>
-                            аыуаоыуаоыуаоол
-                            оыушщаоыщдушаоы
-                            доаыщоаыэжшоаы
-                            ы
-                            уаыщзуоаыщшуоаыжэщшуоаы
-                            ыщшаоыщушао
-                        </Text>
+                        {!isShowLogoutContent ? 
+                        <>
+                            <Text style={styles.modalTitle}>
+                                Если вы забыли код пароль, 
+                                вам нужно выйти из аккаунта и 
+                                войти заново. Для входа вам
+                                понадобится <Text style={{fontWeight:'bold'}}>имя пользователя</Text> и <Text style={{fontWeight:'bold'}}>ваш кошелек.</Text>
+                            </Text>
+                            <Pressable onPress={() => setIsShowLogoutContent(true)} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
+                                <Text style={{fontSize:18,textAlign:'center'}}>Выйти из аккаунта</Text>
+                            </Pressable>
+                        </> : 
+                            <View style={{width:'100%', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                                <Text style={[styles.modalTitle, {textAlign:'center', width:'85%'}]}>
+                                    Советуем сохранить <Text style={[{fontWeight:'bold'}, theme === 'purple' ? {color:'#6F1AEC'} : {color:'#32933C'} ]}>
+                                        имя пользователя
+                                    </Text> и <Text style={[{fontWeight:'bold'}, theme === 'purple' ? {color:'#6F1AEC'} : {color:'#32933C'} ]}>
+                                        адрес кошелька</Text> перед выходом 
+                                </Text>
+                                <View style={{width:'100%', marginBottom:4}}>
+                                    <Text style={styles.inputLable}>имя пользователя</Text>
+                                    <Pressable  onPress={copyNameToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, {height:41, borderRadius:10, borderWidth:1, width:'100%', padding:8}]}>
+                                        <TextInput
+                                            placeholder="Имя пользователя"
+                                            value={userName}
+                                            // onChangeText={handleNameChange}
+                                            style={styles.inputText}
+                                            placeholderTextColor="gray"
+                                            editable={false}
+                                        />
+                                        <View style={styles.copyButtonContainer}>
+                                            <FontAwesome5 name="copy" size={15} color="gray" />
+                                        </View>
+                                    </Pressable>
+                                </View>
+                                <View style={{width:'100%', marginBottom:24}}>
+                                    <Text style={styles.inputLable}>адрес кошелька</Text>
+                                    <Pressable onPress={copyWalletToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, {height:41, borderRadius:10, borderWidth:1, width:'100%', padding:8}]}>
+                                        <TextInput
+                                            placeholder="Адрес кошелька"
+                                            value={prizmWallet}
+                                            // onChangeText={handleNameChange}
+                                            style={styles.inputText}
+                                            placeholderTextColor="gray"
+                                            editable={false}
+                                        />
+                                        <View style={styles.copyButtonContainer}>
+                                            <FontAwesome5 name="copy" size={15} color="gray" />
+                                        </View>
+                                    </Pressable>
+                                </View>
+                                <Pressable onPress={() => {
+                                        logOut()
+                                        setIsModal(false)
+                                    }
+                                    } 
+                                    style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
+                                    <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
+                                </Pressable>
+
+                            </View>
+                        
+                        }
                     </View>
                 </View>
                 <Pressable style={styles.closeButton} onPress={()=>setIsModal(false)}>
                         <AntDesign name="close" size={30} color="white" />
                 </Pressable>
             </Modal>
+            {/* <Modal
+                deviceWidth={deviceWidth}
+                deviceHeight={deviceHeight}
+                onBackButtonPress={()=>setIsLogout(false)} 
+                animationIn={'slideInUp'}
+                isVisible={isLogout}
+                onSwipeComplete={()=>setIsLogout(false)}
+                onBackdropPress={()=>setIsLogout(false)}
+                animationInTiming={300}
+                animationOut='slideOutDown'
+                animationOutTiming={300}
+                backdropTransitionOutTiming={0}
+                backdropColor='black'
+                hardwareAccelerated
+                swipeDirection={'down'}
+                style={styles.logoutModal}
+                statusBarTranslucent
+            >
+                <View style={{width:'80%',height:'50%',alignItems: 'center',
+        justifyContent: 'center',}}>
+                    <View style={styles.modalView}>
+                        <Text style={{fontSize:18, fontWeight:'bold', textAlign:'center', marginBottom:14, marginTop:10}}>
+                            Вы уверены, что хотите выйти из аккаунта?
+                        </Text>
+                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
+                            <Pressable onPress={() => logOut()} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}, theme === 'purple' ? {backgroundColor:'#41146D',borderColor:'#41146D'} : {backgroundColor:"#32933C",borderColor:"#32933C"}]}>
+                                <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Выйти</Text>
+                            </Pressable>
+                            <Pressable onPress={() => setIsLogout(false)} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
+                                <Text style={{fontSize:18,textAlign:'center'}}>Остаться</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+                <Pressable style={styles.closeButton} onPress={() => setIsLogout(false)}>
+                        <AntDesign name="close" size={30} color="white" />
+                </Pressable>
+            </Modal> */}
         </>
     );
 };
 
 const styles = StyleSheet.create({
+    copyButtonContainer: {
+        position: 'absolute',
+        right: 10,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    input:{
+
+    },
+    inputText:{
+        color:'black'
+    },
+    inputLable:{
+        fontSize:12,
+        color:'rgba(0,0,0,0.5)',
+        marginLeft:8,
+        // marginBottom:2
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -390,6 +554,7 @@ const styles = StyleSheet.create({
     },
     modalTitle:{
         fontSize:16,
+        marginBottom:16
     },
     closeButton: {
         position: 'absolute',

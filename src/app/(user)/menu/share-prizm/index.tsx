@@ -15,9 +15,9 @@ const { width, height } = Dimensions.get('window');
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 import { BarCodeScanner } from "expo-barcode-scanner";
-
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const deviceWidth = width;
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
 import { useQuery } from '@tanstack/react-query';
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
@@ -37,7 +37,7 @@ const SharePrizm = () => {
     const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
     const [addressatPublicKey, setAddressatPublicKey] = useState('')
     const [userWallet, setUserWallet] = useState()
-
+    const [flashStatus, setFlashStatus] = useState<boolean>(false)
     const { data: transactions, isLoading: isTransactionsLoading, refetch: refetchTransactions } = useQuery({
         queryKey:['transactions',userWallet],
         queryFn: async () => {
@@ -186,7 +186,8 @@ const SharePrizm = () => {
             secret_phrase:secretPhrase || sid,
             recipient_wallet:wallet,
             prizm_amount:count,
-            ...(addressatPublicKey && { recipient_public_key: addressatPublicKey })
+            recipient_public_key:addressatPublicKey ? addressatPublicKey : null
+            // ...(addressatPublicKey && { recipient_public_key: addressatPublicKey })
         };
         console.log(form)
         try {
@@ -242,13 +243,22 @@ const SharePrizm = () => {
                         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
                         onBarcodeScanned={handleAfterScanned}
                         style={styles.Scanner}
-                        flash='on'
+                        enableTorch={flashStatus}
                         facing='back'
                         zoom={0}
                     >
 
                     </CameraView>
-                    <Pressable style={styles.closeButton} onPress={()=>setIsScanner(false)}>
+                    <Pressable onPress={()=>setFlashStatus(!flashStatus)} style={[styles.flashButton]}>
+                        <View style={[flashStatus ? {backgroundColor:'#fff'} : {backgroundColor:'#000',opacity:0.7}, {padding:12, borderRadius:50}]}>
+                           <MaterialCommunityIcons name="flashlight" size={24} color={flashStatus ? "black" : "white"} /> 
+                        </View>
+                        
+                    </Pressable>
+                    <Pressable style={styles.closeButton} onPress={()=>{
+                            setIsScanner(false)
+                            setFlashStatus(false)
+                        }}>
                             <AntDesign name="close" size={22} color="white" style={styles.xIcon}/>
                         </Pressable>
                 </View>
@@ -408,6 +418,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         // position:'relative'
+    },
+    flashButton: {
+        position: 'absolute',
+        bottom: statusBarHeight + 10,
+        // right: 20,
+        width:'100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent:'center',
+        zIndex: 11111,
     },
     closeButton: {
         position: 'absolute',

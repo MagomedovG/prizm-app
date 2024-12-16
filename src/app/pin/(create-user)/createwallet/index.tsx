@@ -132,7 +132,7 @@ const CreateWallet = () => {
                     </Text>
                     <View style={styles.message}>
                         <Text style={styles.messageText}>Обязательно сохраните парольную-фразу! 
-                            Ее нельзя будет получить еще раз. Без нее нельзя будет обменять <Text style={{fontWeight:'bold'}}>PZM</Text> на рубли! (сделайте фото экрана или сохраните на телефоне)
+                            Без нее нельзя будет обменять <Text style={{fontWeight:'bold'}}>PZM</Text> на рубли! (сделайте фото экрана или сохраните на телефоне)
                         </Text>
                     </View>
                     <Text style={styles.label}>Парольная-фраза</Text>
@@ -177,7 +177,6 @@ const CreateWallet = () => {
                             </Text>
                             <Text style={styles.modalText}>
                                 Обязательно сохраните парольную фразу! 
-                                Ее нельзя будет получить еще раз. 
                                 <Text style={{color:'#B81C1C', fontWeight: 500}}>
                                     {' '}
                                     Без нее нельзя будет обменять pzm на рубли

@@ -41,8 +41,11 @@ const handleWalletPress = () => {
     onWalletPress?.(true);
 };
 
-const renderCategoryItem = ({ item }: { item: IBusiness }) => (
-    <Link href={`/(user)/menu/category-item/${item.id}`} asChild>
+const RenderCategoryItem = ({ item }: { item: IBusiness }) => {
+    return (
+
+    
+    <Link href={`/(user)/menu/category-item/${item.id}`} asChild >
     <Pressable
         style={[
         styles.itemContainer,
@@ -70,10 +73,11 @@ const renderCategoryItem = ({ item }: { item: IBusiness }) => (
         </View>
         <Text style={[styles.text,isSingleColumn
                 ? { width: "100%" }
-                : { width: width / 2 - 33,},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
+                : { width: width / 2 - 33},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
     </Pressable>
     </Link>
-);
+    )
+};
 
 return (
     <View style={styles.container}>
@@ -104,14 +108,21 @@ return (
     )}
     <Text style={styles.title}>{title}</Text>
     {categoryList?.length ? (
+        // <View style={[styles.flatlist, isSingleColumn ? { width: "100%" } : {}]}>
+
+        //     {categoryList.map((category)=>(
+        //         <RenderCategoryItem item={category}/>
+        //     ))}
+        // </View>
         <FlatList
-        data={categoryList}
-        style={[styles.flatlist, isSingleColumn && { width: "100%" }]}
-        renderItem={renderCategoryItem}
-        numColumns={isSingleColumn ? 1 : 2}
-        keyExtractor={(item) => `${item.id}`}
-        contentContainerStyle={{ gap: 11 }}
-        columnWrapperStyle={!isSingleColumn && { gap: 6 }}
+            data={categoryList}
+            style={[styles.flatlist, isSingleColumn && { width: "100%" }]}
+            renderItem={RenderCategoryItem}
+            numColumns={isSingleColumn ? 1 : 2}
+            keyExtractor={(item) => `${item.id}`}
+            contentContainerStyle={{ gap: 11 }}
+            columnWrapperStyle={!isSingleColumn && { gap: 6 }}
+            key={isSingleColumn ? 'single-column' : 'multi-column'}
         />
     ) : (
         <Text style={styles.noDataText}>
@@ -159,6 +170,10 @@ title: {
 },
 flatlist: {
     paddingTop: 15,
+    // display:'flex',
+    // flexDirection:'row',
+    // flexWrap: 'wrap',
+    // justifyContent:'space-between'
 },
 itemContainer: {
     backgroundColor: "white",

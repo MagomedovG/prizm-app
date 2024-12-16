@@ -19,34 +19,16 @@ const LoginScreen = () => {
             <View style={{display:'flex', justifyContent:'center', alignItems:'center', flex:1}}>
                 <View style={{position:'relative',width:'100%',}}>
                     <Link href="/pin/createwallet" style={[styles.buttonContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground]} asChild>
-                        <Pressable disabled={!checked}>
+                        <Pressable>
                             <Text style={[styles.text]}>Создать кошелек</Text>
                         </Pressable>
                     </Link>
-                    <View style={styles.checkboxContainer}>
-                        <Pressable
-                            role="checkbox"
-                            aria-checked={checked}
-                            style={[styles.checkboxBase, checked && styles.checkboxPurpleChecked]}
-                            onPress={() => setChecked(!checked)}>
-                            {checked && <Ionicons name="checkmark-sharp" size={17} color="white" />}
-                        </Pressable>
-                        <Pressable onPress={()=>setIsModal(true)}>
-                            <Text style={styles.checkboxText}>
-                                я ознакомлен c {''}
-                                
-                                    <Text style={{color:'#41146D'}}>
-                                        здесь ссылка
-                                    </Text>
-                            </Text>
-                        </Pressable>
-                    </View>
                 </View>
                 
             </View>
             
             <Link href="/pin/setnickname/SetWallet" style={[styles.container,{borderWidth:1,borderColor:'#7F7F7F'}]} asChild>
-                <Pressable disabled={!checked}>
+                <Pressable >
                     <Text style={[styles.text,{color:'#7F7F7F'}]}>У меня уже есть кошелек</Text>
                 </Pressable>
             </Link>
@@ -112,41 +94,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: 'white',
     },
-    checkboxBase: {
-        width: 21,
-        height: 21,
-
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: '#957ABC',
-        backgroundColor: 'transparent',
-        marginTop:4,
-        marginLeft:5
-      },
-      checkboxPurpleChecked: {
-        backgroundColor: '#41146D',
-      },
-      checkboxGreenChecked: {
-        backgroundColor: '#32933C',
-      },
-      checkboxContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 7,
-        marginBottom: 20,
-        position: 'absolute',
-        bottom: '-100%',
-        left: '12%',
-    },
-    checkboxText: {
-        fontSize: 14,
-        lineHeight: 18, // Немного больше для центрирования относительно чекбокса
-        // marginLeft: 6,  // Расстояние от чекбокса до текста
-        textAlignVertical: 'center', // Для текстового центрирования
-    },
+   
     centeredView: {
         
         justifyContent: 'flex-end',

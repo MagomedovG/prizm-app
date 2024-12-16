@@ -194,45 +194,6 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
 
     return (
         <>
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                onBackButtonPress={()=>setIsLogout(false)} 
-                animationIn={'slideInUp'}
-                isVisible={isLogout}
-                onSwipeComplete={()=>setIsLogout(false)}
-                onBackdropPress={()=>setIsLogout(false)}
-                animationInTiming={300}
-                animationOut='slideOutDown'
-                animationOutTiming={300}
-                backdropTransitionOutTiming={0}
-                backdropColor='black'
-                hardwareAccelerated
-                swipeDirection={'down'}
-                style={styles.logoutModal}
-                statusBarTranslucent
-            >
-                <View style={{width:'80%',height:'50%',alignItems: 'center',
-        justifyContent: 'center',}}>
-                    <View style={styles.modalView}>
-                        <Text style={{fontSize:18, fontWeight:'bold', textAlign:'center', marginBottom:14, marginTop:10}}>
-                            Вы уверены, что хотите выйти из аккаунта?
-                        </Text>
-                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
-                            <Pressable onPress={() => logOut()} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}, theme === 'purple' ? {backgroundColor:'#41146D',borderColor:'#41146D'} : {backgroundColor:"#32933C",borderColor:"#32933C"}]}>
-                                <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Выйти</Text>
-                            </Pressable>
-                            <Pressable onPress={() => setIsLogout(false)} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
-                                <Text style={{fontSize:18,textAlign:'center'}}>Остаться</Text>
-                            </Pressable>
-                        </View>
-                    </View>
-                </View>
-                <Pressable style={styles.closeButton} onPress={() => setIsLogout(false)}>
-                        <AntDesign name="close" size={30} color="white" />
-                </Pressable>
-            </Modal>
-        
             <LinearGradient
                 colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
                 start={{ x: 1, y: 0 }}
@@ -252,15 +213,15 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                     </View>
 
                     <View style={[styles.headerProfileGroup, {position:'relative'}]}>
-                        <Pressable onPress={()=>setIsLogout(true)} style={{
+                        <View style={{
                                     position:'absolute',
                                     top:-23,
                                     right:0,
                                 }}>
                             <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                                    Выйти
+                                    {info?.username}
                             </Text>
-                        </Pressable>
+                        </View>
                         <Pressable
                                 onPress={handleDotsPress}
                         >

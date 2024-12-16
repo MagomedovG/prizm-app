@@ -19,7 +19,7 @@ import CategoryList from "@/src/components/main-page/CategoryList";
 import MainHeader from "@/src/components/MainHeader";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
-import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
+// import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {AutocompleteResponse,ILocation} from "@/src/types";
@@ -34,11 +34,10 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
-
 export default function MenuScreen() {
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
-    const { changeTheme } = useAsyncTheme();
+    const { setTheme } = useCustomTheme();
     const [isChatModal, setIsChatModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true)
     const [isShowLocationList, setIsShowLocationList] = useState(false)
@@ -108,6 +107,7 @@ export default function MenuScreen() {
         setTimeout(() => {
             setIsLoading(false);
         },2000)
+       
     }, []);
     
     const handleFilteredCounties = (data:AutocompleteResponse) => {
@@ -160,7 +160,7 @@ export default function MenuScreen() {
                     <View style={styles.modalView}>
                         <Text style={styles.modalText}>Цвет оформления</Text>
                         <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row',width:'100%'}}>
-                            <Pressable onPress={() => changeTheme('green')} style={{width:'48%', aspectRatio:1}}>
+                            <Pressable onPress={() => setTheme('green')} style={{width:'48%', aspectRatio:1}}>
                                 <LinearGradient
                                     colors={['#BAEAAC', '#E5FEDE']}
                                     start={{ x: 1, y: 0 }}
@@ -168,7 +168,7 @@ export default function MenuScreen() {
                                     style={{width:'100%', aspectRatio:1,borderRadius:10}}
                                 ></LinearGradient>
                             </Pressable>
-                            <Pressable onPress={() => changeTheme('purple')} style={{width:'48%', aspectRatio:1}}>
+                            <Pressable onPress={() => setTheme('purple')} style={{width:'48%', aspectRatio:1}}>
                                 <LinearGradient
                                     colors={['#130347', '#852DA5']}
                                     start={{ x: 1, y: 0 }}
@@ -312,7 +312,6 @@ export default function MenuScreen() {
                     
                 </View>
             </View>
-                    
         <View style={styles.tabBar}>
             <Link href='/(user)/menu/taxi' style={styles.tabBarItem} asChild>
                 <Pressable style={styles.tabBarItemContainer}>

@@ -5,11 +5,14 @@ import { AntDesign } from "@expo/vector-icons";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import UIButton from "@/src/components/UIButton";
 import { useRouter } from "expo-router";
+import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 const { width, height } = Dimensions.get("window");
 
 export default function SecretPhrase() {
     const router = useRouter()
-    const [secretPhrase, setSecretPhrase] = useState(null);
+    const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
+    const { theme } = useCustomTheme();
+
     // Функция загрузки секретной фразы из AsyncStorage
     const loadSecretPhrase = async () => {
         try {
@@ -48,12 +51,13 @@ export default function SecretPhrase() {
                     фраза
                 </Text>
                 <Pressable onPress={copySidToClipboard} style={[styles.pressable, { marginBottom: 7 }]}>
-                    <View style={[styles.textContainer, !secretPhrase && {justifyContent: "center"}]}>
+                    <View style={[styles.textContainer, !secretPhrase && {justifyContent: "center"},theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}]}>
                         {secretPhrase ? (
                             <View style={styles.secretText}>
                                 <Text style={{color: "#8C8C8C",fontSize: 16,
             textAlign: "left",}}>
-                                    {"*".repeat(secretPhrase.length)}
+                                    {/* {"*".repeat(secretPhrase.length)} */}
+                                    {secretPhrase}
                                 </Text>
                             </View>
                         ) : (
@@ -68,6 +72,10 @@ export default function SecretPhrase() {
                         <FontAwesome5 name="copy" size={15} color="gray" />
                     </View>}
                 </Pressable>
+                <Text style={{width:'98%'}}>
+                    Приложение хранит вашу парольную фразу в памяти вашего телефона.
+                    Восстановить парольную фразу невозможно, она генерируется на вашем устройстве и нигде более не сохраняется. Обязательно сохраняйте резервные копии на других носителях (записать на бумаге, сделать фото экрана).
+                </Text>
                 
             </View>
             <UIButton text='Закрыть' onPress={()=>{router.back()}}/>
@@ -105,17 +113,15 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         borderWidth: 1,
-        borderColor: "#957ABC",
         backgroundColor: "#ffffff",
         borderRadius: 10,
         paddingVertical: 6,
         paddingHorizontal: 8,
         width: width - 102,
-        height: 125,
+        height: 150,
         // justifyContent: "center",
     },
     secretText: {
-        
         width: "100%",
     },
     placeholder: {

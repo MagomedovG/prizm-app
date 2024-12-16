@@ -27,6 +27,7 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { IFund } from '@/src/types';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCustomTheme } from '@/src/providers/CustomThemeProvider';
 const { width } = Dimensions.get('window');
 const containerWidth = width - 34 - 84 ;
 const statusBarHeight = StatusBar.currentHeight || 0;
@@ -40,6 +41,7 @@ export default function walletId() {
     const [publicKey, setPublicKey] = useState<string>('')
     const inputRef = useRef(null);
     const scrollViewRef = useRef<ScrollView>(null); 
+    const { theme } = useCustomTheme();
 
     const queryClient = useQueryClient();
 
@@ -193,10 +195,10 @@ export default function walletId() {
                             marginBottom:100
                         }}>
                             <Text style={{marginBottom:3,textAlign:'left',marginLeft:8,marginTop:10, color:'#262626', fontSize:14}}>Адрес кошелька:</Text>
-                            <Pressable onPress={copyWalletToClipboard} style={styles.pressable}>
+                            <Pressable onPress={copyWalletToClipboard} style={[styles.pressable, {marginBottom:16}]}>
                                 <TextInput
                                     ref={inputRef}
-                                    style={styles.input}
+                                    style={[styles.input,theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}]}
                                     readOnly={!isUpdate}
                                     onChangeText={setPrizmWallet}
                                     value={prizmWallet}
@@ -208,7 +210,7 @@ export default function walletId() {
                                 </View>
                             </Pressable>
                             
-                            {id === 'user' && !isUpdate  && (
+                            {/* {id === 'user' && !isUpdate  && (
                                     <View style={{display:'flex',justifyContent:'flex-start',width:containerWidth + 34, marginBottom:10}}>
                                         <Pressable onPress={()=>setIsUpdate(true)} style={{marginTop:2, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
                                             <Text style={{color:'#262626',marginLeft:8, fontSize:13}}>Изменить кошелек </Text>
@@ -216,13 +218,13 @@ export default function walletId() {
                                         </Pressable>
                                     </View>
                                 )
-                            }
+                            } */}
                             {id === 'user' && 
                                 <View>
                                     <Text style={{marginBottom:3,textAlign:'left',marginLeft:8, color:'#262626', fontSize:14}}>Публичный ключ:</Text>
-                                    <Pressable onPress={copyPKeyToClipboard} style={styles.pressable}>
+                                    <Pressable onPress={copyPKeyToClipboard} style={[styles.pressable]}>
                                         <TextInput
-                                            style={styles.input}
+                                            style={[styles.input,theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}]}
                                             readOnly={true}
                                             value={getTitle(publicKey, 28)}
                                         />

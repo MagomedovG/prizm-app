@@ -9,6 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20;
 const ITEM_HEIGHT = height / 2 -30
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 
 type CategoryListProps = {
@@ -23,6 +24,7 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 export default function CategoryList ({categories, title, isInput, isAdminFond, linkButton, showModal}:CategoryListProps) {
     const segments = useSegments();
+    const insets = useSafeAreaInsets();
     console.log(segments);
     const router = useRouter()
     const [filteredData, setFilteredData] = useState<any>([]);
@@ -61,7 +63,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     };
     return (
         <KeyboardAvoidingView
-            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 35) }]}
+            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 100) }]}
                 keyboardVerticalOffset={0} 
         >
                 

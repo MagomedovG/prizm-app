@@ -38,7 +38,6 @@ const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
-
 export default function categoryId() {
     const { id } = useLocalSearchParams()
     const {theme} = useCustomTheme()
@@ -68,9 +67,6 @@ export default function categoryId() {
         const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
             setKeyboardHeight(0);
         });
-
-        
-
         return () => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
@@ -130,14 +126,16 @@ export default function categoryId() {
         };
         getWallet()
     }, []);
-    
-
-
-
 
     const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
     const handleFilteredData = (data:any) => {
-        setFilteredData(data)
+        if (data){
+        //     console.log('...data, ...data',...data, ...data)
+            // setFilteredData([...data, ...data]);
+        }
+        setFilteredData(data);
+        
+        
     };
     
 
@@ -280,8 +278,6 @@ export default function categoryId() {
                 </Pressable>
             </Modal>
         </KeyboardAvoidingView>
-
-
     );
 };
 const styles = StyleSheet.create({
