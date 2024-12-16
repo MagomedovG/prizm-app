@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar} from "react-native";
+import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar, ScrollView} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,13 +10,14 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
+import {text, sogl} from '@/assets/data/text'
 const SetNickName = () => {
     const [name, setName] = useState<any>('');
     const router = useRouter();
     const { theme } = useCustomTheme();
     const [checked, setChecked] = useState(false);
     const [isModal, setIsModal] = useState(false)
-
+    
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
@@ -73,16 +74,15 @@ const SetNickName = () => {
                         </Pressable>
                         <Pressable onPress={()=>setIsModal(true)}>
                             <Text style={styles.checkboxText}>
-                                я ознакомлен c {''}
-                                
+                                Я прочитал и согласен {''}
                                     <Text style={theme === "purple" ? {color:'#41146D'} : {color:"#32933C"}}>
-                                        здесь ссылка
+                                        с условиями
                                     </Text>
                             </Text>
                         </Pressable>
                     </View>
             </View>
-            <UIButton text='Ок' onPress={setNickName} disabled={!checked || !name}/>
+            <UIButton text='Ок' onPress={()=>!checked || !name ? console.log('') : setNickName()} disabled={!checked || !name}/>
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}
@@ -92,20 +92,27 @@ const SetNickName = () => {
                 // onBackdropPress={()=>setIsModal(false)}
                 onBackButtonPress={()=>setIsModal(false)}
                 animationInTiming={200}
-                animationOut='slideOutDown'
+                // animationOut='slideOutDown'
                 animationOutTiming={500}
                 backdropColor='black'
                 hardwareAccelerated
-                swipeDirection={'down'}
+                // swipeDirection={'down'}
                 style={styles.modal}
                 backdropTransitionOutTiming={0}
                 statusBarTranslucent
             >   
                 <View style={styles.centeredView}>
                     <View style={styles.modalViewContainer}>
-                        <Text style={styles.modalTitle}>
-                            Соглашение...
-                        </Text>
+                        
+                        <ScrollView>
+                            <Text style={styles.modalTitle}>
+                                Условия обслуживания Vozvrat pzm.
+                            </Text>
+                            <Text style={{fontSize:16, marginBottom:120}}>
+                                {text}
+                            </Text>
+                        </ScrollView>
+                        
                     </View>
                 </View>
                 <UIButton text="Ознакомился" onPress={()=>setIsModal(false)}/>
@@ -143,17 +150,18 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
         height:height - 100,
-        paddingVertical:26,
+        paddingTop:26,
         paddingHorizontal:21,
     },
     modalTitle:{
         fontSize:20,
         fontWeight: 'bold',
+        marginBottom:15,
+        marginTop:15
     },
     checkboxBase: {
         width: 21,
         height: 21,
-
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 4,

@@ -7,7 +7,6 @@ import {Image} from 'expo-image'
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import QRCode from "react-qr-code";
 import React from "react";
-import CachedImage from "expo-cached-image";
 
 const { width } = Dimensions.get('window');
 const containerWidth = (width / 3) - 17;

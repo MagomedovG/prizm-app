@@ -22,7 +22,6 @@ import { ru } from 'date-fns/locale';
 import Entypo from '@expo/vector-icons/Entypo';
 import { IFeedbacks,IBusiness } from '@/src/types';
 import PostRating from '@/src/components/PostRating';
-import CachedImage from 'expo-cached-image';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 

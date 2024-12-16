@@ -10,6 +10,7 @@ import NetInfo from '@react-native-community/netinfo';
 import * as Location from 'expo-location';
 import Modal from 'react-native-modal';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import { RFValue } from "react-native-responsive-fontsize";
 // const { width } = Dimensions.get('window');
 const {width, height} = Dimensions.get("window");
 const deviceWidth = width
@@ -45,13 +46,14 @@ const SetPinScreen = () => {
   }, []);
   useEffect(() => {
     async function fetchUserId() {
-        const storedUserName = await AsyncStorage.getItem('user_id');
+        const storedUserName = await AsyncStorage.getItem('username');
+        const parsedUserName = storedUserName ? JSON.parse(storedUserName) : null
         const storedPrizmWallet = await AsyncStorage.getItem('prizm_wallet');
         if (storedPrizmWallet) {
             setPrizmWallet(storedPrizmWallet); 
         } 
         if (storedUserName) {
-            setUserName(storedUserName); 
+            setUserName(parsedUserName); 
         } else {
             console.error('User ID не найден в asyncStorage');
         }
@@ -478,7 +480,8 @@ const styles = StyleSheet.create({
 
     },
     inputText:{
-        color:'black'
+        color:'black',
+        fontSize: RFValue(13, 812),
     },
     inputLable:{
         fontSize:12,

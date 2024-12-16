@@ -14,7 +14,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get('window');
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
-import { BarCodeScanner } from "expo-barcode-scanner";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const deviceWidth = width;
 import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
@@ -97,17 +96,6 @@ const SharePrizm = () => {
     useEffect(() => {
         loadSecretPhraseAndWallet();
     }, []);
-    const askCameraPermission = async () => {
-        const { status } = await BarCodeScanner.requestPermissionsAsync();
-        console.log(status)
-        if (permission?.granted) {
-          setHasPermission(true);
-        }
-      };
-    
-    useEffect(() => {
-        askCameraPermission();
-      }, []);
       const handleAfterScanned = ({ data, type }: any) => {
         setIsScanner(false)
         const result = splitQrText(data)
@@ -370,35 +358,6 @@ const SharePrizm = () => {
                 </View>
                 
                 
-                {/* <Modal
-                    isVisible={isScanner} // это свойство отвечает за видимость модалки
-                    onSwipeComplete={()=> setIsScanner(false)} // закрытие модалки при свайпе вниз
-                    swipeDirection="down" // определяем направление свайпа
-                    deviceWidth={deviceWidth}
-                    deviceHeight={deviceHeight}
-                    style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
-                    animationIn="slideInUp" // анимация при открытии
-                    animationOut="slideOutDown" // анимация при закрытии
-                    backdropOpacity={1} // настройка прозрачности фона
-                    backdropColor='white'
-                    animationInTiming={300}
-                    animationOutTiming={300}
-                    backdropTransitionOutTiming={0}
-                    onBackButtonPress={()=>setIsScanner(false)}
-                    statusBarTranslucent
-                >
-                    <View style={styles.fullscreenContainer}>
-                        <View style={styles.fullscreenSlide}>
-                            <BarCodeScanner
-                                onBarCodeScanned={handleAfterScanned}
-                                style={styles.Scanner}
-                            />
-                        </View>
-                        <Pressable style={styles.closeButton} onPress={()=>setIsScanner(false)}>
-                            <AntDesign name="close" size={26} color="white" style={styles.xIcon}/>
-                        </Pressable>
-                    </View>
-                </Modal> */}
             </ScrollView>
             }
         </>
