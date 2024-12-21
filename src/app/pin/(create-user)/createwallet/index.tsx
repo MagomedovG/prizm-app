@@ -125,7 +125,7 @@ const CreateWallet = () => {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
             <View style={styles.container}>
-                <View style={{paddingHorizontal: 26, width: '100%'}}>
+                <View style={{paddingHorizontal: 26, width: '100%',maxWidth:900}}>
                     
                     <Text style={styles.title}>
                         ПРЕДУПРЕЖДЕНИЕ
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop:88,
         alignItems: 'center',
-        position:'relative'
+        position:'relative',
     },
     title: {
         color: '#B81C1C',

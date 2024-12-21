@@ -21,7 +21,8 @@ const SetNickName = () => {
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
-            const parsedUserName = userName ? JSON.parse(userName) : '';
+            // const parsedUserName = userName ? JSON.parse(userName) : '';
+            const parsedUserName = userName ? userName: '';
             if (userName){
                 setName(parsedUserName);
             }

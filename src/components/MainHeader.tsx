@@ -199,7 +199,9 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                 start={{ x: 1, y: 0 }}
                 end={{ x: 0, y: 0 }}
                 style={[styles.headerContainer, !isWallet ? {borderBottomLeftRadius: 12,
-                    borderBottomRightRadius: 12} : {}]}
+                    borderBottomRightRadius: 12} : {}, { display: 'flex',
+                        justifyContent: "space-between",
+                        alignItems: "center",}]}
             >
                 <View style={styles.headerTitleContainer}>
                     <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
@@ -232,7 +234,8 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                         <Pressable
                             style={styles.headerPitopi}
                         >
-                            <Link href={exchanger ?? ''} style={{fontSize:14}}>Обменник</Link>
+                            {/* <Link href={exchanger ?? ''} style={{fontSize:14}}>Обменник</Link> */}
+                            <Link href={'/(user)/menu/exchanger'} style={{fontSize:14}}>Обменник</Link>
                         </Pressable>
                         <Pressable
                             style={styles.headerPitopi}
@@ -366,6 +369,8 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         marginTop: 49,
+        maxWidth:900,
+        width: '100%',
     },
     headerTitle: {
         fontSize: 22,
@@ -398,7 +403,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: "space-between",
         alignItems: 'flex-start',
-        marginTop:15
+        marginTop:15,
+        maxWidth:900,
+        width: '100%',
     },
     headerFirstListItem:{
         paddingHorizontal:6,
@@ -413,7 +420,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: "space-between",
         alignItems:'center',
-        marginTop:5
+        marginTop:5,
+        maxWidth:900,
+        width: '100%',
     },
     headerCartButtonContainer:{
         display: 'flex',

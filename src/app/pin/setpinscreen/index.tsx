@@ -47,7 +47,8 @@ const SetPinScreen = () => {
   useEffect(() => {
     async function fetchUserId() {
         const storedUserName = await AsyncStorage.getItem('username');
-        const parsedUserName = storedUserName ? JSON.parse(storedUserName) : null
+        // const parsedUserName = storedUserName ? JSON.parse(storedUserName) : null
+        const parsedUserName = storedUserName ? storedUserName : null
         const storedPrizmWallet = await AsyncStorage.getItem('prizm_wallet');
         if (storedPrizmWallet) {
             setPrizmWallet(storedPrizmWallet); 

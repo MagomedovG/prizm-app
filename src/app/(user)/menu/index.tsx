@@ -98,8 +98,6 @@ export default function MenuScreen() {
             refetchWallets();
             console.log(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
         },100)
-        
-        
     }
     
     

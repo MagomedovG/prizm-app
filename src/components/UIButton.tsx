@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
         borderRadius: 13,
         position:'absolute',
         bottom:40,
-        zIndex:9999
+        zIndex:9999,
+        maxWidth:900
     },
     purpleBackground:{
         backgroundColor:'#41146D'

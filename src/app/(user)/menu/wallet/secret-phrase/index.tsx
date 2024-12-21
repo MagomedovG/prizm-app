@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         alignItems: "center",
         marginTop: height / 3.9,
-        paddingHorizontal: 51,
+        // paddingHorizontal: 51,
     },
     title: {
         fontSize: 32,
@@ -100,6 +100,9 @@ const styles = StyleSheet.create({
     },
     pressable: {
         position: "relative",
+        marginHorizontal:42,
+        width:'80%'
+        
     },
     copyButtonContainer: {
         position: "absolute",
@@ -109,7 +112,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor:'#fff',
         padding:5,
-        borderRadius:4
+        borderRadius:4,
+        
     },
     textContainer: {
         borderWidth: 1,
@@ -117,8 +121,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 6,
         paddingHorizontal: 8,
-        width: width - 102,
-        height: 150,
+        // marginHorizontal:42,
+        // width: width - 102,
+        // height: 180,
         // justifyContent: "center",
     },
     secretText: {
