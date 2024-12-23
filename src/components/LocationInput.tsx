@@ -46,13 +46,11 @@ const LocationInput = ({ data, onFilteredData, placeholder }:any) => {
 const styles = StyleSheet.create({
     keyboardAvoidingView: {
         borderRadius: 10
-        // flex: 1,
     },
     container: {
         display:'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        // marginTop: 20,
         marginBottom:15,
         paddingVertical:2,
         borderRadius: 10,
@@ -64,10 +62,9 @@ const styles = StyleSheet.create({
         height: 45,
         padding: 10,
         width: '90%',
-        fontSize:16,
+        fontSize:14,
         borderRadius: 10,
         backgroundColor:'#fff',
-        // color: '#8C8C8C', // Добавьте это, если хотите, чтобы текст был белым
     },
     searchIosShadow:{
         borderWidth:1,

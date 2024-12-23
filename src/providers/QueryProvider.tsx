@@ -8,6 +8,7 @@ const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         gcTime: 1000 * 60 * 20, // 20 минут
+        refetchOnWindowFocus: false, 
       },
     },
   });

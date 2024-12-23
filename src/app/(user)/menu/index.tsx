@@ -252,7 +252,7 @@ export default function MenuScreen() {
                 <View style={{width:'80%',height:'50%'}}>
                     <View style={styles.locationModalView}>
                         <View style={{}}>
-                            <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти место'/>
+                            <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти город, район, регион'/>
                             <FlatList
                                 style={{marginLeft:13, marginTop:5}}
                                 data={filteredCountries}

@@ -18,19 +18,19 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { height: windowHeight } = Dimensions.get("window");
 
 type CategoryListProps = {
-categoryList: IBusiness[] | null;
-title?: string;
-isBonus?: boolean;
-isAdmin?: boolean;
-buttonLink?: string;
-onWalletPress?: (value:boolean) => void;
+    categoryList: IBusiness[] | null;
+    title?: string;
+    isBonus?: boolean;
+    isAdmin?: boolean;
+    buttonLink?: string;
+    onWalletPress?: (value:boolean) => void;
 };
 
 export default function CategoryItemList({
-categoryList,
-title,
-isBonus,
-onWalletPress,
+    categoryList,
+    title,
+    isBonus,
+    onWalletPress,
 }: CategoryListProps) {
 const { theme } = useCustomTheme();
 const { height, width } = useWindowDimensions();
@@ -46,35 +46,35 @@ const RenderCategoryItem = ({ item }: { item: IBusiness }) => {
 
     
     <Link href={`/(user)/menu/category-item/${item.id}`} asChild >
-    <Pressable
-        style={[
-        styles.itemContainer,
-        isSingleColumn
-            ? { width: "100%" }
-            : { width: width / 2 - 26 },
-        ]}
-    >
-        <View style={{ position: "relative" }}>
-        <Image
-            source={{ uri: `${apiUrl}${item.logo}` }}
+        <Pressable
             style={[
-            styles.image,
+            styles.itemContainer,
             isSingleColumn
-                ? { width: "100%", height: height / 5.1 }
-                : { width: width / 2 - 26, height: 110 },
-            ]}
-            cachePolicy="memory-disk"
-        />
-        <View style={styles.saleContainer}>
-            <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'},]}>
-                {parseFloat(item.cashback_size.toString())}%
-            </Text>
-        </View>
-        </View>
-        <Text style={[styles.text,isSingleColumn
                 ? { width: "100%" }
-                : { width: width / 2 - 33},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
-    </Pressable>
+                : { width: width / 2 - 26 },
+            ]}
+        >
+            <View style={{ position: "relative" }}>
+            <Image
+                source={{ uri: `${apiUrl}${item.logo}` }}
+                style={[
+                styles.image,
+                isSingleColumn
+                    ? { width: "100%", height: height / 5.1 }
+                    : { width: width / 2 - 26, height: 110 },
+                ]}
+                cachePolicy="memory-disk"
+            />
+            <View style={styles.saleContainer}>
+                <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'},]}>
+                    {parseFloat(item.cashback_size.toString())}%
+                </Text>
+            </View>
+            </View>
+            <Text style={[styles.text,isSingleColumn
+                    ? { width: "100%" }
+                    : { width: width / 2 - 33},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
+        </Pressable>
     </Link>
     )
 };
@@ -108,12 +108,6 @@ return (
     )}
     <Text style={styles.title}>{title}</Text>
     {categoryList?.length ? (
-        // <View style={[styles.flatlist, isSingleColumn ? { width: "100%" } : {}]}>
-
-        //     {categoryList.map((category)=>(
-        //         <RenderCategoryItem item={category}/>
-        //     ))}
-        // </View>
         <FlatList
             data={categoryList}
             style={[styles.flatlist, isSingleColumn && { width: "100%" }]}

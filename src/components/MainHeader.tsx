@@ -257,7 +257,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                                 Баланс:
                             </Text>
                             <Text style={{ fontSize: 20 }}>
-                                {isHidden ? ' ****' : ` ${info?.balance_in_rub ? info?.balance_in_rub.toFixed(2) : 0} `}
+                                {isHidden ? ' ****' : ` ${info?.balance_in_rub ? parseFloat(info?.balance_in_rub.toFixed(2)) : 0} `}
                             </Text>
                             <Text style={{ fontSize: 12 }}>
                                 {isHidden ? '' : `РУБ.`}
@@ -266,7 +266,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                     </View>
                     <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText,{textAlign:'right', fontSize:15,lineHeight:15}]}>
                         <Text style={{ fontSize: 15 }}>
-                            {`курс: ${info?.prizm_to_rub_exchange_rate ? info?.prizm_to_rub_exchange_rate.toFixed(5) : 0} `}
+                            {`курс: ${info?.prizm_to_rub_exchange_rate ? parseFloat(info?.prizm_to_rub_exchange_rate.toFixed(5)) : 0} `}
                         </Text>
                         <Text style={{ fontSize: 12 }}>
                             РУБ.
@@ -281,7 +281,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                                 {isHidden ? '****' : `B: ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                             </Text>
                             <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                                {isHidden ? '****' : `P: ${para  ? para : 0.0} pzm`}
+                                {isHidden ? '****' : `P: ${para  ? parseFloat(para) : 0.0} pzm`}
                             </Text>
                         </View>
                     </View>

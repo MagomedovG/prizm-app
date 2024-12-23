@@ -149,10 +149,10 @@ export default function categoryId() {
                 headerShown:false,
                 header: () => <HeaderLink title="Главная" link="/(user)/menu"/>,
             }}/>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={{ flex: 1 }}>
                 <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Поиск" isCategoryItem/>
                 <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={(value)=>handleWalletPress(value)} />
-            </ScrollView>
+            </View>
             
             <Modal
                 deviceWidth={deviceWidth}

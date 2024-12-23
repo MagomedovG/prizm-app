@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useFocusEffect } from "expo-router";
+import { Link, useFocusEffect} from "expo-router";
 import { ScrollView, View,Text, FlatList, Pressable,StyleSheet, Dimensions } from "react-native";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width - 25;
 import {Image} from 'expo-image'
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -13,6 +13,23 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function PartnersScreen() {
     const [localityType, setLocalityType] = useState('')
     const [localityId, setLocalityId] = useState('')
+    const [text, setText] = useState('')
+    const getText = async () => {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/utils/texts/?ids=for_partners`,{
+                }
+            );
+            const data = await response.json();
+            if (response.ok){
+                setText(data.for_partners)
+            }
+            console.log(data.for_partners)
+            // console.log(data)
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/userId/wallet-data/`);
+        }
+    }
     const getLocationTypeAndId = async () => {
         const localLocationId = await AsyncStorage.getItem('locality-id')
         const localLocationType = await AsyncStorage.getItem('locality-type')
@@ -26,6 +43,9 @@ export default function PartnersScreen() {
             getLocationTypeAndId()
         }, [])
     )
+    useEffect(()=>{
+        getText()
+    },[])
     const { data: partners, isLoading: isPartnersLoading } = useQuery({
         queryKey: ['partners'],
         queryFn: async () => {
@@ -42,7 +62,7 @@ export default function PartnersScreen() {
         <View style={styles.container}>
             <View>
                 <Text>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum rem quod ipsam perspiciatis amet omnis velit aliquid aut tempora tempore doloribus maiores accusantium qui id itaque, magni saepe deleniti reiciendis?
+                    {text}
                 </Text>
             </View>
             <Text style={styles.subTitle}>Контакты:</Text>

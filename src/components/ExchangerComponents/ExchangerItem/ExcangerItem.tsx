@@ -3,38 +3,35 @@ import { RFValue } from "react-native-responsive-fontsize";
 type TransactionType = "received" | "para" | "sent";
 type ExchangerItem = {
     item:{
-        sender:string,
-        recipient:string,
-        amount:number,
-        fee:number,
-        datetime:string,
-        type:TransactionType,
+        created_at:string,
+        transaction_fee_amount:number,
+        prizm_amount:number,
+        prizm_exchange_rate:number,
+        sum_to_send:number,
+        is_processed: boolean, 
     }
 }
 export default function ExchangerItem({item}:ExchangerItem) {
-    const transactionType = {
-        received:{
-            color:'#2C9E6E',
-            title:'Получено'
-        },
-        para:{
-            color:'#41146D',
-            title:'Парамайнинг'
-        },
-        sent:{
-            color:'#F84646',
-            title:'Отправлено'
-        },
-    }
-    const typeData = transactionType[item.type]; 
+    function formatDate(inputDate:string) {
+        const date = new Date(inputDate);
+      
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+        const year = date.getFullYear();
+      
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+      }
     return (
         <View style={styles.container}>
             <View style={styles.infoContainer}>
                 <View style={styles.titleContainer}>
                     <Text style={[styles.title]}>
-                        <Text style={{fontWeight:'bold'}}>10 pzm</Text>
+                        <Text style={{fontWeight:'bold'}}>{item?.prizm_amount} pzm</Text>
                         <Text style={styles.dateTime}>
-                            {'   ' + item.datetime}
+                            {'   ' + formatDate(item?.created_at)}
                         </Text>
                     </Text>
                 </View>
@@ -42,13 +39,22 @@ export default function ExchangerItem({item}:ExchangerItem) {
                     {item.type === 'sent' ? 'Получатель:' : 'Отправитель'} {item.type === 'sent' ? item.recipient : item.sender}
                 </Text> */}
                 <Text style={styles.comission}>
-                    Комиссия сети: {item.fee} <Text style={styles.comissionValute}>PZM</Text>  курс PZM: {item.fee} <Text style={styles.comissionValute}>₽</Text>
+                    Комиссия сети: {item?.transaction_fee_amount} <Text style={styles.comissionValute}>PZM</Text>  курс PZM: {parseFloat(item?.prizm_exchange_rate.toFixed(5).toString())} <Text style={styles.comissionValute}>₽</Text>
                 </Text>
             </View>
-            <View style={styles.sumContainer}>
-                <Text style={[styles.sum]}>
-                    {parseFloat(item.amount.toString())} ₽
-                </Text>
+            <View style={styles.sumDotContainer}>
+                <View
+                    style={[
+                        styles.circle,
+                        { backgroundColor: !item.is_processed ? '#769AEE' : '#2C9E6E' } // Зеленый, если true, красный если false
+                    ]}
+                />
+                <View style={styles.sumContainer}>
+                    <Text style={styles.sum}>
+                        {parseFloat(item?.sum_to_send.toFixed(5).toString())} <Text style={{fontSize: RFValue(12, 812),}}>₽</Text>
+                    </Text>
+                </View>
+                
             </View>
         </View>
     );
@@ -65,6 +71,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        // height:47
     },
     infoContainer: {
         display: 'flex',
@@ -74,11 +81,12 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'flex-end',
-        gap: 6,
+        marginBottom: 2,
     },
     title: {
         fontSize: RFValue(15, 812), 
         lineHeight: RFValue(17.5, 812),
+        
     },
     dateTime: {
         fontSize: RFValue(9, 812),
@@ -107,5 +115,16 @@ const styles = StyleSheet.create({
         fontSize: RFValue(15, 812),
         lineHeight: RFValue(19, 812),
         fontWeight: 'bold',
+        color:'#2C9E6E'
     },
+    circle: {
+        width: 7,
+        height: 7,
+        borderRadius: 4, // Полностью круглый элемент
+        marginRight: 8, // Отступ на 10px от текста sum
+    },
+    sumDotContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+    }
 });

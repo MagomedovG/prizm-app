@@ -183,24 +183,10 @@ export default function feedbackId() {
         }
         return str;
       }
-    
-
-    return (
-        <>
-            <Stack.Screen options={{
-                headerShown: false,
-                header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
-            }} />
-            <ScrollView
-                contentContainerStyle={styles.cartContainer}
-                 refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                    />
-                 }
-            >
-                <View style={styles.cartHeader}>
+    const FeedbackIdHeader = () => {
+        return (
+            <>
+            <View style={styles.cartHeader}>
                     <Image 
                     //    cacheKey={`${business?.id}-${business?.logo}-category-item-logo`} 
                        source={{uri:business?.logo ? `${apiUrl}${business.logo}` : defaultLogo}}
@@ -242,6 +228,20 @@ export default function feedbackId() {
                     >
                     <Text>{feedbacks ? feedbacks?.length : ''} {feedbacks ? getFeedbackWord(feedbacks?.length) : ''}</Text>
                 </View>
+            </>
+        )
+    }
+
+    return (
+        <>
+            {/* <Stack.Screen options={{
+                headerShown: false,
+                header: () => <HeaderLink title="Главная" link={`/(user)/menu/`} emptyBackGround={false} />,
+            }} /> */}
+            <View
+                style={styles.cartContainer}
+                
+            >
                 <FlatList
                     data={feedbacks}
                     style={{marginBottom:feedbacks && feedbacks?.length > 5 ? 120 : 0}}
@@ -262,8 +262,15 @@ export default function feedbackId() {
                         </View>
                     )}
                     keyExtractor={item => item.id.toString()}
+                    ListHeaderComponent={FeedbackIdHeader}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                     }
                 />
-            </ScrollView>
+            </View>
             
             {isMineFeedbacks?.length < 1 && 
                 <UIButton text='Добавить отзыв' onPress={goToAddFeedBack}/>
@@ -360,6 +367,7 @@ const styles = StyleSheet.create({
     },
     cartContainer: {
         marginHorizontal: 16,
+        flex:1
     },
     cartFeedback: {
         marginTop: 10,

@@ -5,7 +5,9 @@ export type IWallet = {
   prizm_wallet?: number | string;
   link?: string;
   isAdmin?:boolean;
-  prizm_qr_code_url:string
+  prizm_qr_code_url:string;
+  balance_in_pzm?:number;
+  balance_in_rub?:number;
 };
 export type ICategory = {
   id: number;
