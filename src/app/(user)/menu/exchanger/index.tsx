@@ -11,8 +11,7 @@ import React from 'react';
 import ExchangerItem from '@/src/components/ExchangerComponents/ExchangerItem/ExcangerItem';
 import ExchangerHeaderComponent from '@/src/components/ExchangerComponents/ExchangerHeader/ExchangerHeader';
 const { width, height } = Dimensions.get('window');
-const statusBarHeight = StatusBar.currentHeight || 0;
-const deviceHeight = height + statusBarHeight
+// const deviceHeight = height + statusBarHeight
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 export default function ExchangerScreen (){
@@ -78,25 +77,17 @@ export default function ExchangerScreen (){
       
       
     return (
-        <>
-            <View style={{flex:1}}>
-                {/* <View style={[styles.container]}> */}
-                    <Stack.Screen options={{ title: 'Exchanger', headerShown: false }} />
-                        <FlatList 
-                            data={orders}
-                            renderItem={ExchangerItem}
-                            style={{paddingTop:statusBarHeight + 58,paddingHorizontal: 26, width: '100%',flex:1}}
-                            onEndReached={()=>fetchOrders()} 
-                            onEndReachedThreshold={0} 
-                            ListFooterComponent={renderFooter}
-                            ListHeaderComponent={ExchangerHeaderComponent}
-                            contentContainerStyle={{gap:7,flexGrow:1,paddingBottom: 30 }}
-                            keyExtractor={(item, index) => item.created_at?.toString() || index.toString()} 
-                            
-                        />
-                </View>
-            {/* </View> */}
-        </>
+            <FlatList 
+                data={orders}
+                renderItem={ExchangerItem}
+                style={{paddingHorizontal: 26, width: '100%'}}
+                onEndReached={()=>fetchOrders()} 
+                onEndReachedThreshold={0.4} 
+                ListFooterComponent={renderFooter}
+                ListHeaderComponent={ExchangerHeaderComponent}
+                contentContainerStyle={{gap:7,paddingBottom:50 }}
+                keyExtractor={(item, index) => item.created_at?.toString()} 
+            />
     );
 };
 

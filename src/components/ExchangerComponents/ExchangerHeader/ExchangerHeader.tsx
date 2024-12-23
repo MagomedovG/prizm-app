@@ -3,10 +3,11 @@ import { IWallet } from "@/src/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { memo, useEffect, useState } from "react";
-import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet } from "react-native";
+import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet, StatusBar } from "react-native";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {Image} from 'expo-image'
 import { useQuery } from "@tanstack/react-query";
+const statusBarHeight = StatusBar.currentHeight || 0;
 
 type BankItem = {
     // item:{
@@ -486,7 +487,8 @@ export default function ExchangerHeaderComponent () {
         marginBottom: 36,
         fontSize: 32,
         textAlign: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        marginTop:statusBarHeight + 58,
     },
     errorText: {
         marginLeft:8,

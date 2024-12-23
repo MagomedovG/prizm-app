@@ -7,109 +7,140 @@ import {
         Dimensions,
         useWindowDimensions,
     } from "react-native";
-import { Link } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import { Entypo } from "@expo/vector-icons";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
-import React from "react";
+import React, { useState } from "react";
 import { Image } from "expo-image";
-import { IBusiness } from "@/src/types";
+import { IBusiness, IBusinessInCategory } from "@/src/types";
+import { useQuery } from "@tanstack/react-query";
+import SearchInput from "../SearchInput";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const { height: windowHeight } = Dimensions.get("window");
 
 type CategoryListProps = {
-    categoryList: IBusiness[] | null;
-    title?: string;
-    isBonus?: boolean;
-    isAdmin?: boolean;
-    buttonLink?: string;
     onWalletPress?: (value:boolean) => void;
+    id:string | string[]
 };
 
 export default function CategoryItemList({
-    categoryList,
-    title,
-    isBonus,
+    id,
     onWalletPress,
 }: CategoryListProps) {
-const { theme } = useCustomTheme();
-const { height, width } = useWindowDimensions();
+    const { theme } = useCustomTheme();
+    const { height, width } = useWindowDimensions();
+    const [localityType, setLocalityType] = useState('')
+    const [localityId, setLocalityId] = useState('')
 
-const isSingleColumn = !!categoryList && categoryList.length <= 7;
-
-const handleWalletPress = () => {
-    onWalletPress?.(true);
-};
-
-const RenderCategoryItem = ({ item }: { item: IBusiness }) => {
-    return (
-
-    
-    <Link href={`/(user)/menu/category-item/${item.id}`} asChild >
-        <Pressable
-            style={[
-            styles.itemContainer,
-            isSingleColumn
-                ? { width: "100%" }
-                : { width: width / 2 - 26 },
-            ]}
-        >
-            <View style={{ position: "relative" }}>
-            <Image
-                source={{ uri: `${apiUrl}${item.logo}` }}
-                style={[
-                styles.image,
-                isSingleColumn
-                    ? { width: "100%", height: height / 5.1 }
-                    : { width: width / 2 - 26, height: 110 },
-                ]}
-                cachePolicy="memory-disk"
-            />
-            <View style={styles.saleContainer}>
-                <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'},]}>
-                    {parseFloat(item.cashback_size.toString())}%
-                </Text>
-            </View>
-            </View>
-            <Text style={[styles.text,isSingleColumn
-                    ? { width: "100%" }
-                    : { width: width / 2 - 33},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
-        </Pressable>
-    </Link>
+    const getLocationTypeAndId = async () => {
+        const localLocationId = await AsyncStorage.getItem('locality-id')
+        const localLocationType = await AsyncStorage.getItem('locality-type')
+        setLocalityId(localLocationId ? localLocationId : '')
+        setLocalityType(localLocationType ? localLocationType : '')
+        console.log(localLocationId, localLocationType, 'local category')
+    }
+    useFocusEffect(
+        React.useCallback(() => {
+            getLocationTypeAndId()
+        }, [])
     )
-};
+    const handleWalletPress = () => {
+        onWalletPress?.(true);
+    };
+    const { data: categoryList, isLoading: isCategoryListLoading } = useQuery<IBusinessInCategory>({
+        queryKey: ['categoryList', id, localityId, localityType],
+        queryFn: async () => {
+            const response = await fetch(
+                `${apiUrl}/api/v1/categories/${id}/get-businesses/?locality-id=${localityId}&locality-type=${localityType}`,
+            );
+            const data = await response.json();
+            console.log('category',data);
+            return data;
+        },
+        enabled: !!localityId && !!localityType
+    });
+    const isSingleColumn = !!categoryList?.businesses && categoryList?.businesses?.length <= 7;
 
+    const RenderCategoryItem = ({ item }: { item: IBusiness }) => {
+        return (
+        <Link href={`/(user)/menu/category-item/${item.id}`} asChild >
+            <Pressable
+                style={[
+                styles.itemContainer,
+                isSingleColumn
+                    ? { width: "100%" }
+                    : { width: width / 2 - 26 },
+                ]}
+            >
+                <View style={{ position: "relative" }}>
+                <Image
+                    source={{ uri: `${apiUrl}${item.logo}` }}
+                    style={[
+                    styles.image,
+                    isSingleColumn
+                        ? { width: "100%", height: height / 5.1 }
+                        : { width: width / 2 - 26, height: 110 },
+                    ]}
+                    cachePolicy="memory-disk"
+                />
+                <View style={styles.saleContainer}>
+                    <Text style={[styles.sale, theme === 'purple' ? {} : {color:'#32933C'},]}>
+                        {parseFloat(item.cashback_size.toString())}%
+                    </Text>
+                </View>
+                </View>
+                <Text style={[styles.text,isSingleColumn
+                        ? { width: "100%" }
+                        : { width: width / 2 - 33},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
+            </Pressable>
+        </Link>
+        )
+    };
+    const headerCategoryItem = () => {
+        const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
+        const handleFilteredData = (data:any) => {
+            setFilteredData(data);
+        };
+        return (
+            <>
+                <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Поиск" isCategoryItem/>
+
+                <Pressable
+                    onPress={handleWalletPress}
+                    style={[
+                        styles.bonus,
+                        theme === "purple"
+                        ? styles.purpleBackground
+                        : styles.greenBackground,
+                    ]}
+                >
+                    <Entypo
+                        name="info-with-circle"
+                        size={18}
+                        color={theme === "purple" ? "#EFEFEF" : "#363C36"}
+                    />
+                    <Text
+                        style={[
+                        styles.bonusText,
+                        theme === "purple" ? styles.purpleText : styles.greenText,
+                        ]}
+                    >
+                        Как получить и обменять vozvrat pzm
+                    </Text>
+                </Pressable>
+                <Text style={styles.title}>{categoryList?.category?.title}</Text>
+            </>
+        )
+    }
 return (
     <View style={styles.container}>
-    {isBonus && (
-        <Pressable
-        onPress={handleWalletPress}
-        style={[
-            styles.bonus,
-            theme === "purple"
-            ? styles.purpleBackground
-            : styles.greenBackground,
-        ]}
-        >
-        <Entypo
-            name="info-with-circle"
-            size={18}
-            color={theme === "purple" ? "#EFEFEF" : "#363C36"}
-        />
-        <Text
-            style={[
-            styles.bonusText,
-            theme === "purple" ? styles.purpleText : styles.greenText,
-            ]}
-        >
-            Как получить и обменять vozvrat pzm
-        </Text>
-        </Pressable>
-    )}
-    <Text style={styles.title}>{title}</Text>
-    {categoryList?.length ? (
+    
+   
+    {categoryList?.businesses?.length ? (
         <FlatList
-            data={categoryList}
+            data={categoryList?.businesses}
             style={[styles.flatlist, isSingleColumn && { width: "100%" }]}
             renderItem={RenderCategoryItem}
             numColumns={isSingleColumn ? 1 : 2}
@@ -117,6 +148,7 @@ return (
             contentContainerStyle={{ gap: 11 }}
             columnWrapperStyle={!isSingleColumn && { gap: 6 }}
             key={isSingleColumn ? 'single-column' : 'multi-column'}
+            ListHeaderComponent={headerCategoryItem}
         />
     ) : (
         <Text style={styles.noDataText}>
@@ -130,7 +162,7 @@ return (
 const styles = StyleSheet.create({
 container: {
     width: "100%",
-    marginBottom: 50,
+    // paddingBottom: 50,
 },
 bonus: {
     height: 44,

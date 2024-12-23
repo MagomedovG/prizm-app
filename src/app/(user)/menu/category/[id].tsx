@@ -46,8 +46,6 @@ export default function categoryId() {
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [prizmWallet, setPrizmWallet] = useState('')
     const [prizmQrCode, setPrizmQrCode] = useState('') 
-    const [localityType, setLocalityType] = useState('')
-    const [localityId, setLocalityId] = useState('')
     const inputRef = useRef(null);
     const copyToClipboard = () => {
         if (prizmWallet && typeof prizmWallet === "string" ) {
@@ -89,30 +87,8 @@ export default function categoryId() {
         setIsQrModal(false); // Закрываем QR модалку
     };
     
-    const getLocationTypeAndId = async () => {
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
-        setLocalityId(localLocationId ? localLocationId : '')
-        setLocalityType(localLocationType ? localLocationType : '')
-        console.log(localLocationId, localLocationType, 'local category')
-    }
-    useFocusEffect(
-        React.useCallback(() => {
-            getLocationTypeAndId()
-        }, [])
-    )
-    const { data: categoryList, isLoading: isCategoryListLoading } = useQuery<IBusinessInCategory>({
-        queryKey: ['categoryList', id, localityId, localityType],
-        queryFn: async () => {
-            const response = await fetch(
-                `${apiUrl}/api/v1/categories/${id}/get-businesses/?locality-id=${localityId}&locality-type=${localityType}`,
-            );
-            const data = await response.json();
-            console.log('category',data);
-            return data;
-        },
-        enabled: !!localityId && !!localityType
-    });
+    
+   
     useEffect(() => {
         const getWallet = async () => {
             try {
@@ -129,13 +105,7 @@ export default function categoryId() {
 
     const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
     const handleFilteredData = (data:any) => {
-        if (data){
-        //     console.log('...data, ...data',...data, ...data)
-            // setFilteredData([...data, ...data]);
-        }
         setFilteredData(data);
-        
-        
     };
     
 
@@ -145,13 +115,8 @@ export default function categoryId() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
         >
-            <Stack.Screen options={{
-                headerShown:false,
-                header: () => <HeaderLink title="Главная" link="/(user)/menu"/>,
-            }}/>
-            <View style={{ flex: 1 }}>
-                <SearchInput data={categoryList?.businesses} onFilteredData={handleFilteredData} placeholder="Поиск" isCategoryItem/>
-                <CategoryItemList categoryList={filteredData} title={categoryList?.category?.title} isBonus={true} onWalletPress={(value)=>handleWalletPress(value)} />
+            <View style={{ flex:1 }}>
+                <CategoryItemList id={id} onWalletPress={(value)=>handleWalletPress(value)} />
             </View>
             
             <Modal
