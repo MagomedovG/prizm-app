@@ -24,7 +24,6 @@ export default function ExchangerHeaderComponent () {
     const [count,setCount]=useState<number | null>(null)
     const [phoneNumber,setPhoneNumber]=useState<number | string>('+7')
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const banks = [{title:'СБЕР'},{title:'ТБАНК'},{title:'АЛЬФА'},{title:'ВТБ'}]
     const [exchangeRates, setExchangeRates] = useState<number | null>(null);
     const [error, setError] = useState(null);
     const [exchargerFee, setExchargerFee] = useState<number | null>(null)
@@ -321,7 +320,7 @@ export default function ExchangerHeaderComponent () {
                                     Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer,
                                     
                                 ]}>
-                                   <Image style={[bank.id === activeBank ? {borderWidth:1.2, borderColor: '#4BA2FF'} : {},{height:42, width:'100%', borderRadius:10}]} contentFit='cover' source={{uri:`${apiUrl}${bank.logo}`}} cachePolicy='disk'/>
+                                   <Image style={[bank.id === activeBank ? {borderWidth:1.2, borderColor: '#4BA2FF'} : {},{height:37, width:'100%', borderRadius:10}]} contentFit='cover' source={{uri:`${apiUrl}${bank.logo}`}} cachePolicy='disk'/>
                                 </Pressable>
                             ))}
                         </View>
