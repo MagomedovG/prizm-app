@@ -11,7 +11,6 @@ import * as Location from 'expo-location';
 import Modal from 'react-native-modal';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { RFValue } from "react-native-responsive-fontsize";
-// const { width } = Dimensions.get('window');
 const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;

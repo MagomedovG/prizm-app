@@ -7,7 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {Link, useRouter} from "expo-router";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -52,17 +51,54 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
     const [info,setInfo] = useState<IWallet | null>(null)
     const [userId, setUserId] = useState<string | null>(null);
     const router = useRouter();
-    const [isLogout, setIsLogout] = useState(false)
-    const [prizmWallet, setPrizmWallet] = useState('') 
+    const [userNumber, setUserNumber] = useState('') 
+    const { width } = useWindowDimensions();
     const logOut = () => {
-        asyncStorage.clear()
+        AsyncStorage.clear()
         router.replace('/pin/setpinscreen')
     }
-    const { width } = useWindowDimensions();
-
+    async function checkUser() {
+        try {
+            const userId = await AsyncStorage.getItem('user_id')
+            const response = await fetch(
+                `${apiUrl}/api/v1/users/${userId}/check/`,{
+                }
+            );
+            // console.log(response.status)
+            if (response.status === 403) {
+                Alert.alert('Ваш аккаунт был заблокирован','',[{ text: "OK" ,
+                    onPress: () => {
+                        logOut()
+                    }
+                  }])
+            }
+            if (response.status === 404) {
+                Alert.alert('Аккаунт не найден','',[{ text: "OK" ,
+                    onPress: () => {
+                        logOut()
+                    }
+                  }])
+            }
+            // setUserNumber(data?.users_number);
+        } catch (error) {
+            console.error("Ошибка при загрузке активности пользователя:", error,`${apiUrl}/api/v1/users/${userId}/check/`);
+        }
+    }
+    async function getUsersNumber() {
+        try {
+            const response = await fetch(
+                `${apiUrl}/api/v1/users/get-number/`,{
+                }
+            );
+            const data = await response.json();
+            setUserNumber(data?.users_number);
+        } catch (error) {
+            console.error("Ошибка при загрузке количества пользователей:", error);
+        }
+    }
     async function getData() {
         try {
-            const userId = await asyncStorage.getItem('user_id')
+            const userId = await AsyncStorage.getItem('user_id')
             const response = await fetch(
                 `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
                 }
@@ -123,7 +159,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
 
     useEffect(() => {
         async function fetchUserId() {
-            const storedUserId = await asyncStorage.getItem('user_id');
+            const storedUserId = await AsyncStorage.getItem('user_id');
             if (storedUserId) {
                 setUserId(storedUserId); 
             } else {
@@ -131,6 +167,8 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
             }
         }
         fetchUserId();
+        getUsersNumber()
+        checkUser()
     }, []);
     
     const fetchHiddenState = async () => {
@@ -204,6 +242,24 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                         alignItems: "center",}]}
             >
                 <View style={styles.headerTitleContainer}>
+                    <View style={{
+                            position:'absolute',
+                            top:-18,
+                            // right:0,
+                            display:'flex',
+                            flexDirection:'row',
+                            // backgroundColor:'#f0f0f0',
+                            width:'100%',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                         <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText, {opacity:0.5}]}>
+                                {userNumber ? `пользователей: ${userNumber}` : ''}
+                        </Text> 
+                        <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText]}>
+                                {info?.username}
+                        </Text>
+                    </View>
                     <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom:4 }}>
                         <Pressable
                         >  
@@ -215,15 +271,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                     </View>
 
                     <View style={[styles.headerProfileGroup, {position:'relative'}]}>
-                        <View style={{
-                                    position:'absolute',
-                                    top:-23,
-                                    right:0,
-                                }}>
-                            <Text style={[ theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                                    {info?.username}
-                            </Text>
-                        </View>
+                        
                         <Pressable
                                 onPress={handleDotsPress}
                         >

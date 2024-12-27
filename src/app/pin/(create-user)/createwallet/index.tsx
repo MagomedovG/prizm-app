@@ -131,9 +131,16 @@ const CreateWallet = () => {
                         ПРЕДУПРЕЖДЕНИЕ
                     </Text>
                     <View style={styles.message}>
-                        <Text style={styles.messageText}>Обязательно сохраните парольную-фразу! 
-                            Без нее нельзя будет обменять <Text style={{fontWeight:'bold'}}>PZM</Text> на рубли! (сделайте фото экрана или сохраните на телефоне)
+                        <Text style={styles.messageText}>
+                            Обязательно сохраните парольную-фразу! 
+                            Без неё невозможно будет восстановить  аккаунт(кошелёк)
+                            Обязательно сохраните так,чтобы вы могли её использовать при случае утере телефона. (Сделайте фото экрана или перепишите на лист бумаги).
+                            {/* Без нее нельзя будет обменять <Text style={{fontWeight:'bold'}}>PZM</Text> на рубли! (Сделайте фото экрана или перепишите на лист бумаги) */}
+                            
                         </Text>
+                        <Text style={styles.messageText}>
+                                Парольную фразу нельзя показывать никому,так как это даст возможность украсть ваши средства PZM.
+                            </Text>
                     </View>
                     <Text style={styles.label}>Парольная-фраза</Text>
                     <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>

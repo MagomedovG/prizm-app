@@ -13,7 +13,7 @@ const CustomThemeContext = createContext<ThemeType>({
 });
 
 const CustomThemeProvider = ({ children }: PropsWithChildren) => {
-    const [theme, setTheme] = useState<string>('purple'); // Дефолтная тема
+    const [theme, setTheme] = useState<string>('purple'); 
 
   useEffect(() => {
     const loadTheme = async () => {
@@ -22,7 +22,7 @@ const CustomThemeProvider = ({ children }: PropsWithChildren) => {
         if (savedTheme) {
           setTheme(savedTheme);
         } else {
-          await AsyncStorage.setItem('theme', theme); // Сохраняем дефолтную тему
+          await AsyncStorage.setItem('theme', theme); 
         }
       } catch (error) {
         console.error('Failed to load theme', error);
