@@ -6,5 +6,5 @@ export default function MainScreen(){
     // return <Redirect href={'/(user)/menu'}/>
     // return <Redirect href={'/(user)/menu/category-item/1'}/>
     // return <Redirect href={'/pin/(create-user)/setnickname/LoginScreen'}/>
-    // return <Redirect href={'/(user)/menu/wallet/user'}/>
+    // return <Redirect href={'/menu/wallet/secret-phrase'}/>
 }

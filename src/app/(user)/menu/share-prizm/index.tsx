@@ -36,6 +36,7 @@ const SharePrizm = () => {
     const [permission, requestPermission] = useCameraPermissions();
     const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
     const [addressatPublicKey, setAddressatPublicKey] = useState('')
+    const [message, setMessage] = useState('')
     const [userWallet, setUserWallet] = useState()
     const [flashStatus, setFlashStatus] = useState<boolean>(false)
     const { data: transactions, isLoading: isTransactionsLoading, refetch: refetchTransactions } = useQuery({
@@ -186,8 +187,8 @@ const SharePrizm = () => {
             secret_phrase:secretPhrase || sid,
             recipient_wallet:wallet,
             prizm_amount:count,
-            recipient_public_key:addressatPublicKey ? addressatPublicKey : null
-            // ...(addressatPublicKey && { recipient_public_key: addressatPublicKey })
+            recipient_public_key:addressatPublicKey ? addressatPublicKey : null,
+            ...(message && { message: message })
         };
         console.log(form)
         try {
@@ -301,7 +302,7 @@ const SharePrizm = () => {
                             />
                             <View style={styles.convertToRubContainer}>
                                 <Text style={styles.convertToRubText}>
-                                    {count * course > 0 ? parseFloat((count * course).toFixed(2)) : 0} руб
+                                    {count * course > 0 ? parseFloat((count * course).toFixed(5)) : 0} руб
                                 </Text>
                             </View>
                             
@@ -309,7 +310,7 @@ const SharePrizm = () => {
                         {errorMessage && <Text style={[styles.errorText, {color:'#C85557'}]}>{errorMessage}</Text>}
                         {!errorMessage && !count && <Text style={styles.errorText}>коммисия сети 0,5% (не менее 0,05 и не более 10 pzm)</Text>}
                         {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${parseFloat(getComission(count).toFixed(3))} pzm`}</Text>}
-                        {!secretPhrase && <Pressable 
+                         <Pressable 
                             onPress={copySidToClipboard} 
                             style={[
                                 styles.pressable, 
@@ -317,6 +318,29 @@ const SharePrizm = () => {
                                     flex: 1,
                                     justifyContent: 'center',
                                     marginTop: 5,
+                                    
+                                }
+                            ]}
+                        >
+                            <TextInput
+                                style={[styles.textArea,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
+                                editable={true}
+                                multiline={true}
+                                onChangeText={setMessage}
+                                placeholder={'Сообщение'}
+                                value={message}
+                                placeholderTextColor='#8C8C8C'
+                            />
+                            
+                        </Pressable>
+                        {!secretPhrase && <Pressable 
+                            onPress={copySidToClipboard} 
+                            style={[
+                                styles.pressable, 
+                                {
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    marginTop: 10,
                                     
                                 }
                             ]}
@@ -521,8 +545,8 @@ const styles = StyleSheet.create({
     },
     textArea: {
         height: 120,
-        paddingVertical: 10,
-        paddingHorizontal: 13,
+        paddingVertical: 13,
+        paddingHorizontal: 8,
         backgroundColor: '#fff',
         borderWidth: 1,
         borderRadius: 10,
