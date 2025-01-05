@@ -323,11 +323,11 @@ const SharePrizm = () => {
                             ]}
                         >
                             <TextInput
-                                style={[styles.textArea,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
+                                style={[styles.textArea,{ height: 40, paddingVertical: 8, width:'50%'},{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
                                 editable={true}
-                                multiline={true}
+                                // multiline={true}
                                 onChangeText={setMessage}
-                                placeholder={'Сообщение'}
+                                placeholder={'Комментарий'}
                                 value={message}
                                 placeholderTextColor='#8C8C8C'
                             />
