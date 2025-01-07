@@ -329,7 +329,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                                 {isHidden ? '****' : `B: ${info?.balance_in_pzm ? info?.balance_in_pzm : 0.0} pzm`}
                             </Text>
                             <Text style={[styles.headerListItem, theme === 'purple' ? styles.whiteText : styles.blackText]}>
-                                {isHidden ? '****' : `P: ${para  ? para.toFixed(8) : 0.0} pzm`}
+                                {isHidden ? '****' : `P: ${para  ? para : 0.0} pzm`}
                             </Text>
                         </View>
                     </View>
