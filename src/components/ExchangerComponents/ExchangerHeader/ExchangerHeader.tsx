@@ -54,34 +54,7 @@ export default function ExchangerHeaderComponent () {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/userId/wallet-data/`);
         }
     }
-    // const fetchOrders = async (wallet?:string) => {
-    //     if (loading || !hasMore) return;
-
-    //     setLoading(true);
-    //     try {
-    //         const response = await fetch(
-    //             nextLink || `${apiUrl}/api/v1/pzm-orders/?user-account-rs=${wallet}`
-    //         );
-    //         const data = await response.json();
-    //         console.log(data.results.length)
-    //         console.log(`${apiUrl}/api/v1/pzm-orders/?user-account-rs=${wallet}/`)
-    //         if (data?.next){
-    //             setNextLink(data.next)
-    //         } else {
-    //             setHasMore(false)
-    //         }
-    //         if (nextLink){
-    //             console.log('nextLink',nextLink)
-    //         }
-    //         setOrders((prevOrders) => [...prevOrders, ...data.results]);
-    //         // setPage((prevPage) => prevPage + limit);
-    //         // setHasMore(data.results.length === limit); // Если данных меньше лимита, значит это последняя страница
-    //     } catch (error) {
-    //         console.error('Ошибка загрузки данных:', error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
+   
 
     const getFee = async () => {
         try {
@@ -103,8 +76,6 @@ export default function ExchangerHeaderComponent () {
     const postOrder = async () => {
         try {
             const secret_phrase = await AsyncStorage.getItem("secret-phrase");
-            // console.log(exchangeRates?.toFixed(7).toString())
-            // const prizm_exchange_rate = exchangeRates ? parseFloat(exchangeRates?.toFixed(7).toString()) : 0
             const prizm_exchange_rate = exchangeRates 
 
             const form = {
@@ -160,16 +131,6 @@ export default function ExchangerHeaderComponent () {
         }
     }
     useEffect(() => {
-        // const getWallet = async () => {
-        //     const prizmWallet = await AsyncStorage.getItem('prizm_wallet')
-        //     if(prizmWallet){
-        //         fetchOrders(prizmWallet);
-        //     } else {
-        //         console.log('wallet не найден')
-        //     }
-            
-        // }
-        // getWallet()
         fetchWalletData()
         getFee()
         
@@ -180,7 +141,6 @@ export default function ExchangerHeaderComponent () {
         queryKey:['bank-items'],
         queryFn: async () => {
                 const response = await fetch(`${apiUrl}/api/v1/utils/banks/`);
-                // console.log('refresuserWallet',`${apiUrl}/api/v1/utils/banks/`)
                 return await response.json();
         },
     });
@@ -240,7 +200,7 @@ export default function ExchangerHeaderComponent () {
         }
     };
     useEffect(()=>{
-        fetchData(); // Первоначальный запрос
+        fetchData(); 
         
         
         const interval = setInterval(() => {
@@ -330,11 +290,10 @@ export default function ExchangerHeaderComponent () {
                     <Text style={styles.label}>Номер телефона с привязанной картой</Text>
                     <View style={[styles.pressable]}>
                         <TextInput
-                            style={[styles.input,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'},  errorMessage || Number(count) > calculateMaxTransfer(balance) ? styles.inputError : null, balance === 0 || Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}
+                            style={[styles.input,{borderColor: theme === 'purple' ? '#957ABC' : '#4D7440'}]}
                             editable={true}
                             onChangeText={(text) => {
-                                // Удаляем всё, что вне префикса, и добавляем 
-                                const cleanedText = text.replace(/[^0-9]/g, ''); // Убираем нецифровые символы
+                                const cleanedText = text.replace(/[^0-9]/g, ''); 
                                 if (!cleanedText.startsWith('7')) {
                                     setPhoneNumber(`+7${cleanedText.replace(/^7/, '')}`);
                                 } else {
@@ -352,7 +311,7 @@ export default function ExchangerHeaderComponent () {
                     <View style={styles.payButtonTextContainer}>
                         <View style={[styles.payContainer, {width:'61%'}]} >
                             <Text style={{fontSize:18}}>
-                                Вы получите <Text style={{fontWeight:'bold'}}>{`${count && exchangeRates && count > 0 ? `${parseFloat(((count - getComission(count)) * exchangeRates).toFixed(5).toString())}` : '0'}`} </Text><Text style={{fontSize:14,fontWeight:'bold'}}>₽</Text>
+                                Вы получите <Text style={{fontWeight:'bold'}}>{`${count && exchangeRates && count > 0 ? `${parseFloat( ( (exchargerFee && exchargerFee > 0 ? (count - (count / 100 * exchargerFee)) : count) * exchangeRates).toFixed(5).toString() )}` : '0'}`} </Text><Text style={{fontSize:14,fontWeight:'bold'}}>₽</Text>
                             </Text>
                         </View>
                         <Pressable style={[styles.payContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground,{width:'36%'}]} disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance)} onPress={postOrder}>

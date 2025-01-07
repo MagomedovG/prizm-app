@@ -175,13 +175,14 @@ const styles = StyleSheet.create({
     },
     copyButtonContainer: {
         position: "absolute",
-        right: 8,
+        right: 4,
         top: 4,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: '#fff',
+        // backgroundColor: 'rgba(255, 255, 255,1)',
         padding: 5,
         borderRadius: 4,
+        opacity: 0.8
     },
     textContainer: {
         borderWidth: 1,
@@ -189,6 +190,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 6,
         paddingHorizontal: 8,
+        // paddingRight:19,
         minHeight: 118,
         maxHeight:250
     },
