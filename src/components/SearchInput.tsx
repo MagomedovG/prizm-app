@@ -12,6 +12,7 @@ const DismissKeyboard = ({ children }:any) => (
 const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) => {
     const [query, setQuery] = useState('');
     const { theme } = useCustomTheme();
+    console.log('SearchInput Rerender');
     useEffect(() => {
         if (query) {
             const filtered = data.filter((item:any) => 
@@ -20,9 +21,11 @@ const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) =
                 // item?.title.toLowerCase().includes(query?.toLowerCase())
         );
             onFilteredData(filtered);
+            
         } else {
             onFilteredData(data);
         }
+        
     }, [query, data]);
 
     return (
@@ -55,7 +58,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 20,
-        marginBottom:15,
+        // marginBottom:15,
         borderRadius: 20,
         paddingRight: 10,
         paddingLeft:15
@@ -69,4 +72,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SearchInput;
+export default React.memo(SearchInput);

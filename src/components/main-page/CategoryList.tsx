@@ -73,7 +73,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                     </View>
                     
                 }
-                <View style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+                <View style={{display: 'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:15}}>
                     <View style={styles.titleButton}>
                         <Text style={[styles.title, {marginBottom: 5}]}>{title}</Text>
                     </View>

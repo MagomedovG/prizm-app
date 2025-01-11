@@ -108,6 +108,8 @@ export default function categoryId() {
     if (isBusinessLoading){
         return <Text>Loading...</Text>
     }
+    const isSingleColumn = !!business?.contacts && business?.contacts?.length <= 7;
+    const numColumnsToContacs = !!business?.contacts ? (business?.contacts?.length > 2 ? 3 : business?.contacts.length) : undefined
 
     
     return (
@@ -218,7 +220,8 @@ export default function categoryId() {
                                          </Link>
                                         
                                     )}
-                                    numColumns={business?.contacts.length > 2 ? 3 : business?.contacts.length} 
+                                    numColumns={numColumnsToContacs} 
+                                    key={numColumnsToContacs?.toString()}
                                     keyExtractor={(item) => item.value}
                                     showsHorizontalScrollIndicator={false}
                                 />

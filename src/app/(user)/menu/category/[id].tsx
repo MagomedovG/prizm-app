@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, Stack, useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
-import CategoryItemList from "@/src/components/main-page/CategoryItemList";
+import CategoryItemList from "@/src/components/CategoryItemComponents/CategoryItemList";
 import SearchInput from "@/src/components/SearchInput";
 import HeaderLink from "@/src/components/HeaderLink";
 import Modal from "react-native-modal";
@@ -103,10 +103,6 @@ export default function categoryId() {
         getWallet()
     }, []);
 
-    const [filteredData, setFilteredData] = useState<IBusinessInCategory | null>(null);
-    const handleFilteredData = (data:any) => {
-        setFilteredData(data);
-    };
     
 
     return (
@@ -172,7 +168,7 @@ export default function categoryId() {
                                     <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                                     <View style={{display:'flex', flexDirection:'row'}}>
                                         <Text style={[styles.text]}>Перейдите в раздел </Text>
-                                        <Link href={exchanger}>
+                                        <Link href={'/(user)/menu/exchanger'}>
                                             <Text style={[styles.text,{textDecorationLine:'underline',color:theme === 'purple' ? '#6F1AEC' : '#375A2C',}]}>обменник</Text>
                                         </Link>
                                     </View>
