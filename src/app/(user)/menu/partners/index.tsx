@@ -58,6 +58,10 @@ export default function PartnersScreen() {
         },
         enabled: !!localityId && !!localityType, 
     });
+
+    const numColumnsToContacs = !!partners ? (partners?.length > 2 ? 3 : partners.length) : undefined
+
+
     return (
         <View style={styles.container}>
             <View>
@@ -90,7 +94,8 @@ export default function PartnersScreen() {
                                 </Link>
                             
                         )}
-                        numColumns={partners.length > 2 ? 3 : partners.length} 
+                        numColumns={numColumnsToContacs} 
+                        key={numColumnsToContacs?.toString()}
                         keyExtractor={(item) => item.value}
                         showsHorizontalScrollIndicator={false}
                     />
