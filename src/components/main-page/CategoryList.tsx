@@ -63,7 +63,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
     };
     return (
         <KeyboardAvoidingView
-            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 100) }]}
+            style={[styles.container, { marginBottom: keyboardHeight ? keyboardHeight + ITEM_HEIGHT : ITEM_HEIGHT + (Platform.OS === 'ios' ? 0 : 60) }]}
                 keyboardVerticalOffset={0} 
         >
                 

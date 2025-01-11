@@ -111,7 +111,7 @@ export default function SecretPhrase() {
                                 
                             </View>
                         ) : (
-                            <Pressable style={[styles.secretText, { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }]} onPress={() => {
+                            <Pressable style={[styles.secretText, { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}]} onPress={() => {
                                     setIsEditable(true);
                                     setNewPhrase(secretPhrase || "");
                                 }}
@@ -133,14 +133,28 @@ export default function SecretPhrase() {
                     )}
                     {
                             !isEditable && secretPhrase && (
-                                <Pressable onPress={()=>{
-                                    setNewPhrase(secretPhrase)
-                                    setIsEditable(true)
+                                <View style={{
+                                    display:'flex',
+                                    justifyContent:'flex-start',
+                                    // width:containerWidth + 34, 
+                                    marginBottom:10
                                 }}>
-                                    <Text style={{color:'#808080',paddingHorizontal:8, paddingTop:2, paddingBottom:8}}>
-                                        изменить
-                                    </Text>
-                                </Pressable>
+                                        <Pressable onPress={()=>{
+                                                setNewPhrase(secretPhrase)
+                                                setIsEditable(true)
+                                            }} style={{paddingTop:2, paddingLeft:8, paddingBottom:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
+                                            <Text style={{color:'#957ABC', fontSize:13,paddingBottom:3}}>редактировать</Text>
+                                            <FontAwesome5 name="pencil-alt" size={9} color="#957ABC" />
+                                        </Pressable>
+                                    </View>
+                                // <Pressable onPress={()=>{
+                                //     setNewPhrase(secretPhrase)
+                                //     setIsEditable(true)
+                                // }}>
+                                //     <Text style={{color:'#808080',paddingHorizontal:8, paddingTop:2, paddingBottom:8}}>
+                                //         изменить
+                                //     </Text>
+                                // </Pressable>
                             )
                         }
                 </Pressable>
@@ -190,7 +204,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 6,
         paddingHorizontal: 8,
-        // paddingRight:19,
+        paddingRight:24,
         minHeight: 118,
         maxHeight:250
     },
