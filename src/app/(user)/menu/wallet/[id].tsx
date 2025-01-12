@@ -165,7 +165,7 @@ export default function walletId() {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
             >
                 {id === 'user' && <Link href='/(user)/menu/wallet/secret-phrase' asChild>
-                    <Pressable style={{position:'absolute',top:statusBarHeight + 21,left: 27,zIndex:100}}>
+                    <Pressable style={{position:'absolute',paddingTop:statusBarHeight + 21,paddingBottom:20,paddingHorizontal: 27,zIndex:100}}>
                         <MaterialCommunityIcons name="key-outline" size={24} color="gray"/>
                     </Pressable>
                 </Link>}

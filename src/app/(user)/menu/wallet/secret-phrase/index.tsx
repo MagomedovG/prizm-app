@@ -77,7 +77,7 @@ export default function SecretPhrase() {
                 <Text style={[styles.title, { marginBottom: 34 }]} numberOfLines={2}>
                     фраза
                 </Text>
-                <Pressable style={[styles.pressable]}>
+                <View style={[styles.pressable]}>
                     <View
                         style={[
                             styles.textContainer,
@@ -97,7 +97,7 @@ export default function SecretPhrase() {
                                 multiline
                             />
                         ) : secretPhrase ? (
-                            <View style={styles.secretText}>
+                            <Pressable style={styles.secretText} onPress={copySidToClipboard}>
                                 <Text
                                     style={{
                                         color: "#8C8C8C",
@@ -109,7 +109,7 @@ export default function SecretPhrase() {
                                     {secretPhrase}
                                 </Text>
                                 
-                            </View>
+                            </Pressable>
                         ) : (
                             <Pressable style={[styles.secretText, { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}]} onPress={() => {
                                     setIsEditable(true);
@@ -128,7 +128,7 @@ export default function SecretPhrase() {
                     </View>
                     {secretPhrase && !isEditable && (
                         <View style={styles.copyButtonContainer}>
-                            <FontAwesome5 name="copy" size={15} color="gray" onPress={copySidToClipboard} />
+                            <FontAwesome5 name="copy" size={15} color="gray" onPress={copySidToClipboard}/>
                         </View>
                     )}
                     {
@@ -142,7 +142,7 @@ export default function SecretPhrase() {
                                         <Pressable onPress={()=>{
                                                 setNewPhrase(secretPhrase)
                                                 setIsEditable(true)
-                                            }} style={{paddingTop:2, paddingLeft:8, paddingBottom:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center'}}>
+                                            }} style={{paddingTop:2, paddingLeft:8, paddingBottom:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center', width:'40%'}}>
                                             <Text style={{color:'#957ABC', fontSize:13,paddingBottom:3}}>редактировать</Text>
                                             <FontAwesome5 name="pencil-alt" size={9} color="#957ABC" />
                                         </Pressable>
@@ -157,7 +157,7 @@ export default function SecretPhrase() {
                                 // </Pressable>
                             )
                         }
-                </Pressable>
+                </View>
 
                 <Text style={styles.pressable}>
                     Уважаемый пользователь, приложение хранит вашу парольную фразу в памяти вашего телефона. Восстановить парольную фразу невозможно, она генерируется на вашем устройстве и нигде более не сохраняется. Обязательно сохраняйте резервные копии на других носителях (записать на бумаге, сделать фото экрана). Парольную фразу нельзя показывать никому, так как это даст возможность украсть ваши средства PZM.
