@@ -34,7 +34,20 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
+import PrizmWallet from '../../../utils/PrizmWallet'
+import * as bip39 from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
 export default function MenuScreen() {
+
+    //  function initializeWallet() {
+    //     // const newWallet = new PrizmWallet(true);
+    //     const mn =  bip39.generateMnemonic(wordlist);
+    //     console.log('New Wallet:', mn);
+    // }
+
+    // // Пример вызова initializeWallet
+    // initializeWallet();
+
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
     const { setTheme } = useCustomTheme();

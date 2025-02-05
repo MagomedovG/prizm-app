@@ -7,6 +7,8 @@ import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet, StatusBa
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {Image} from 'expo-image'
 import { useQuery } from "@tanstack/react-query";
+import signBytes from "@/src/utils/main";
+import PrizmWallet from "@/src/utils/PrizmWallet";
 const statusBarHeight = StatusBar.currentHeight || 0;
 
 type BankItem = {
@@ -73,18 +75,19 @@ export default function ExchangerHeaderComponent () {
             // console.log(error)
         }
     }
-    const postOrder = async () => {
+    const postOrder = async (transactionsBytes: string, sellerAccountRs:string) => {
         try {
-            const secret_phrase = await AsyncStorage.getItem("secret-phrase");
             const prizm_exchange_rate = exchangeRates 
 
             const form = {
                 prizm_amount: count,
                 seller_bank: activeBank,
-                seller_phone_number:phoneNumber,
-                secret_phrase,
-                prizm_exchange_rate
+                seller_phone_number:'+79999999999',
+                transaction_bytes:transactionsBytes,
+                seller_account_rs:sellerAccountRs,
+                prizm_exchange_rate,
             }
+            console.log('sellerAccountRs', sellerAccountRs, 'form:', form)
             const response = await fetch(
                 `${apiUrl}/api/v1/pzm-orders/`,
                 {
@@ -95,32 +98,21 @@ export default function ExchangerHeaderComponent () {
                     body: JSON.stringify(form),
                 }
             );
+            console.log(response)
             const data = await response.json();
             if (!response.ok) {
-                console.log(data)
-                if (data.detail){
-                    Alert.alert(data.detail,'',[{ text: "На главную" ,
-                        onPress: () => {
-                            router.replace('/(user)/menu')
-                        }
-                      }])
-                }
-                if (data.header || data.description){
-                    Alert.alert(
-                        data.header,
-                        data.description,
-                    );
-                } else if (!data.detail){
-                    const message = data.secret_phrase?.[0] ? 'Не заполнена парольная фраза' : 'Ошибка при создании ордера на продажу' 
-                    Alert.alert(
-                        message
-                    );
-                }
-                
+                console.log('postOrder !response.ok',data)
+                Alert.alert('Ошибка при создании ордера',data.detail,
+                //     [{ text: "На главную" ,
+                //     onPress: () => {
+                //         router.replace('/(user)/menu')
+                //     }
+                // }]
+            )
             } else {
                 Alert.alert(
-                    data.header,
-                    data.description,
+                    'Ордер создан успешно',
+                    data.detail,
                   );
                   router.replace('/(user)/menu');
                   
@@ -130,6 +122,43 @@ export default function ExchangerHeaderComponent () {
             console.error("Ошибка при отправке ордера:", error);
         }
     }
+
+    const secret = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split'
+    const senderPrizmWallet = new PrizmWallet(false, secret, null)
+
+    const postForm = async () => {
+        await senderPrizmWallet._setWalletData()
+
+        const form = {
+            sender_public_key:senderPrizmWallet.publicKeyHex,
+            recipient_wallet:'PRIZM-M6WK-ZBUJ-LKPR-8HWPR',
+            prizm_amount:2,
+        };
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            });
+            const data = await response.json();
+            console.log('postForm data',data)
+            
+            if (response.ok){
+                const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
+                const sellerAccountRs = data.transaction_data.transactionJSON.senderRS
+                // const unsignedTransactionsBytes = '0010f750380ca0059f5abeb83025b5bca5a5a32566e2aefbf7c215a1e71b89459531dc2a46b28343b5a3417713b383a00100000000000000050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000224b3300d9fc9e492d18e937'
+                const singTransaction = signBytes(unsignedTransactionsBytes, secret);
+                postOrder(singTransaction, sellerAccountRs)
+            } else if (data && !data?.header) {
+                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
+                Alert.alert(message);
+            }  
+        } catch (error) {
+            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
+        } 
+    };
     useEffect(() => {
         fetchWalletData()
         getFee()
@@ -314,7 +343,11 @@ export default function ExchangerHeaderComponent () {
                                 Вы получите <Text style={{fontWeight:'bold'}}>{`${count && exchangeRates && count > 0 ? `${parseFloat( ( (exchargerFee && exchargerFee > 0 ? (count - (count / 100 * exchargerFee)) : count) * exchangeRates).toFixed(5).toString() )}` : '0'}`} </Text><Text style={{fontSize:14,fontWeight:'bold'}}>₽</Text>
                             </Text>
                         </View>
-                        <Pressable style={[styles.payContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground,{width:'36%'}]} disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance)} onPress={postOrder}>
+                        <Pressable 
+                            style={[styles.payContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground,{width:'36%'}]} 
+                            // disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance)} 
+                            onPress={postForm}
+                        >
                             <Text style={{color:'white', fontSize:18}}>
                                 Продать
                             </Text>

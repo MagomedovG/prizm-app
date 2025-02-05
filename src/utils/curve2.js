@@ -10,7 +10,7 @@
  * Based on work by Daniel J Bernstein, http://cr.yp.to/ecdh.html
  */
 
-var curve25519 = function () {
+const  curve25519 =  (function() {
 
     //region Constants
 
@@ -856,5 +856,5 @@ var curve25519 = function () {
         verify: verify,
         keygen: keygen
     };
-}();
-export default  curve25519 ;
+})();
+export default curve25519

@@ -19,6 +19,12 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const deviceWidth = width;
 import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
 import { useQuery } from '@tanstack/react-query';
+import PrizmWallet from '@/src/utils/PrizmWallet';
+import curve25519 from '../../utils/curve2';
+import converters from '../../utils/converters';
+const CryptoJS = require('crypto-js');
+import signBytes from '../../utils/main';
+
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
@@ -43,7 +49,6 @@ const SharePrizm = () => {
         queryKey:['transactions',userWallet],
         queryFn: async () => {
                 const response = await fetch(`${apiUrl}/api/v1/wallet/get-transactions/?wallet=${userWallet}`);
-                console.log('refresuserWallet',`${apiUrl}/api/v1/wallet/get-transactions/?wallet=${userWallet}}`)
                 return await response.json();
         },
         enabled: !!userWallet, 
@@ -91,7 +96,7 @@ const SharePrizm = () => {
                 setUserWallet(storedWallet)
             }
         } catch (error) {
-            console.error("Ошибка загрузки секретной фразы:", error);
+            // console.error("Ошибка загрузки секретной фразы:", error);
         }
     };
 
@@ -178,19 +183,75 @@ const SharePrizm = () => {
     }
     useEffect(()=>{
         getData()
-        console.log(secretPhrase)
     },[])
-    
-    const postForm = async () => {
-        setIsLoading(true);
+
+    const sendTransactionsBytes = async (transactionsBytes: string, attachment?:any) => {
         const form = {
-            secret_phrase:secretPhrase || sid,
-            recipient_wallet:wallet,
-            prizm_amount:count,
-            // recipient_public_key:addressatPublicKey ? addressatPublicKey : null,
-            // ...(message && { message: message })
-        };
+            transaction_bytes:transactionsBytes,
+            ...(attachment && { attachment: attachment })
+        }
         console.log(form)
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            });
+            const data = await response.json();
+            console.log('data',data)
+
+            if (response.ok){
+                setSid('')
+                setCount(null)
+                setWallet('')
+                Alert.alert(
+                    'Транзакция прошла успешно', 
+                    data?.detail, 
+                );
+            } else {
+                Alert.alert(
+                    'Ошибка при проведении транзакции', 
+                    data?.detail, 
+                );
+            }
+        } catch (err) {
+            console.log('Ошибка при переводе:', err,`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`,transactionsBytes );
+        }
+    }
+    // PRIZM-M6WK-ZBUJ-LKPR-8HWPR
+    const secret = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split'
+    const senderPrizmWallet = new PrizmWallet(false, secret, null)
+    const getPzmWallet = async () => {
+        try {
+            console.log('publicKeyHex',senderPrizmWallet.publicKeyHex)
+    
+            console.log('accountId',senderPrizmWallet.accountId)
+
+            // console.log('privatekey',senderPrizmWallet.privateKey)
+    
+            console.log('accountRs',senderPrizmWallet.accountRs)
+
+            console.log('secretPhraseee',senderPrizmWallet.secretPhrase)
+        } catch (e) {
+            console.log('error')
+        }
+        
+
+
+    }
+    const postForm = async () => {
+
+        setIsLoading(true);
+
+        const form = {
+            sender_public_key:senderPrizmWallet.publicKeyHex,
+            recipient_wallet:'PRIZM-M6WK-ZBUJ-LKPR-8HWPR',
+            prizm_amount:1,
+            ...(message && { message: message })
+            // recipient_public_key:addressatPublicKey ? addressatPublicKey : null,
+        };
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
@@ -200,33 +261,27 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log(data)
-            if (data?.header && data?.description){
-                Alert.alert(
-                    data?.header, 
-                    data?.description, 
-                  );
-            }
+            console.log('data form',data, form)
+            
             if (response.ok){
-                if (!secretPhrase && checked){
-                    await asyncStorage.setItem("secret-phrase", sid)
-                    console.log('secret phrase memoried')
-                }
-                setSid('')
-                setCount(null)
-                setWallet('')
-                router.replace('/(user)/menu');
+                
+                const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
+                const attachment = data.transaction_data.transactionJSON.attachment
+                console.log('attachment', data.transaction_data.transactionJSON.attachment)
+                const singTransaction = signBytes(unsignedTransactionsBytes, secret);
+                // sendTransactionsBytes(singTransaction,attachment)
+                console.log(singTransaction, attachment)
             } else if (data && !data?.header) {
-                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data.recipient_public_key?.[0] || data;
+                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
                 Alert.alert(message);
             }  
-            // await asyncStorage.setItem("secret-phrase", secretPhrase);
         } catch (error) {
-            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
+            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
         } finally {
             setIsLoading(false);
         }
     };
+    
     
 
     return (
@@ -368,7 +423,11 @@ const SharePrizm = () => {
                             <Text style={styles.checkboxText}>cохранить мою парольную фразу</Text>
                         </View>}
                         <View style={{marginTop: 20}}>
-                            <StaticButton text={`Перевести ${count ? `${count} ` : ''}pzm`} disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || (!secretPhrase && !sid) || !wallet ? console.log('d') : postForm()}}/>
+                            <StaticButton 
+                                text={`Перевести ${count ? `${count} ` : ''}pzm`} 
+                                // disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} 
+                                onPress={()=>{postForm()}}
+                            />
                         </View>
                         <Text style={styles.transactionsTitle}>
                             История транзакций
@@ -394,35 +453,7 @@ const SharePrizm = () => {
                 </View>
                 
                 
-                {/* <Modal
-                    isVisible={isScanner} // это свойство отвечает за видимость модалки
-                    onSwipeComplete={()=> setIsScanner(false)} // закрытие модалки при свайпе вниз
-                    swipeDirection="down" // определяем направление свайпа
-                    deviceWidth={deviceWidth}
-                    deviceHeight={deviceHeight}
-                    style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
-                    animationIn="slideInUp" // анимация при открытии
-                    animationOut="slideOutDown" // анимация при закрытии
-                    backdropOpacity={1} // настройка прозрачности фона
-                    backdropColor='white'
-                    animationInTiming={300}
-                    animationOutTiming={300}
-                    backdropTransitionOutTiming={0}
-                    onBackButtonPress={()=>setIsScanner(false)}
-                    statusBarTranslucent
-                >
-                    <View style={styles.fullscreenContainer}>
-                        <View style={styles.fullscreenSlide}>
-                            <BarCodeScanner
-                                onBarCodeScanned={handleAfterScanned}
-                                style={styles.Scanner}
-                            />
-                        </View>
-                        <Pressable style={styles.closeButton} onPress={()=>setIsScanner(false)}>
-                            <AntDesign name="close" size={26} color="white" style={styles.xIcon}/>
-                        </Pressable>
-                    </View>
-                </Modal> */}
+                
             </ScrollView>
             }
         </>
