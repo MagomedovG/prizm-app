@@ -7,7 +7,8 @@ import {
     ScrollView,
     Dimensions,
     RefreshControl,
-    StatusBar
+    StatusBar,
+    Platform
 } from "react-native";
 import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
@@ -161,7 +162,7 @@ export default function MenuScreen() {
                 animationOutTiming={500}
                 backdropColor='black'
                 hardwareAccelerated
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 swipeDirection={'down'}
                 style={styles.modal}
                 statusBarTranslucent
@@ -209,7 +210,7 @@ export default function MenuScreen() {
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 statusBarTranslucent
             >
                 <View style={styles.centeredView}>
@@ -255,7 +256,7 @@ export default function MenuScreen() {
                 animationInTiming={300}
                 animationOut='slideOutDown'
                 animationOutTiming={300}
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 backdropColor='black'
                 hardwareAccelerated
                 swipeDirection={'down'}

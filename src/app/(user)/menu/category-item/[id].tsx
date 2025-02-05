@@ -274,7 +274,7 @@ export default function categoryId() {
                     animationInTiming={300}
                     animationOut='slideOutDown'
                     animationOutTiming={300}
-                    backdropTransitionOutTiming={0}
+                    {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                     onBackButtonPress={closeQrModal}
                     backdropColor='black'
                     hardwareAccelerated
@@ -325,7 +325,7 @@ export default function categoryId() {
                 backdropColor='white'
                 animationInTiming={300}
                 animationOutTiming={300}
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 onBackButtonPress={closeFullscreen}
                 statusBarTranslucent
             >

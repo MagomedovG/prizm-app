@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView, Dimensions, StatusBar, FlatList, ActivityIndicator, Modal} from "react-native";
+import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView, Dimensions, StatusBar, FlatList, ActivityIndicator, Modal, Platform, Button} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {borderColor} from "@/assets/data/colors";
@@ -19,6 +19,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const deviceWidth = width;
 import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
 import { useQuery } from '@tanstack/react-query';
+import QrScanner from '@/src/components/QrScanner';
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
@@ -33,7 +34,6 @@ const SharePrizm = () => {
     const [isScanner, setIsScanner] = useState(false)
     const { theme } = useCustomTheme();
     const [transactionList, setTransactionList] = useState([{number:1}, {number:2}, {number:3}, {number:4}, {number:5}, {number:6}, {number:7}, {number:8}, {number:9}, {number:10}])
-    const [permission, requestPermission] = useCameraPermissions();
     const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
     const [addressatPublicKey, setAddressatPublicKey] = useState('')
     const [message, setMessage] = useState('')
@@ -98,18 +98,9 @@ const SharePrizm = () => {
     useEffect(() => {
         loadSecretPhraseAndWallet();
     }, []);
-    const askCameraPermission = async () => {
-        const { status } = await BarCodeScanner.requestPermissionsAsync();
-        console.log(status)
-        if (permission?.granted) {
-          setHasPermission(true);
-        }
-      };
     
-    useEffect(() => {
-        askCameraPermission();
-      }, []);
-      const handleAfterScanned = ({ data, type }: any) => {
+    
+      const handleAfterScanned = ({ data }: any) => {
         setIsScanner(false)
         const result = splitQrText(data)
         scanQrCode(result?.afterColon)
@@ -178,7 +169,6 @@ const SharePrizm = () => {
     }
     useEffect(()=>{
         getData()
-        console.log(secretPhrase)
     },[])
     
     const postForm = async () => {
@@ -232,38 +222,11 @@ const SharePrizm = () => {
     return (
         <>
         
-            {isScanner ?
-            <View style={{
-                    flex: 1,
-                    justifyContent: "center",
-                }}> 
-                
-                <View style={styles.fullscreenSlide}>
-                    
-                    <CameraView
-                        barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-                        onBarcodeScanned={handleAfterScanned}
-                        style={styles.Scanner}
-                        enableTorch={flashStatus}
-                        facing='back'
-                        zoom={0}
-                    >
-
-                    </CameraView>
-                    <Pressable onPress={()=>setFlashStatus(!flashStatus)} style={[styles.flashButton]}>
-                        <View style={[flashStatus ? {backgroundColor:'#fff'} : {backgroundColor:'#000',opacity:0.7}, {padding:12, borderRadius:50}]}>
-                           <MaterialCommunityIcons name="flashlight" size={24} color={flashStatus ? "black" : "white"} /> 
-                        </View>
-                        
-                    </Pressable>
-                    <Pressable style={styles.closeButton} onPress={()=>{
-                            setIsScanner(false)
-                            setFlashStatus(false)
-                        }}>
-                            <AntDesign name="close" size={22} color="white" style={styles.xIcon}/>
-                        </Pressable>
-                </View>
-            </View> :
+            {
+                // true
+            isScanner 
+            ?
+            <QrScanner setIsScanner={setIsScanner} handleAfterScanned={handleAfterScanned}/> :
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={[styles.container, {marginTop:deviceHeight/4.5}]}>
                     <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
@@ -373,13 +336,6 @@ const SharePrizm = () => {
                         <Text style={styles.transactionsTitle}>
                             История транзакций
                         </Text>
-                        {/* <FlatList
-                            data={transactionList}
-                            renderItem={({item, index})=><TransactionItem num={item.number}/>}
-                            keyExtractor={(item, index)=> `${index}`}
-                            contentContainerStyle={{ gap: 9 }}
-                            style={{marginBottom:50}}
-                        /> */}
                         {
                             <View style={{marginBottom:50}}>
                                 {transactions && transactions.map((item, index)=>( 
@@ -394,35 +350,7 @@ const SharePrizm = () => {
                 </View>
                 
                 
-                {/* <Modal
-                    isVisible={isScanner} // это свойство отвечает за видимость модалки
-                    onSwipeComplete={()=> setIsScanner(false)} // закрытие модалки при свайпе вниз
-                    swipeDirection="down" // определяем направление свайпа
-                    deviceWidth={deviceWidth}
-                    deviceHeight={deviceHeight}
-                    style={{width:deviceWidth,height:deviceHeight,margin:0}} // стили для модалки
-                    animationIn="slideInUp" // анимация при открытии
-                    animationOut="slideOutDown" // анимация при закрытии
-                    backdropOpacity={1} // настройка прозрачности фона
-                    backdropColor='white'
-                    animationInTiming={300}
-                    animationOutTiming={300}
-                    backdropTransitionOutTiming={0}
-                    onBackButtonPress={()=>setIsScanner(false)}
-                    statusBarTranslucent
-                >
-                    <View style={styles.fullscreenContainer}>
-                        <View style={styles.fullscreenSlide}>
-                            <BarCodeScanner
-                                onBarCodeScanned={handleAfterScanned}
-                                style={styles.Scanner}
-                            />
-                        </View>
-                        <Pressable style={styles.closeButton} onPress={()=>setIsScanner(false)}>
-                            <AntDesign name="close" size={26} color="white" style={styles.xIcon}/>
-                        </Pressable>
-                    </View>
-                </Modal> */}
+                
             </ScrollView>
             }
         </>
@@ -432,47 +360,13 @@ const SharePrizm = () => {
 export default SharePrizm;
 
 const styles = StyleSheet.create({
+    
     fullscreenContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    fullscreenSlide: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // position:'relative'
-    },
-    flashButton: {
-        position: 'absolute',
-        bottom: statusBarHeight + 10,
-        // right: 20,
-        width:'100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent:'center',
-        zIndex: 11111,
-    },
-    closeButton: {
-        position: 'absolute',
-        top: statusBarHeight + 10,
-        right: 20,
-        zIndex: 11111,
-    },
-    xIcon: {
-        color: 'grey',
-        padding:4,
-        backgroundColor:'white',
-        borderRadius:50
-    },
-    Scanner: {
-        width: '100%',
-        height: "100%",
-        display: "flex",
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: "black",
-    },
+    
     scanIconContainer: {
         position: 'absolute',
         display: "flex",

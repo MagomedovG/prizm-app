@@ -13,7 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to the camera to scan QR codes."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -44,7 +47,8 @@
           "microphonePermission": "Разрешите Vozvrat prizm использовать ваш микрофон",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

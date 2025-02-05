@@ -103,17 +103,17 @@ const SharePrizm = () => {
     useEffect(() => {
         loadSecretPhraseAndWallet();
     }, []);
-    const askCameraPermission = async () => {
-        const { status } = await BarCodeScanner.requestPermissionsAsync();
-        console.log(status)
-        if (permission?.granted) {
-          setHasPermission(true);
-        }
-      };
+    // const askCameraPermission = async () => {
+    //     const { status } = await BarCodeScanner.requestPermissionsAsync();
+    //     console.log(status)
+    //     if (permission?.granted) {
+    //       setHasPermission(true);
+    //     }
+    //   };
     
-    useEffect(() => {
-        askCameraPermission();
-      }, []);
+    // useEffect(() => {
+    //     askCameraPermission();
+    //   }, []);
       const handleAfterScanned = ({ data, type }: any) => {
         setIsScanner(false)
         const result = splitQrText(data)

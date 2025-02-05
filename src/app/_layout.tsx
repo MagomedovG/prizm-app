@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider,NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -39,8 +39,9 @@ export default function RootLayout() {
       <ThemeProvider value={CustomDefaultTheme}>
         <QueryProvider>
             <CustomThemeProvider>
-              <Stack screenOptions={{headerShown:false}}>
-              </Stack>
+              <NavigationContainer>
+                <Stack screenOptions={{ headerShown: false }} />
+              </NavigationContainer>
             </CustomThemeProvider>
         </QueryProvider>
         <AppStateHandler/>

@@ -171,7 +171,7 @@ const CreateWallet = () => {
                     animationOutTiming={500}
                     backdropColor='black'
                     hardwareAccelerated
-                    backdropTransitionOutTiming={0}
+                    {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                     swipeDirection={'down'}
                     onBackButtonPress={toggleModal}
                     style={styles.modal}

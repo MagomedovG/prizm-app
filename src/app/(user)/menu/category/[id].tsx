@@ -128,7 +128,7 @@ export default function categoryId() {
                 animationOutTiming={200}
                 backdropColor='black'
                 hardwareAccelerated
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 swipeDirection={'down'}
                 style={styles.modal}
                 statusBarTranslucent
@@ -203,12 +203,12 @@ export default function categoryId() {
                 animationInTiming={300}
                 animationOut='slideOutDown'
                 animationOutTiming={300}
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 backdropColor='black'
-                hardwareAccelerated
+                hardwareAccelerated={true}
                 swipeDirection={'down'}
                 style={styles.qrModal}
-                statusBarTranslucent
+                statusBarTranslucent={Platform.OS === 'ios'}
             >
                 <View style={styles.centeredQrView}>
                     <View style={styles.qrModalView}>

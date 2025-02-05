@@ -99,7 +99,7 @@ const SetNickName = () => {
                 hardwareAccelerated
                 // swipeDirection={'down'}
                 style={styles.modal}
-                backdropTransitionOutTiming={0}
+                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 statusBarTranslucent
             >   
                 <View style={styles.centeredView}>
