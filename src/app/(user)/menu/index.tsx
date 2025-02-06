@@ -10,17 +10,15 @@ import {
     StatusBar,
     Platform
 } from "react-native";
-import Entypo from '@expo/vector-icons/Entypo';
 import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-native-modal";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
 import MainHeader from "@/src/components/MainHeader";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
-// import {useAsyncTheme} from "@/src/providers/useAsyncTheme";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {AutocompleteResponse,ILocation} from "@/src/types";
@@ -35,20 +33,7 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
-import PrizmWallet from '../../../utils/PrizmWallet'
-import * as bip39 from '@scure/bip39';
-import { wordlist } from '@scure/bip39/wordlists/english';
 export default function MenuScreen() {
-
-    //  function initializeWallet() {
-    //     // const newWallet = new PrizmWallet(true);
-    //     const mn =  bip39.generateMnemonic(wordlist);
-    //     console.log('New Wallet:', mn);
-    // }
-
-    // // Пример вызова initializeWallet
-    // initializeWallet();
-
     const { theme } = useCustomTheme();
     const [isModal, setIsModal] = useState(false);
     const { setTheme } = useCustomTheme();
@@ -72,14 +57,14 @@ export default function MenuScreen() {
             getLocationTypeAndId()
         }, [])
     )
-    const { data: chats, isLoading: isChatsLoading } = useQuery({
+    const { data: chats} = useQuery({
         queryKey: ['chats'],
         queryFn: async () => {
             const response = await fetch(`${apiUrl}/api/v1/social-networks/`);
             return response.json();
         }
     });
-    const { data: categories, isLoading: isCategoriesLoading, refetch: refetchCategories } = useQuery({
+    const { data: categories, refetch: refetchCategories } = useQuery({
         queryKey:['categories',localityId,localityType],
         queryFn: async () => {
                 const response = await fetch(`${apiUrl}/api/v1/categories/?locality-id=${localityId}&locality-type=${localityType}`);
@@ -89,7 +74,7 @@ export default function MenuScreen() {
         enabled: !!localityId && !!localityType, 
     });
 
-    const { data: wallets, isLoading: isWalletsLoading, refetch: refetchWallets } = useQuery({
+    const { data: wallets, refetch: refetchWallets } = useQuery({
         queryKey:['wallets',localityId,localityType],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`);
@@ -110,7 +95,6 @@ export default function MenuScreen() {
         setTimeout(()=>{
             refetchCategories()
             refetchWallets();
-            console.log(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
         },100)
     }
     
@@ -125,7 +109,6 @@ export default function MenuScreen() {
     const handleFilteredCounties = (data:AutocompleteResponse) => {
         setFilteredCountries(data);
     };
-    const [isModalVisible, setIsModalVisible] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -134,9 +117,6 @@ export default function MenuScreen() {
         setTimeout(()=>setRefreshing(false),1000)
     }, []);
     
-    const toggleChatModal = () => {
-        setIsChatModal(!isChatModal)
-    }
 
     if (isLoading){
         return <Loader/>;
@@ -159,10 +139,10 @@ export default function MenuScreen() {
                 onBackButtonPress={() => setIsModal(false)}
                 animationInTiming={200}
                 animationOut='slideOutDown'
-                animationOutTiming={500}
                 backdropColor='black'
                 hardwareAccelerated
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 swipeDirection={'down'}
                 style={styles.modal}
                 statusBarTranslucent
@@ -205,12 +185,12 @@ export default function MenuScreen() {
                 onBackButtonPress={()=>setIsChatModal(false)}
                 animationInTiming={200}
                 animationOut='slideOutDown'
-                animationOutTiming={500}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 backdropColor='black'
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 statusBarTranslucent
             >
                 <View style={styles.centeredView}>
@@ -255,8 +235,8 @@ export default function MenuScreen() {
                 onBackdropPress={()=>setIsShowLocationList(false)}
                 animationInTiming={300}
                 animationOut='slideOutDown'
-                animationOutTiming={300}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 backdropColor='black'
                 hardwareAccelerated
                 swipeDirection={'down'}

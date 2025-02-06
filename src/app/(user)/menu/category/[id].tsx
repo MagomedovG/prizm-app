@@ -2,37 +2,27 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
     Text,
     View,
-    Image,
     StyleSheet,
     Pressable,
     TextInput,
-    Button,
-    ScrollView,
     Dimensions,
     Keyboard, 
     Platform, 
     KeyboardAvoidingView,
     Alert,
     Clipboard,
-    BackHandler,
     StatusBar
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, Stack, useFocusEffect, useLocalSearchParams, useRouter} from "expo-router";
 import CategoryItemList from "@/src/components/CategoryItemComponents/CategoryItemList";
-import SearchInput from "@/src/components/SearchInput";
-import HeaderLink from "@/src/components/HeaderLink";
 import Modal from "react-native-modal";
 import {lightColor} from "@/assets/data/colors";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-import {IBusinessInCategory} from '../../../../types'
 const { width } = Dimensions.get('window');
-const ITEM_WIDTH = width - 25;
 const deviceWidth = Dimensions.get("window").width;
 import QRCode from 'react-qr-code';
 import { AntDesign } from '@expo/vector-icons';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 const height = Dimensions.get("window").height
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
@@ -53,9 +43,6 @@ export default function categoryId() {
         }
         Alert.alert('Кошелек скопирован!', prizmWallet)
     };
-    const queryClient = useQueryClient();
-
-    const exchanger = queryClient.getQueryData(['exchanger']);
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
@@ -125,10 +112,10 @@ export default function categoryId() {
                 onBackButtonPress={hideModal} 
                 animationInTiming={300}
                 animationOut='slideOutDown'
-                animationOutTiming={200}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 backdropColor='black'
                 hardwareAccelerated
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 swipeDirection={'down'}
                 style={styles.modal}
                 statusBarTranslucent
@@ -202,8 +189,8 @@ export default function categoryId() {
                 onBackdropPress={closeQrModal}
                 animationInTiming={300}
                 animationOut='slideOutDown'
-                animationOutTiming={300}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 backdropColor='black'
                 hardwareAccelerated={true}
                 swipeDirection={'down'}

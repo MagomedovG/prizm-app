@@ -2,7 +2,6 @@ import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import { Link, Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, View, StyleSheet, Text, Dimensions, StatusBar, Platform } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
 import Modal from "react-native-modal";
 import UIButton from "@/src/components/UIButton";
 const {width, height} = Dimensions.get("window");
@@ -11,7 +10,6 @@ const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 const LoginScreen = () => {
     const { theme } = useCustomTheme();
-    const [checked, setChecked] = useState(false);
     const [isModal, setIsModal] = useState(false)
     const router = useRouter()
     const routerBack = () => {
@@ -39,17 +37,15 @@ const LoginScreen = () => {
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isModal}
-                // onSwipeComplete={()=>setIsModal(false)}
-                // onBackdropPress={()=>setIsModal(false)}
                 onBackButtonPress={()=>setIsModal(false)}
                 animationInTiming={200}
                 animationOut='slideOutDown'
-                animationOutTiming={500}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 backdropColor='black'
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 statusBarTranslucent
             >   
                 <View style={styles.centeredView}>

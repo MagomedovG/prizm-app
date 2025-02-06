@@ -273,8 +273,8 @@ export default function categoryId() {
                     onBackdropPress={closeQrModal}
                     animationInTiming={300}
                     animationOut='slideOutDown'
-                    animationOutTiming={300}
-                    {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                    animationOutTiming={300} // Уменьшите время анимации
+                    backdropTransitionOutTiming={50} 
                     onBackButtonPress={closeQrModal}
                     backdropColor='black'
                     hardwareAccelerated
@@ -324,8 +324,8 @@ export default function categoryId() {
                 backdropOpacity={1} // настройка прозрачности фона
                 backdropColor='white'
                 animationInTiming={300}
-                animationOutTiming={300}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 onBackButtonPress={closeFullscreen}
                 statusBarTranslucent
             >

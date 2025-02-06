@@ -1,7 +1,6 @@
 import React, { useEffect, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Alert, Pressable, Clipboard, ScrollView, Dimensions, StatusBar, FlatList, ActivityIndicator, Modal, Platform, Button} from "react-native";
 import {Stack, useRouter} from "expo-router";
-import UIButton from "@/src/components/UIButton";
 import {borderColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { Ionicons } from '@expo/vector-icons';
@@ -11,13 +10,9 @@ import StaticButton from '@/src/components/StaticButton';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import TransactionItem from '@/src/components/TransactionItem';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
-import { BarCodeScanner } from "expo-barcode-scanner";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-const deviceWidth = width;
-import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
 import { useQuery } from '@tanstack/react-query';
 import QrScanner from '@/src/components/QrScanner';
 import PrizmWallet from '@/src/utils/PrizmWallet';
@@ -26,7 +21,6 @@ import signBytes from '@/src/utils/transactions';
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
-    const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [count,setCount]=useState<number | null | string>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -41,12 +35,10 @@ const SharePrizm = () => {
     const [addressatPublicKey, setAddressatPublicKey] = useState('')
     const [message, setMessage] = useState('')
     const [userWallet, setUserWallet] = useState()
-    const [flashStatus, setFlashStatus] = useState<boolean>(false)
-    const { data: transactions, isLoading: isTransactionsLoading, refetch: refetchTransactions } = useQuery({
+    const { data: transactions} = useQuery({
         queryKey:['transactions',userWallet],
         queryFn: async () => {
                 const response = await fetch(`${apiUrl}/api/v1/wallet/get-transactions/?wallet=${userWallet}`);
-                console.log('refresuserWallet',`${apiUrl}/api/v1/wallet/get-transactions/?wallet=${userWallet}}`)
                 return await response.json();
         },
         enabled: !!userWallet, 
@@ -108,10 +100,6 @@ const SharePrizm = () => {
         const result = splitQrText(data)
         scanQrCode(result?.afterColon)
         console.log(result, result.afterColon, result.beforeColon);
-    };
-    const copyWalletToClipboard = () => {
-        Clipboard.setString(wallet);
-        Alert.alert('Кошелек скопирован!','');
     };
     const copySidToClipboard = () => {
         Clipboard.setString(sid);
@@ -239,10 +227,8 @@ const SharePrizm = () => {
             if (response.ok){
                 const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
                 const attachment = data.transaction_data.transactionJSON.attachment 
-                // console.log('attachment', data.transaction_data.transactionJSON.attachment)
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
                 sendTransactionsBytes(singTransaction,attachment)
-                // console.log(singTransaction, attachment)
             } else if (data && !data?.header) {
                 const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
                 Alert.alert(message);

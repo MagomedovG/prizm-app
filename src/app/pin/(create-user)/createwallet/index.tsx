@@ -44,13 +44,7 @@ const CreateWallet = () => {
     };
 
     const postForm = async () => {
-        
         const username = await AsyncStorage.getItem('username');
-        console.log(username);
-        const public_key_hex = await asyncStorage.getItem('public_key_hex');
-        const prizm_wallet = await asyncStorage.getItem('prizm_wallet');
-        const walletName = await asyncStorage.getItem('prizm_wallet');
-        
         const form = {
             username: username,
             prizm_wallet: prizmWallet,
@@ -108,16 +102,7 @@ const CreateWallet = () => {
             createNewWallet()
         })
     },[])
-    const nwallet = () => {
-        console.log(newWallet.secretPhrase)
-    }
-    const menuScreen = () => {
-        setTimeout(() => {
-            router.push('/(user)/menu/');
-        }, 300); 
-        // toggleModal()
-        // router.replace('/(user)/menu/');
-    }
+    
 
     return (
         <>
@@ -164,10 +149,10 @@ const CreateWallet = () => {
                         onBackdropPress={toggleModal}
                         animationInTiming={200}
                         animationOut='slideOutDown'
-                        animationOutTiming={500}
                         backdropColor='black'
                         hardwareAccelerated
-                        {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                        animationOutTiming={300} // Уменьшите время анимации
+                        backdropTransitionOutTiming={50} 
                         swipeDirection={'down'}
                         onBackButtonPress={toggleModal}
                         style={styles.modal}

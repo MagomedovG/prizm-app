@@ -25,13 +25,11 @@ const SetPinScreen = () => {
     const [initialPin, setInitialPin] = useState('');
     const [isError, setIsError] = useState(false);
     const { theme } = useCustomTheme();
-    const [currentAddress, setCurrentAddress] = useState<string>('не указано местоположение');
-    const [locationServicesEnabled, setLocationServicesEnabled] = useState<boolean>(false);
-    const [latitude, setLatitude] = useState<string>('');
-    const [longitude, setLongitude] = useState<string>('');
-    const [error, setError] = useState<string | null>(null);
+    const [ setLocationServicesEnabled] = useState<boolean>(false);
+    const [setLatitude] = useState<string>('');
+    const [setLongitude] = useState<string>('');
+    const [setError] = useState<string | null>(null);
     const [isModal, setIsModal] = useState(false)
-    const [isLogout, setIsLogout] = useState(false)
     const [userName, setUserName] = useState<string | null>(null)
     const [prizmWallet, setPrizmWallet] = useState<string | null>(null)
     const [isShowLogoutContent, setIsShowLogoutContent]  = useState(false)
@@ -47,7 +45,6 @@ const SetPinScreen = () => {
     async function fetchUserId() {
         const storedUserName = await AsyncStorage.getItem('username');
         const parsedUserName = storedUserName ? JSON.parse(storedUserName) : null
-        // const parsedUserName = storedUserName ? storedUserName : null
         const storedPrizmWallet = await AsyncStorage.getItem('prizm_wallet');
         console.log(storedUserName)
         if (storedPrizmWallet) {
@@ -347,12 +344,13 @@ const SetPinScreen = () => {
                 }}
                 animationInTiming={200}
                 animationOut='slideOutDown'
-                animationOutTiming={500}
-                // backdropColor='black'
-                hardwareAccelerated
+                backdropColor='black'
+                // hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
+                hardwareAccelerated={false}
                 statusBarTranslucent
             >   
                 <View style={styles.centeredView}>
@@ -378,7 +376,7 @@ const SetPinScreen = () => {
                                 </Text>
                                 <View style={{width:'100%', marginBottom:4}}>
                                     <Text style={styles.inputLable}>имя пользователя</Text>
-                                    <Pressable  onPress={copyNameToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, { borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8,paddingVertical:10}]}>
+                                    <Pressable  onPress={copyNameToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'},Platform.OS === 'ios' ? {height:35,paddingVertical:10} : {}, {borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8}]}>
                                         <TextInput
                                             placeholder="Имя пользователя"
                                             value={userName}
@@ -394,7 +392,7 @@ const SetPinScreen = () => {
                                 </View>
                                 <View style={{width:'100%', marginBottom:24}}>
                                     <Text style={styles.inputLable}>адрес кошелька</Text>
-                                    <Pressable onPress={copyWalletToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, {height:35,borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8,paddingVertical:10}]}>
+                                    <Pressable onPress={copyWalletToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'},,Platform.OS === 'ios' ? {height:35,paddingVertical:10} : {}, {borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8,}]}>
                                         <TextInput
                                             placeholder="Адрес кошелька"
                                             value={prizmWallet}
@@ -482,8 +480,8 @@ const styles = StyleSheet.create({
     },
     inputText:{
         color:'black',
-        // fontSize: RFValue(13, 812),
-        fontSize:13
+        fontSize: RFValue(13, 812),
+        // fontSize:13
     },
     inputLable:{
         fontSize:12,
@@ -502,6 +500,7 @@ const styles = StyleSheet.create({
     pinDisplay: {
         flexDirection: 'row',
         marginBottom: Platform.OS === 'ios' ? 50 : 120,
+        
     },
     pinDot: {
         width: 16,

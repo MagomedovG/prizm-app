@@ -10,7 +10,7 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
-import {text, sogl} from '@/assets/data/text'
+import {text} from '@/assets/data/text'
 const SetNickName = () => {
     const [name, setName] = useState<any>('');
     const router = useRouter();
@@ -21,7 +21,6 @@ const SetNickName = () => {
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
-            // const parsedUserName = userName ? JSON.parse(userName) : '';
             const parsedUserName = userName ? userName: '';
             if (userName){
                 setName(parsedUserName);
@@ -89,17 +88,13 @@ const SetNickName = () => {
                 deviceHeight={deviceHeight}
                 animationIn={'slideInUp'}
                 isVisible={isModal}
-                // onSwipeComplete={()=>setIsModal(false)}
-                // onBackdropPress={()=>setIsModal(false)}
                 onBackButtonPress={()=>setIsModal(false)}
                 animationInTiming={200}
-                // animationOut='slideOutDown'
-                animationOutTiming={500}
+                animationOutTiming={300} // Уменьшите время анимации
+                backdropTransitionOutTiming={50} 
                 backdropColor='black'
                 hardwareAccelerated
-                // swipeDirection={'down'}
                 style={styles.modal}
-                {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
                 statusBarTranslucent
             >   
                 <View style={styles.centeredView}>
@@ -127,20 +122,17 @@ export default SetNickName;
 
 const styles = StyleSheet.create({
     centeredView: {
-        
         justifyContent: 'flex-end',
     },
     modal: {
         margin: 0,
         justifyContent: 'flex-end',
         position:'relative',
-        
     },
     modalViewContainer:{
         backgroundColor: '#f5f5f5',
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        // alignItems: 'center',
         shadowColor: '#000',
         width: '100%',
         shadowOffset: {
@@ -184,14 +176,10 @@ const styles = StyleSheet.create({
         gap: 7,
         marginBottom: 20,
         marginTop:4,
-        // position: 'absolute',
-        // bottom: '-100%',
-        // left: '12%',
     },
     checkboxText: {
         fontSize: 14,
         lineHeight: 18, // Немного больше для центрирования относительно чекбокса
-        // marginLeft: 6,  // Расстояние от чекбокса до текста
         textAlignVertical: 'center', // Для текстового центрирования
     },
     createWallet:{
