@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated, Pressable, StatusBar, TextInput,Clipboard } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated, Pressable, StatusBar, TextInput,Clipboard, Platform } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -348,7 +348,7 @@ const SetPinScreen = () => {
                 animationInTiming={200}
                 animationOut='slideOutDown'
                 animationOutTiming={500}
-                backdropColor='black'
+                // backdropColor='black'
                 hardwareAccelerated
                 swipeDirection={'down'}
                 style={styles.modal}
@@ -378,7 +378,7 @@ const SetPinScreen = () => {
                                 </Text>
                                 <View style={{width:'100%', marginBottom:4}}>
                                     <Text style={styles.inputLable}>имя пользователя</Text>
-                                    <Pressable  onPress={copyNameToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, {height:41, borderRadius:10, borderWidth:1, width:'100%', padding:8}]}>
+                                    <Pressable  onPress={copyNameToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, { borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8,paddingVertical:10}]}>
                                         <TextInput
                                             placeholder="Имя пользователя"
                                             value={userName}
@@ -394,7 +394,7 @@ const SetPinScreen = () => {
                                 </View>
                                 <View style={{width:'100%', marginBottom:24}}>
                                     <Text style={styles.inputLable}>адрес кошелька</Text>
-                                    <Pressable onPress={copyWalletToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, {height:41, borderRadius:10, borderWidth:1, width:'100%', padding:8}]}>
+                                    <Pressable onPress={copyWalletToClipboard} style={[theme === 'purple' ? {borderColor: '#957ABC'} : {borderColor:'#32933C'}, {height:35,borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8,paddingVertical:10}]}>
                                         <TextInput
                                             placeholder="Адрес кошелька"
                                             value={prizmWallet}
@@ -482,7 +482,8 @@ const styles = StyleSheet.create({
     },
     inputText:{
         color:'black',
-        fontSize: RFValue(13, 812),
+        // fontSize: RFValue(13, 812),
+        fontSize:13
     },
     inputLable:{
         fontSize:12,
@@ -500,7 +501,7 @@ const styles = StyleSheet.create({
     },
     pinDisplay: {
         flexDirection: 'row',
-        marginBottom: 120,
+        marginBottom: Platform.OS === 'ios' ? 50 : 120,
     },
     pinDot: {
         width: 16,

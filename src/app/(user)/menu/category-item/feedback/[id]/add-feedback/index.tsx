@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
         marginBottom: 3
     },
     cart: {
-        backgroundColor: '#535353',
         paddingHorizontal: 32,
         paddingVertical: 20,
         borderBottomLeftRadius: 15,

@@ -6,6 +6,8 @@ import {AntDesign} from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import PrizmWallet from '@/src/utils/PrizmWallet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const deviceWidth = Dimensions.get("window").width;
 const { width, height } = Dimensions.get('window');
@@ -15,14 +17,19 @@ const deviceHeight = height + statusBarHeight
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 const CONTAINER_TOP = height / 20
 const CreateWallet = () => {
-    const [publicKey, setPublicKey] = useState('');
-    const [prizmWallet, setPrizmWallet] = useState('');
-    const [secretPhrase, setSecretPhrase] = useState('');
+    const [publicKey, setPublicKey] = useState<string | null>('');
+    const [prizmWallet, setPrizmWallet] = useState<string | bigint | null>('');
+    const [secretPhrase, setSecretPhrase] = useState<string | null>('');
     const router = useRouter();
     const [isModal, setIsModal] = useState(false);
+
+    const newWallet = new PrizmWallet(true)
+
+
     const toggleModal = () => {
         setIsModal(!isModal);
     };
+
     const replaceToMenu = () => {
         setIsModal(false);
         setTimeout(() => {
@@ -30,14 +37,7 @@ const CreateWallet = () => {
         }, 600); 
     };
     
-    const copyWalletToClipboard = () => {
-        Clipboard.setString(prizmWallet);
-        Alert.alert('Кошелек скопирован!','');
-    };
-    const copyPublicKeyToClipboard = () => {
-        Clipboard.setString(publicKey);
-        Alert.alert('Публичный ключ скопирован!','');
-    };
+    
     const copySidToClipboard = () => {
         Clipboard.setString(secretPhrase);
         Alert.alert('Парольная фраза скопирована!','');
@@ -45,20 +45,18 @@ const CreateWallet = () => {
 
     const postForm = async () => {
         
-        const username = await asyncStorage.getItem('username');
+        const username = await AsyncStorage.getItem('username');
+        console.log(username);
         const public_key_hex = await asyncStorage.getItem('public_key_hex');
         const prizm_wallet = await asyncStorage.getItem('prizm_wallet');
         const walletName = await asyncStorage.getItem('prizm_wallet');
-        // const isUpdatedName = walletName ? JSON.parse(walletName) !== name : true
-        
-        // const parsedUsername = await JSON.parse(username)
         
         const form = {
             username: username,
             prizm_wallet: prizmWallet,
             public_key_hex: publicKey 
         };
-        console.log('error')
+        console.log(form,)
         try {
             
             const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
@@ -69,9 +67,12 @@ const CreateWallet = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
+            console.log('dd',data)
+
             if (!response.ok) {
-                const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'
+                const result = data.username?.[0] || data.prizm_wallet?.[0] || 'Ошибка'
                 Alert.alert(result)
+                
                 throw new Error('Ошибка сети');
             } else {
                 setIsModal(false);
@@ -84,35 +85,32 @@ const CreateWallet = () => {
             }
         } catch (error) {
             console.log(error)
-            // await asyncStorage.removeItem('prizm_wallet')
         }
     };
+    const createNewWallet = async () => {
+        try {
+                // const w = await newWallet
 
-    useEffect(() => {
-        const createNewWallet = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/api/v1/users/create-new-wallet/`,{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-                const data = await response.json()
-                if (response.ok){
-                    setSecretPhrase(data?.secret_phrase)
-                    setPrizmWallet(data?.account_rs)
-                    setPublicKey(data?.public_key_hex)
-                    await asyncStorage.setItem(data?.secret_phrase, 'secret-phrase')
-                    await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.account_rs))
-                    await asyncStorage.setItem('public_key_hex', JSON.stringify(data?.public_key_hex))
-                }
-            } catch (error) {
-                console.log(error)
-            }
+                setSecretPhrase(newWallet.secretPhrase)
+                setPrizmWallet(newWallet.accountRs)
+                setPublicKey(newWallet.publicKeyHex)
+                
+                console.log(newWallet,prizmWallet, publicKey, secretPhrase )
+                await asyncStorage.setItem('secret-phrase', newWallet.secretPhrase || '')
+                await asyncStorage.setItem('prizm_wallet', newWallet.accountRs && typeof newWallet.accountRs === 'string' ? newWallet.accountRs : '')
+                await asyncStorage.setItem('public_key_hex', newWallet.publicKeyHex || '')
+        } catch (error) {
+            console.log(error)
         }
-        createNewWallet()
+    }
+    useEffect(() => {
+        setTimeout(()=>{
+            createNewWallet()
+        })
     },[])
-
+    const nwallet = () => {
+        console.log(newWallet.secretPhrase)
+    }
     const menuScreen = () => {
         setTimeout(() => {
             router.push('/(user)/menu/');
@@ -122,88 +120,89 @@ const CreateWallet = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
-            <View style={styles.container}>
-                <View style={{paddingHorizontal: 26, width: '100%',maxWidth:900}}>
-                    
-                    <Text style={styles.title}>
-                        ПРЕДУПРЕЖДЕНИЕ
-                    </Text>
-                    <View style={styles.message}>
-                        <Text style={styles.messageText}>
-                            Обязательно сохраните парольную-фразу! 
-                            Без неё невозможно будет восстановить  аккаунт(кошелёк)
-                            Обязательно сохраните так,чтобы вы могли её использовать при случае утере телефона. (Сделайте фото экрана или перепишите на лист бумаги).
-                            {/* Без нее нельзя будет обменять <Text style={{fontWeight:'bold'}}>PZM</Text> на рубли! (Сделайте фото экрана или перепишите на лист бумаги) */}
-                            
+        <>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom:150 }}>
+                <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
+                <View style={styles.container}>
+                    <View style={{paddingHorizontal: 26, width: '100%',maxWidth:900}}>
+                        
+                        <Text style={styles.title}>
+                            ПРЕДУПРЕЖДЕНИЕ
                         </Text>
-                        <Text style={styles.messageText}>
-                                Парольную фразу нельзя показывать никому,так как это даст возможность украсть ваши средства PZM.
+                        <View style={styles.message}>
+                            <Text style={styles.messageText}>
+                                Обязательно сохраните парольную-фразу! 
+                                Без неё невозможно будет восстановить  аккаунт(кошелёк)
+                                Обязательно сохраните так,чтобы вы могли её использовать при случае утере телефона. (Сделайте фото экрана или перепишите на лист бумаги).
                             </Text>
-                    </View>
-                    <Text style={styles.label}>Парольная-фраза</Text>
-                    <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>
-                        <TextInput
-                            style={[styles.input, {paddingRight:30}]}
-                            editable={false}
-                            multiline={true}
-                            placeholder={'Secret Phrase'}
-                            value={secretPhrase}
-                            placeholderTextColor='#8C8C8C'
-                        />
-                        <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
-                            <FontAwesome5 name="copy" size={15} color="gray" />
-                        </View>
-                    </Pressable>
-                    
-                </View>
-                <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
-                <Modal
-                    deviceWidth={deviceWidth}
-                    deviceHeight={deviceHeight}
-                    animationIn={'slideInUp'}
-                    isVisible={isModal}
-                    onSwipeComplete={toggleModal}
-                    onBackdropPress={toggleModal}
-                    animationInTiming={200}
-                    animationOut='slideOutDown'
-                    animationOutTiming={500}
-                    backdropColor='black'
-                    hardwareAccelerated
-                    {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
-                    swipeDirection={'down'}
-                    onBackButtonPress={toggleModal}
-                    style={styles.modal}
-                    statusBarTranslucent
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <Text style={{color:'rgba(255, 49, 49, 1)', fontWeight: 500,fontSize:23, marginBottom:7}}>
-                                Внимание!
-                            </Text>
-                            <Text style={styles.modalText}>
-                                Обязательно сохраните парольную фразу! 
-                                <Text style={{color:'#B81C1C', fontWeight: 500}}>
-                                    {' '}
-                                    Без нее нельзя будет обменять pzm на рубли
+                            <Text style={styles.messageText}>
+                                    Парольную фразу нельзя показывать никому,так как это даст возможность украсть ваши средства PZM.
                                 </Text>
-                            </Text>
+                        </View>
+                        <Text style={styles.label}>Парольная-фраза</Text>
+                        <Pressable onPress={copySidToClipboard} style={[styles.pressable, {marginBottom: 7}]}>
+                            <TextInput
+                                style={[styles.input, {paddingRight:30}]}
+                                editable={false}
+                                multiline={true}
+                                placeholder={'Secret Phrase'}
+                                value={secretPhrase}
+                                placeholderTextColor='#8C8C8C'
+                            />
+                            <View style={[styles.copyButtonContainer, {top:16,right: 15}]}>
+                                <FontAwesome5 name="copy" size={15} color="gray" />
+                            </View>
+                        </Pressable>
+                        
+                    </View>
+                    <Modal
+                        deviceWidth={deviceWidth}
+                        deviceHeight={deviceHeight}
+                        animationIn={'slideInUp'}
+                        isVisible={isModal}
+                        onSwipeComplete={toggleModal}
+                        onBackdropPress={toggleModal}
+                        animationInTiming={200}
+                        animationOut='slideOutDown'
+                        animationOutTiming={500}
+                        backdropColor='black'
+                        hardwareAccelerated
+                        {...(Platform.OS !== 'ios' ? { backdropTransitionOutTiming: 0 } : {})}
+                        swipeDirection={'down'}
+                        onBackButtonPress={toggleModal}
+                        style={styles.modal}
+                        statusBarTranslucent
+                    >
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <Text style={{color:'rgba(255, 49, 49, 1)', fontWeight: 500,fontSize:23, marginBottom:7}}>
+                                    Внимание!
+                                </Text>
+                                <Text style={styles.modalText}>
+                                    Обязательно сохраните парольную фразу! 
+                                    <Text style={{color:'#B81C1C', fontWeight: 500}}>
+                                        {' '}
+                                        Без нее нельзя будет обменять pzm на рубли
+                                    </Text>
+                                </Text>
 
-                            <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
-                                <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
-                                    <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
-                                </Pressable>
-                                
-                                <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
-                                    <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
-                                </Pressable>
+                                <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
+                                    <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                        <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
+                                    </Pressable>
+                                    
+                                    <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                        <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
+                                    </Pressable>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </Modal>
-            </View>
-        </ScrollView>
+                    </Modal>
+                </View>
+            </ScrollView>
+            <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
+
+        </>
     );
 };
 

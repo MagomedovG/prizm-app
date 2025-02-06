@@ -13,7 +13,9 @@ const SetWallet = () => {
     const [name, setName] = useState('');
     const router = useRouter();
     const { theme } = useCustomTheme();
-
+    const routerBack = () => {
+        router.back()
+    }
     const postForm = async () => {
         const username = await asyncStorage.getItem('username')
         const public_key_hex = await asyncStorage.getItem('public_key_hex')
@@ -55,20 +57,6 @@ const SetWallet = () => {
         }
     };
     
-    useFocusEffect(
-        React.useCallback(() => {
-            const getAsyncName = async () => {
-                const walletName = await AsyncStorage.getItem('prizm_wallet');
-                if (walletName) {
-                    setName(JSON.parse(walletName));
-                }
-            };
-            getAsyncName();
-        }, [])
-    );
-    
-
-
     const setWallet = async () => {
         if (name.length === 0) {
             return
@@ -97,13 +85,11 @@ const SetWallet = () => {
                     />
                 </View>
             </View>
-                <Link asChild href="/pin/setnickname/LoginScreen" style={styles.createWallet}>
-                    <Pressable>
+                    <Pressable onPress={routerBack} style={styles.createWallet}>
                         <Text style={{color:'#000000'}}>
                             У меня нет кошелька
                         </Text>
                     </Pressable>
-                </Link>
             <UIButton text='Ок' onPress={setWallet}/>
         </View>
     );

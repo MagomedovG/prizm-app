@@ -1,7 +1,7 @@
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, View, StyleSheet, Text, Dimensions, StatusBar } from "react-native";
+import { Pressable, View, StyleSheet, Text, Dimensions, StatusBar, Platform } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import Modal from "react-native-modal";
 import UIButton from "@/src/components/UIButton";
@@ -13,6 +13,10 @@ const LoginScreen = () => {
     const { theme } = useCustomTheme();
     const [checked, setChecked] = useState(false);
     const [isModal, setIsModal] = useState(false)
+    const router = useRouter()
+    const routerBack = () => {
+        router.push("/pin/setnickname/SetWallet")
+    }
     return (
         <>
             <Stack.Screen options={{ title: '', headerShown: false }} />
@@ -27,11 +31,9 @@ const LoginScreen = () => {
                 
             </View>
             
-            <Link href="/pin/setnickname/SetWallet" style={[styles.container,{borderWidth:1,borderColor:'#7F7F7F'}]} asChild>
-                <Pressable >
+                <Pressable onPress={routerBack} style={[styles.container,{borderWidth:1,borderColor:'#7F7F7F'}]}>
                     <Text style={[styles.text,{color:'#7F7F7F'}]}>У меня уже есть кошелек</Text>
                 </Pressable>
-            </Link>
             <Modal
                 deviceWidth={deviceWidth}
                 deviceHeight={deviceHeight}

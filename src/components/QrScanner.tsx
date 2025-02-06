@@ -29,13 +29,13 @@ export default function QrScanner({ setIsScanner, handleAfterScanned }: QrScanne
     if (!hasPermission) {
         return (
             <View style={styles.permissioncontainer}>
-                <Text style={styles.message}>We need your permission to show the camera</Text>
+                <Text style={styles.message}>Для использования каммеры необходимо предоставить доступ к ней</Text>
                 <Button 
                     onPress={async () => {
                         const { status } = await Camera.requestCameraPermissionsAsync();
                         setHasPermission(status === "granted");
                     }} 
-                    title="Grant Permission" 
+                    title="Предоставить доступ" 
                 />
             </View>
         );

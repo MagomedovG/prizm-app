@@ -7,7 +7,7 @@ import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet, StatusBa
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {Image} from 'expo-image'
 import { useQuery } from "@tanstack/react-query";
-import signBytes from "@/src/utils/main";
+import signBytes from "@/src/utils/transactions";
 import PrizmWallet from "@/src/utils/PrizmWallet";
 const statusBarHeight = StatusBar.currentHeight || 0;
 
@@ -33,6 +33,9 @@ export default function ExchangerHeaderComponent () {
     const router = useRouter();
     const [walletInfo,setWalletInfo] = useState<IWallet | null>(null)
     const [balance, setBalance] = useState<number | null>(null)
+    const [recipientWallet, setRecipientWallet] = useState('')
+    const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
+
     const [prizmWallet, setPrizmWallet] = useState('');
     const [loading, setLoading] = useState(false); // Состояние загрузки
     const [hasMore, setHasMore] = useState(true); // Флаг для проверки, есть ли еще данные
@@ -82,7 +85,7 @@ export default function ExchangerHeaderComponent () {
             const form = {
                 prizm_amount: count,
                 seller_bank: activeBank,
-                seller_phone_number:'+79999999999',
+                seller_phone_number:phoneNumber,
                 transaction_bytes:transactionsBytes,
                 seller_account_rs:sellerAccountRs,
                 prizm_exchange_rate,
@@ -101,14 +104,8 @@ export default function ExchangerHeaderComponent () {
             console.log(response)
             const data = await response.json();
             if (!response.ok) {
-                console.log('postOrder !response.ok',data)
-                Alert.alert('Ошибка при создании ордера',data.detail,
-                //     [{ text: "На главную" ,
-                //     onPress: () => {
-                //         router.replace('/(user)/menu')
-                //     }
-                // }]
-            )
+                const error = data.seller_phone_number?.[0] || data?.detail || ''
+                Alert.alert('Ошибка при создании ордера',error )
             } else {
                 Alert.alert(
                     'Ордер создан успешно',
@@ -123,16 +120,15 @@ export default function ExchangerHeaderComponent () {
         }
     }
 
-    const secret = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split'
+    const secret = secretPhrase || ''
     const senderPrizmWallet = new PrizmWallet(false, secret, null)
-
     const postForm = async () => {
         await senderPrizmWallet._setWalletData()
-
+        console.log('secretPhrase',secretPhrase)
         const form = {
             sender_public_key:senderPrizmWallet.publicKeyHex,
-            recipient_wallet:'PRIZM-M6WK-ZBUJ-LKPR-8HWPR',
-            prizm_amount:2,
+            recipient_wallet:recipientWallet,
+            prizm_amount:count,
         };
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
@@ -143,26 +139,45 @@ export default function ExchangerHeaderComponent () {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log('postForm data',data)
+            console.log('postForm data',form, data)
             
             if (response.ok){
                 const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
                 const sellerAccountRs = data.transaction_data.transactionJSON.senderRS
-                // const unsignedTransactionsBytes = '0010f750380ca0059f5abeb83025b5bca5a5a32566e2aefbf7c215a1e71b89459531dc2a46b28343b5a3417713b383a00100000000000000050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000224b3300d9fc9e492d18e937'
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
                 postOrder(singTransaction, sellerAccountRs)
             } else if (data && !data?.header) {
-                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
+                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] ||  data.non_field_errors?.[0] || data || '';
                 Alert.alert(message);
             }  
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
         } 
     };
+
+    const getExchangeRecipient = async () => {
+        try{
+            const response = await fetch(`${apiUrl}/api/v1/utils/settings/?ids=pzm_sell_order_buyer_wallet`);
+            const data = await response.json();
+            if (response.ok){
+                setRecipientWallet(data.pzm_sell_order_buyer_wallet)
+            }
+            console.log(data)
+        } catch(error) {
+            console.log(error)
+        }
+    }
+    const getSecretPhrase = async () => {
+        const storedPhrase = await AsyncStorage.getItem("secret-phrase");
+        if (storedPhrase) {
+            setSecretPhrase(storedPhrase);
+        } 
+    }
     useEffect(() => {
         fetchWalletData()
         getFee()
-        
+        getExchangeRecipient()
+        getSecretPhrase()
     }, []);
    
 
@@ -230,8 +245,6 @@ export default function ExchangerHeaderComponent () {
     };
     useEffect(()=>{
         fetchData(); 
-        
-        
         const interval = setInterval(() => {
             setCounter((prevCounter) => {
                 if (prevCounter === 1) {
@@ -244,17 +257,7 @@ export default function ExchangerHeaderComponent () {
 
         return () => clearInterval(interval); 
     },[])
-    const BankImage = memo(({ source, isActive }: { source: string; isActive: boolean }) => (
-        <Image
-          style={[
-            isActive ? { borderWidth: 1.2, borderColor: '#4BA2FF' } : {},
-            styles.image,
-          ]}
-          contentFit="cover"
-          source={{ uri: source }}
-          cachePolicy="disk"
-        />
-      ));
+
     return (
         <>
         <Text style={styles.title}>
@@ -345,7 +348,7 @@ export default function ExchangerHeaderComponent () {
                         </View>
                         <Pressable 
                             style={[styles.payContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground,{width:'36%'}]} 
-                            // disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance)} 
+                            disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance)} 
                             onPress={postForm}
                         >
                             <Text style={{color:'white', fontSize:18}}>

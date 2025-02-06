@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 type TransactionType = "received" | "para" | "sent";
 type TransactionItem = {
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 9,
         paddingVertical: 6,
-        backgroundColor: '#F4F4F4',
+        backgroundColor: Platform.OS === 'ios' ? '#E7E7E7' :  '#F4F4F4',
         borderRadius: 6,
         display: 'flex',
         flexDirection: 'row',

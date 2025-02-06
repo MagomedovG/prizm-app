@@ -20,10 +20,8 @@ const deviceWidth = width;
 import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
 import { useQuery } from '@tanstack/react-query';
 import PrizmWallet from '@/src/utils/PrizmWallet';
-import curve25519 from '../../utils/curve2';
-import converters from '../../utils/converters';
-const CryptoJS = require('crypto-js');
-import signBytes from '../../utils/main';
+import signBytes from '../../utils/transactions';
+import QrScanner from '@/src/components/QrScanner';
 
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
@@ -99,7 +97,7 @@ const SharePrizm = () => {
             // console.error("Ошибка загрузки секретной фразы:", error);
         }
     };
-
+    
     useEffect(() => {
         loadSecretPhraseAndWallet();
     }, []);
@@ -223,24 +221,7 @@ const SharePrizm = () => {
     // PRIZM-M6WK-ZBUJ-LKPR-8HWPR
     const secret = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split'
     const senderPrizmWallet = new PrizmWallet(false, secret, null)
-    const getPzmWallet = async () => {
-        try {
-            console.log('publicKeyHex',senderPrizmWallet.publicKeyHex)
     
-            console.log('accountId',senderPrizmWallet.accountId)
-
-            // console.log('privatekey',senderPrizmWallet.privateKey)
-    
-            console.log('accountRs',senderPrizmWallet.accountRs)
-
-            console.log('secretPhraseee',senderPrizmWallet.secretPhrase)
-        } catch (e) {
-            console.log('error')
-        }
-        
-
-
-    }
     const postForm = async () => {
 
         setIsLoading(true);
@@ -266,10 +247,10 @@ const SharePrizm = () => {
             if (response.ok){
                 
                 const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
-                const attachment = data.transaction_data.transactionJSON.attachment
+                const attachment = data.transaction_data.transactionJSON.attachment 
                 console.log('attachment', data.transaction_data.transactionJSON.attachment)
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
-                // sendTransactionsBytes(singTransaction,attachment)
+                sendTransactionsBytes(singTransaction,attachment)
                 console.log(singTransaction, attachment)
             } else if (data && !data?.header) {
                 const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
@@ -287,38 +268,7 @@ const SharePrizm = () => {
     return (
         <>
         
-            {isScanner ?
-            <View style={{
-                    flex: 1,
-                    justifyContent: "center",
-                }}> 
-                
-                <View style={styles.fullscreenSlide}>
-                    
-                    <CameraView
-                        barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-                        onBarcodeScanned={handleAfterScanned}
-                        style={styles.Scanner}
-                        enableTorch={flashStatus}
-                        facing='back'
-                        zoom={0}
-                    >
-
-                    </CameraView>
-                    <Pressable onPress={()=>setFlashStatus(!flashStatus)} style={[styles.flashButton]}>
-                        <View style={[flashStatus ? {backgroundColor:'#fff'} : {backgroundColor:'#000',opacity:0.7}, {padding:12, borderRadius:50}]}>
-                           <MaterialCommunityIcons name="flashlight" size={24} color={flashStatus ? "black" : "white"} /> 
-                        </View>
-                        
-                    </Pressable>
-                    <Pressable style={styles.closeButton} onPress={()=>{
-                            setIsScanner(false)
-                            setFlashStatus(false)
-                        }}>
-                            <AntDesign name="close" size={22} color="white" style={styles.xIcon}/>
-                        </Pressable>
-                </View>
-            </View> :
+            {isScanner ? <QrScanner setIsScanner={setIsScanner} handleAfterScanned={handleAfterScanned}/>  :
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={[styles.container, {marginTop:deviceHeight/4.5}]}>
                     <Stack.Screen options={{ title: 'CreateWallet', headerShown: false }} />
@@ -463,47 +413,13 @@ const SharePrizm = () => {
 export default SharePrizm;
 
 const styles = StyleSheet.create({
+    
     fullscreenContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    fullscreenSlide: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // position:'relative'
-    },
-    flashButton: {
-        position: 'absolute',
-        bottom: statusBarHeight + 10,
-        // right: 20,
-        width:'100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent:'center',
-        zIndex: 11111,
-    },
-    closeButton: {
-        position: 'absolute',
-        top: statusBarHeight + 10,
-        right: 20,
-        zIndex: 11111,
-    },
-    xIcon: {
-        color: 'grey',
-        padding:4,
-        backgroundColor:'white',
-        borderRadius:50
-    },
-    Scanner: {
-        width: '100%',
-        height: "100%",
-        display: "flex",
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: "black",
-    },
+    
     scanIconContainer: {
         position: 'absolute',
         display: "flex",
@@ -515,7 +431,7 @@ const styles = StyleSheet.create({
         width:50,
         height:50,
         bottom: -9,
-        transform: [{ translateY: -12 }], // выравнивание по центру
+        transform: [{ translateY: -8 }], // выравнивание по центру
     },
     transactionsTitle:{
         fontSize:20,

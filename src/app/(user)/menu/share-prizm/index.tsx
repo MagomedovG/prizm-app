@@ -20,6 +20,9 @@ const deviceWidth = width;
 import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
 import { useQuery } from '@tanstack/react-query';
 import QrScanner from '@/src/components/QrScanner';
+import PrizmWallet from '@/src/utils/PrizmWallet';
+import signBytes from '@/src/utils/transactions';
+
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
@@ -170,17 +173,60 @@ const SharePrizm = () => {
     useEffect(()=>{
         getData()
     },[])
+    const sendTransactionsBytes = async (transactionsBytes: string, attachment?:any) => {
+        const form = {
+            transaction_bytes:transactionsBytes,
+            ...(attachment && { attachment: attachment })
+        }
+        console.log(form)
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            });
+            const data = await response.json();
+            console.log('data',data)
+
+            if (response.ok){
+                setSid('')
+                setCount(null)
+                setWallet('')
+                setMessage('')
+                if (checked && sid){
+                    await AsyncStorage.setItem('secret-phrase',sid)
+                }
+                Alert.alert(
+                    'Транзакция прошла успешно', 
+                    data?.detail, 
+                );
+                router.replace('/(user)/menu');
+            } else {
+                Alert.alert(
+                    'Ошибка при проведении транзакции', 
+                    data?.detail, 
+                );
+            }
+        } catch (err) {
+            console.log('Ошибка при переводе:', err,`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`,transactionsBytes );
+        }
+    }
+    const secret = secretPhrase || secretPhrase
+    const senderPrizmWallet = new PrizmWallet(false, secret, null)
     
     const postForm = async () => {
+
         setIsLoading(true);
+
         const form = {
-            secret_phrase:secretPhrase || sid,
-            recipient_wallet:wallet,
+            sender_public_key: senderPrizmWallet.publicKeyHex,
+            recipient_wallet: wallet,
             prizm_amount:count,
-            // recipient_public_key:addressatPublicKey ? addressatPublicKey : null,
-            // ...(message && { message: message })
+            recipient_public_key:addressatPublicKey ? addressatPublicKey : null,
+            ...(message && { message: message })
         };
-        console.log(form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
@@ -190,29 +236,19 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log(data)
-            if (data?.header && data?.description){
-                Alert.alert(
-                    data?.header, 
-                    data?.description, 
-                  );
-            }
             if (response.ok){
-                if (!secretPhrase && checked){
-                    await asyncStorage.setItem("secret-phrase", sid)
-                    console.log('secret phrase memoried')
-                }
-                setSid('')
-                setCount(null)
-                setWallet('')
-                router.replace('/(user)/menu');
+                const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
+                const attachment = data.transaction_data.transactionJSON.attachment 
+                // console.log('attachment', data.transaction_data.transactionJSON.attachment)
+                const singTransaction = signBytes(unsignedTransactionsBytes, secret);
+                sendTransactionsBytes(singTransaction,attachment)
+                // console.log(singTransaction, attachment)
             } else if (data && !data?.header) {
-                const message = data.recipient_wallet?.[0] || data.secret_phrase?.[0] || data.prizm_amount?.[0] || data.recipient_public_key?.[0] || data;
+                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
                 Alert.alert(message);
             }  
-            // await asyncStorage.setItem("secret-phrase", secretPhrase);
         } catch (error) {
-            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/get-or-create/`,form );
+            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
         } finally {
             setIsLoading(false);
         }
@@ -223,7 +259,6 @@ const SharePrizm = () => {
         <>
         
             {
-                // true
             isScanner 
             ?
             <QrScanner setIsScanner={setIsScanner} handleAfterScanned={handleAfterScanned}/> :
@@ -378,7 +413,7 @@ const styles = StyleSheet.create({
         width:50,
         height:50,
         bottom: -9,
-        transform: [{ translateY: -12 }], // выравнивание по центру
+        transform: [{ translateY: -8 }], // выравнивание по центру
     },
     transactionsTitle:{
         fontSize:20,

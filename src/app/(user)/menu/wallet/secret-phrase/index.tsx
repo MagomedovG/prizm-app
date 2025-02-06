@@ -8,7 +8,8 @@ import {
     Alert,
     TextInput,
     Keyboard,
-    Clipboard
+    Clipboard,
+    ScrollView
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -70,7 +71,7 @@ export default function SecretPhrase() {
 
     return (
         <>
-            <View style={styles.container}>
+            <ScrollView  contentContainerStyle={{ flexGrow: 1,marginTop: height / 3.9 }}>
                 <Text style={styles.title} numberOfLines={2}>
                     Парольная
                 </Text>
@@ -162,7 +163,7 @@ export default function SecretPhrase() {
                 <Text style={styles.pressable}>
                     Уважаемый пользователь, приложение хранит вашу парольную фразу в памяти вашего телефона. Восстановить парольную фразу невозможно, она генерируется на вашем устройстве и нигде более не сохраняется. Обязательно сохраняйте резервные копии на других носителях (записать на бумаге, сделать фото экрана). Парольную фразу нельзя показывать никому, так как это даст возможность украсть ваши средства PZM.
                 </Text>
-            </View>
+            </ScrollView>
             <UIButton text={isEditable ? 'Сохранить' : 'Закрыть'} onPress={isEditable ? saveSecretPhrase : () => { router.back(); }} />
         </>
     );

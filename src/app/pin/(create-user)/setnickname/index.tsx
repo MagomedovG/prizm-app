@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar, ScrollView} from "react-native";
+import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar, ScrollView, Platform} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -169,7 +169,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#957ABC',
         backgroundColor: 'transparent',
-        marginTop:4,
         marginLeft:5
       },
       checkboxPurpleChecked: {
@@ -184,6 +183,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 7,
         marginBottom: 20,
+        marginTop:4,
         // position: 'absolute',
         // bottom: '-100%',
         // left: '12%',

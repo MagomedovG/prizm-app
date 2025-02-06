@@ -325,17 +325,17 @@ export default function MenuScreen() {
                 </View>
             </View>
         <View style={styles.tabBar}>
-            <Link href='/(user)/menu/taxi' style={styles.tabBarItem} asChild>
+            <Link href='/(user)/menu/taxi' style={[styles.tabBarItem,{paddingRight:Platform.OS === 'ios' ? 30 : 0}]} asChild>
                 <Pressable style={styles.tabBarItemContainer}>
                     <TaxiIcon/>
                     <Text style={{color:"#ccc",fontSize:12}}>такси</Text>
                 </Pressable>
                 
             </Link>
-            <Link href='/(user)/menu/partners'  style={styles.tabBarItem} asChild>
+            <Link href='/(user)/menu/partners'  style={[styles.tabBarItem,{paddingLeft:Platform.OS === 'ios' ? 30 : 0}]} asChild>
                 <Pressable style={styles.tabBarItemContainer}>
                     <BusinessIcon/>
-                    <Text style={{color:"#ccc",fontSize:12}}>партнёрам</Text>
+                    <Text style={{color:"#ccc",fontSize:11}}>партнёрам</Text>
                 </Pressable>
             </Link>
         </View>
