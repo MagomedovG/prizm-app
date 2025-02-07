@@ -35,7 +35,7 @@ export default function ExchangerHeaderComponent () {
     const [balance, setBalance] = useState<number | null>(null)
     const [recipientWallet, setRecipientWallet] = useState('')
     const [secretPhrase, setSecretPhrase] = useState<string | null>(null);
-
+    const [rubCount, setRubCount] = useState(0)
     const [prizmWallet, setPrizmWallet] = useState('');
     const [loading, setLoading] = useState(false); // Состояние загрузки
     const [hasMore, setHasMore] = useState(true); // Флаг для проверки, есть ли еще данные
@@ -229,6 +229,13 @@ export default function ExchangerHeaderComponent () {
             setErrorMessage(null);
         }
         setCount(normalizedValue);  
+        
+        if (normalizedValue && exchangeRates && Number(normalizedValue) > 0 ){
+            const rubles = parseFloat( ( (exchargerFee && exchargerFee > 0 ? (Number(normalizedValue) - (Number(normalizedValue) / 100 * exchargerFee)) : Number(normalizedValue)) * exchangeRates).toFixed(5).toString())
+            setRubCount(rubles)
+        } else {
+            setRubCount(0)
+        }
     };
     const fetchData = async () => {
         try {
@@ -312,7 +319,7 @@ export default function ExchangerHeaderComponent () {
                                     Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer,
                                     
                                 ]}>
-                                   <Image style={[bank.id === activeBank ? {borderWidth:1.2, borderColor: '#4BA2FF'} : {},{height:37, width:'100%', borderRadius:10}]} contentFit='cover' source={{uri:`${apiUrl}${bank.logo}`}} cachePolicy='disk'/>
+                                   <Image style={[bank.id === activeBank ? {borderWidth:3, borderColor: '#4BA2FF'} : {},{height:37, width:'100%', borderRadius:10}]} contentFit='cover' source={{uri:`${apiUrl}${bank.logo}`}} cachePolicy='disk'/>
                                 </Pressable>
                             ))}
                         </View>
@@ -340,15 +347,16 @@ export default function ExchangerHeaderComponent () {
                             textContentType='telephoneNumber'
                         />
                     </View>
+                    <Text style={{marginTop:16, textAlign:'center',color:'#C85557'}}>{count && rubCount < 10 && 'минимальная сумма продажи 10 ₽'}</Text>
                     <View style={styles.payButtonTextContainer}>
                         <View style={[styles.payContainer, {width:'61%'}]} >
                             <Text style={{fontSize:18}}>
-                                Вы получите <Text style={{fontWeight:'bold'}}>{`${count && exchangeRates && count > 0 ? `${parseFloat( ( (exchargerFee && exchargerFee > 0 ? (count - (count / 100 * exchargerFee)) : count) * exchangeRates).toFixed(5).toString() )}` : '0'}`} </Text><Text style={{fontSize:14,fontWeight:'bold'}}>₽</Text>
+                                Вы получите <Text style={{fontWeight:'bold'}}>{`${rubCount || '0'}`} </Text><Text style={{fontSize:14,fontWeight:'bold'}}>₽</Text>
                             </Text>
                         </View>
                         <Pressable 
                             style={[styles.payContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground,{width:'36%'}]} 
-                            disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance)} 
+                            disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance) || rubCount < 10} 
                             onPress={postForm}
                         >
                             <Text style={{color:'white', fontSize:18}}>
@@ -426,7 +434,7 @@ export default function ExchangerHeaderComponent () {
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'space-between',
-        marginTop: 31
+        marginTop: 16
     },
     transactionsTitle:{
         fontSize:20,

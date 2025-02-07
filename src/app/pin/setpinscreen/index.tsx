@@ -25,10 +25,6 @@ const SetPinScreen = () => {
     const [initialPin, setInitialPin] = useState('');
     const [isError, setIsError] = useState(false);
     const { theme } = useCustomTheme();
-    const [ setLocationServicesEnabled] = useState<boolean>(false);
-    const [setLatitude] = useState<string>('');
-    const [setLongitude] = useState<string>('');
-    const [setError] = useState<string | null>(null);
     const [isModal, setIsModal] = useState(false)
     const [userName, setUserName] = useState<string | null>(null)
     const [prizmWallet, setPrizmWallet] = useState<string | null>(null)
@@ -37,10 +33,7 @@ const SetPinScreen = () => {
         AsyncStorage.clear()
         router.replace('/pin/setpinscreen')
     }
-  useEffect(() => {
-    checkIfLocationEnabled();
-    getCurrentLocation();
-  }, []);
+
   useEffect(() => {
     async function fetchUserId() {
         const storedUserName = await AsyncStorage.getItem('username');
@@ -59,55 +52,7 @@ const SetPinScreen = () => {
     fetchUserId();
 }, []);
 
-  const checkIfLocationEnabled = async () => {
-    try {
-      const enabled = await Location.hasServicesEnabledAsync();
-      setLocationServicesEnabled(enabled);
-    } catch (err) {
-      setError('Ошибка проверки доступности геолокации.');
-      console.error(err);
-    }
-  };
-
-  const getServerLocation = async (lat: number, lon: number) => {
-    try {
-      const localFullName = await AsyncStorage.getItem('locality-full-name')
-      const localLocationId = await AsyncStorage.getItem('locality-id')
-      const localLocationType = await AsyncStorage.getItem('locality-type')
-      const response = await fetch(`${apiUrl}/api/v1/localities/get-locality-by-coordinates/?latlon=${lat},${lon}`);
-      const data = await response.json();
-      if (response.ok ) {
-        if (data?.full_name !== localFullName || data?.id !== localLocationId || data?.type !== localLocationType){
-          await AsyncStorage.setItem('locality-full-name', data.full_name);
-          await AsyncStorage.setItem('locality-type', data.type);
-          await AsyncStorage.setItem('locality-id', data.id.toString());
-        } else {
-            console.log('Не нашли такую локацию в бд')
-        }
-        
-      }
-    } catch (err) {
-      console.error('Ошибка получения локации с сервера:', err);
-    }
-  };
-
-  const getCurrentLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return;
-
-      const { coords } = await Location.getCurrentPositionAsync();
-      if (coords) {
-        const { latitude, longitude } = coords;
-        setLatitude(latitude.toString());
-        setLongitude(longitude.toString());
-        getServerLocation(latitude, longitude);
-      }
-    } catch (err) {
-      setError('Ошибка получения текущей геолокации.');
-      console.error(err);
-    }
-  };
+  
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
         if (!state.isConnected) {
