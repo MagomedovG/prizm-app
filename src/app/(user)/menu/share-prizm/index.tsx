@@ -17,7 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import QrScanner from '@/src/components/QrScanner';
 import PrizmWallet from '@/src/utils/PrizmWallet';
 import signBytes from '@/src/utils/transactions';
-
+import encryptedMessage from '@/src/utils/encryptedMessage'
 const SharePrizm = () => {
     const [wallet, setWallet] = useState('');
     const [sid, setSid] = useState('');
@@ -201,20 +201,27 @@ const SharePrizm = () => {
             console.log('Ошибка при переводе:', err,`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`,transactionsBytes );
         }
     }
-    const secret = secretPhrase || secretPhrase
+    const secret = secretPhrase
+    // let senderSecretPhrase = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split';
+
     const senderPrizmWallet = new PrizmWallet(false, secret, null)
+    // const { encryptedDataHex, nonceHex } = encryptedMessage.hashMessage(secretPhrase, message)
     
     const postForm = async () => {
-
         setIsLoading(true);
-
+        console.log('cew')
+        const { encryptedDataHex, nonceHex } = encryptedMessage.hashMessage(secretPhrase, message)
         const form = {
             sender_public_key: senderPrizmWallet.publicKeyHex,
             recipient_wallet: wallet,
             prizm_amount:count,
             recipient_public_key:addressatPublicKey ? addressatPublicKey : null,
-            ...(message && { message: message })
+            ...(message && { 
+                encrypted_message_data:encryptedDataHex, 
+                encrypted_message_nonce:nonceHex 
+            })
         };
+        console.log(form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
@@ -241,11 +248,12 @@ const SharePrizm = () => {
     };
     
 
+   
+
     return (
         <>
-        
             {
-            isScanner 
+                isScanner 
             ?
             <QrScanner setIsScanner={setIsScanner} handleAfterScanned={handleAfterScanned}/> :
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -352,7 +360,14 @@ const SharePrizm = () => {
                             <Text style={styles.checkboxText}>cохранить мою парольную фразу</Text>
                         </View>}
                         <View style={{marginTop: 20}}>
-                            <StaticButton text={`Перевести ${count ? `${count} ` : ''}pzm`} disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} onPress={()=>{errorMessage || (!secretPhrase && !sid) || !wallet ? console.log('d') : postForm()}}/>
+                            <StaticButton 
+                            text={`Перевести ${count ? `${count} ` : ''}pzm`} 
+                            // disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} 
+                            onPress={()=>{
+                                // errorMessage || (!secretPhrase && !sid) || !wallet ? 
+                                // console.log('encryptedDataHex  =   ',encryptedMessage.encryptedDataHex,'nonceHex   =   ', encryptedMessage.nonceHex) : 
+                                postForm()
+                            }}/>
                         </View>
                         <Text style={styles.transactionsTitle}>
                             История транзакций
