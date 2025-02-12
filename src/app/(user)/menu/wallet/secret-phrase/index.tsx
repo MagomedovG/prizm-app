@@ -16,6 +16,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import UIButton from "@/src/components/UIButton";
 import { useRouter } from "expo-router";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
+import StaticButton from "@/src/components/StaticButton";
 
 const { width, height } = Dimensions.get("window");
 
@@ -71,100 +72,108 @@ export default function SecretPhrase() {
 
     return (
         <>
-            <ScrollView  contentContainerStyle={{ flexGrow: 1,marginTop: height / 3.9 }}>
-                <Text style={styles.title} numberOfLines={2}>
-                    Парольная
-                </Text>
-                <Text style={[styles.title, { marginBottom: 34 }]} numberOfLines={2}>
-                    фраза
-                </Text>
-                <View style={[styles.pressable]}>
-                    <View
-                        style={[
-                            styles.textContainer,
-                            !secretPhrase && !isEditable && { justifyContent: "center" },
-                            theme === 'purple' ? { borderColor: '#957ABC' } : { borderColor: '#32933C' },
-                            !!isEditable && {marginBottom:15}
-                        ]}
-                    >
-                        {isEditable ? (
-                            <TextInput
-                                ref={inputRef}
-                                style={styles.input}
-                                value={newPhrase}
-                                onChangeText={setNewPhrase}
-                                placeholder="Введите новую фразу"
-                                placeholderTextColor="#8C8C8C"
-                                multiline
-                            />
-                        ) : secretPhrase ? (
-                            <Pressable style={styles.secretText} onPress={copySidToClipboard}>
-                                <Text
-                                    style={{
-                                        color: "#8C8C8C",
-                                        fontSize: 16,
-                                        textAlign: "left",
-                                        lineHeight:17
+            <ScrollView  contentContainerStyle={{ flexGrow: 1,}}>
+                <View style={{height: height - 84, paddingTop: height / 3.9 }}>
+                    
+                
+                    <Text style={styles.title} numberOfLines={2}>
+                        Парольная
+                    </Text>
+                    <Text style={[styles.title, { marginBottom: 34 }]} numberOfLines={2}>
+                        фраза
+                    </Text>
+                    <View style={[styles.pressable]}>
+                        <View
+                            style={[
+                                styles.textContainer,
+                                !secretPhrase && !isEditable && { justifyContent: "center" },
+                                theme === 'purple' ? { borderColor: '#957ABC' } : { borderColor: '#32933C' },
+                                !!isEditable && {marginBottom:15}
+                            ]}
+                        >
+                            {isEditable ? (
+                                <TextInput
+                                    ref={inputRef}
+                                    style={styles.input}
+                                    value={newPhrase}
+                                    onChangeText={setNewPhrase}
+                                    placeholder="Введите новую фразу"
+                                    placeholderTextColor="#8C8C8C"
+                                    multiline
+                                />
+                            ) : secretPhrase ? (
+                                <Pressable style={styles.secretText} onPress={copySidToClipboard}>
+                                    <Text
+                                        style={{
+                                            color: "#8C8C8C",
+                                            fontSize: 16,
+                                            textAlign: "left",
+                                            lineHeight:17
+                                        }}
+                                    >
+                                        {secretPhrase}
+                                    </Text>
+                                    
+                                </Pressable>
+                            ) : (
+                                <Pressable style={[styles.secretText, { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}]} onPress={() => {
+                                        setIsEditable(true);
+                                        setNewPhrase(secretPhrase || "");
                                     }}
                                 >
-                                    {secretPhrase}
-                                </Text>
-                                
-                            </Pressable>
-                        ) : (
-                            <Pressable style={[styles.secretText, { display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%'}]} onPress={() => {
-                                    setIsEditable(true);
-                                    setNewPhrase(secretPhrase || "");
-                                }}
-                            >
-                                <Text style={styles.placeholder}>
-                                    нет парольной фразы
-                                </Text>
-                                    <Text style={{color:'#909090', opacity:0.6, fontSize:12}}>
-                                        нажмите чтобы ввести ее
+                                    <Text style={styles.placeholder}>
+                                        нет парольной фразы
                                     </Text>
-                            </Pressable>
-                        )}
-                        
-                    </View>
-                    {secretPhrase && !isEditable && (
-                        <View style={styles.copyButtonContainer}>
-                            <FontAwesome5 name="copy" size={15} color="gray" onPress={copySidToClipboard}/>
+                                        <Text style={{color:'#909090', opacity:0.6, fontSize:12}}>
+                                            нажмите чтобы ввести ее
+                                        </Text>
+                                </Pressable>
+                            )}
+                            
                         </View>
-                    )}
-                    {
-                            !isEditable && secretPhrase && (
-                                <View style={{
-                                    display:'flex',
-                                    justifyContent:'flex-start',
-                                    // width:containerWidth + 34, 
-                                    marginBottom:10
-                                }}>
-                                        <Pressable onPress={()=>{
-                                                setNewPhrase(secretPhrase)
-                                                setIsEditable(true)
-                                            }} style={{paddingTop:2, paddingLeft:8, paddingBottom:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center', width:'40%'}}>
-                                            <Text style={{color:'#957ABC', fontSize:13,paddingBottom:3}}>редактировать</Text>
-                                            <FontAwesome5 name="pencil-alt" size={9} color="#957ABC" />
-                                        </Pressable>
-                                    </View>
-                                // <Pressable onPress={()=>{
-                                //     setNewPhrase(secretPhrase)
-                                //     setIsEditable(true)
-                                // }}>
-                                //     <Text style={{color:'#808080',paddingHorizontal:8, paddingTop:2, paddingBottom:8}}>
-                                //         изменить
-                                //     </Text>
-                                // </Pressable>
-                            )
-                        }
-                </View>
+                        {secretPhrase && !isEditable && (
+                            <View style={styles.copyButtonContainer}>
+                                <FontAwesome5 name="copy" size={15} color="gray" onPress={copySidToClipboard}/>
+                            </View>
+                        )}
+                        {
+                                !isEditable && secretPhrase && (
+                                    <View style={{
+                                        display:'flex',
+                                        justifyContent:'flex-start',
+                                        // width:containerWidth + 34, 
+                                        marginBottom:10
+                                    }}>
+                                            <Pressable onPress={()=>{
+                                                    setNewPhrase(secretPhrase)
+                                                    setIsEditable(true)
+                                                }} style={{paddingTop:2, paddingLeft:8, paddingBottom:8, display:'flex',flexDirection:'row',gap:4, alignItems:'center', width:'40%'}}>
+                                                <Text style={{color:'#957ABC', fontSize:13,paddingBottom:3}}>редактировать</Text>
+                                                <FontAwesome5 name="pencil-alt" size={9} color="#957ABC" />
+                                            </Pressable>
+                                        </View>
+                                    // <Pressable onPress={()=>{
+                                    //     setNewPhrase(secretPhrase)
+                                    //     setIsEditable(true)
+                                    // }}>
+                                    //     <Text style={{color:'#808080',paddingHorizontal:8, paddingTop:2, paddingBottom:8}}>
+                                    //         изменить
+                                    //     </Text>
+                                    // </Pressable>
+                                )
+                            }
+                    </View>
 
-                <Text style={styles.pressable}>
-                    Уважаемый пользователь, приложение хранит вашу парольную фразу в памяти вашего телефона. Восстановить парольную фразу невозможно, она генерируется на вашем устройстве и нигде более не сохраняется. Обязательно сохраняйте резервные копии на других носителях (записать на бумаге, сделать фото экрана). Парольную фразу нельзя показывать никому, так как это даст возможность украсть ваши средства PZM.
-                </Text>
+                    <Text style={styles.pressable}>
+                        Уважаемый пользователь, приложение хранит вашу парольную фразу в памяти вашего телефона. Восстановить парольную фразу невозможно, она генерируется на вашем устройстве и нигде более не сохраняется. Обязательно сохраняйте резервные копии на других носителях (записать на бумаге, сделать фото экрана). Парольную фразу нельзя показывать никому, так как это даст возможность украсть ваши средства PZM.
+                    </Text>
+                </View>
+                <View style={{ marginHorizontal: 42}}>
+
+                
+                    <StaticButton text={isEditable ? 'Сохранить' : 'Закрыть'} onPress={isEditable ? saveSecretPhrase : () => { router.back(); }} />
+                </View>
             </ScrollView>
-            <UIButton text={isEditable ? 'Сохранить' : 'Закрыть'} onPress={isEditable ? saveSecretPhrase : () => { router.back(); }} />
         </>
     );
 }

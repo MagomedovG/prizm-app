@@ -144,6 +144,8 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
     })
     
     
+   
+    
 
     useEffect(() => {
         async function fetchUserId() {
