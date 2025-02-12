@@ -144,18 +144,6 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
     })
     
     
-    const { data: exchanger} = useQuery({
-        queryKey: ['exchanger'],
-        queryFn: async () => {
-            const response = await fetch(
-                `${apiUrl}/api/v1/exchanger/`
-            );
-            const data = await response.json();
-            const exchanger = data.exchanger
-            return exchanger;
-        }
-    });
-    
 
     useEffect(() => {
         async function fetchUserId() {
