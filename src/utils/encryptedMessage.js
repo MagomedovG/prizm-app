@@ -40,11 +40,12 @@ function aesEncrypt(msg, sharedKeyBytes, nonce) {
   return ivOut.concat(ciphertextOut);
 }
 
-const hashMessage = (senderSecretPhrase, message) => {
+const hashMessage = (senderSecretPhrase, message, recipientPublicKey) => {
   // let senderSecretPhrase = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split';
   var privatKeyBytes      = getPrivateKeyByteArray(senderSecretPhrase);
   
-  var recipientPublicKey  = '669132b0027b2e1d5cff5493de3456bc08e0c5931800b2350fc982ec649f6f52';  // 8HWPR
+  var recipientStaticPublicKey  = '669132b0027b2e1d5cff5493de3456bc08e0c5931800b2350fc982ec649f6f52';  // 8HWPR
+  console.log(recipientPublicKey === recipientStaticPublicKey, recipientPublicKey)
   var publicKeyBytes      = converters.hexStringToByteArray(recipientPublicKey);
   
   var sharedKeyBytes      = getSharedSecret(privatKeyBytes, publicKeyBytes);

@@ -47,15 +47,15 @@ export default function MenuScreen() {
     const [localityId, setLocalityId] = useState('')
     const [filteredCountries, setFilteredCountries] = useState<AutocompleteResponse | null>(null)
     const [ setLocationServicesEnabled] = useState<boolean>(false);
-    const [setLatitude] = useState<string>('');
-    const [setLongitude] = useState<string>('');
+    const [latitude, setLatitude] = useState<string>('');
+    const [longTitude, setLongitude] = useState<string>('');
 
     const getLocationTypeAndId = async () => {
         const localLocationId = await AsyncStorage.getItem('locality-id')
         const localLocationType = await AsyncStorage.getItem('locality-type')
         setLocalityId(localLocationId ? localLocationId : '')
         setLocalityType(localLocationType ? localLocationType : '')
-        console.log(localLocationId, localLocationType, 'local')
+        // console.log(localLocationId, localLocationType, 'local')
     }
 
     useFocusEffect(
@@ -74,7 +74,6 @@ export default function MenuScreen() {
         queryKey:['categories',localityId,localityType],
         queryFn: async () => {
                 const response = await fetch(`${apiUrl}/api/v1/categories/?locality-id=${localityId}&locality-type=${localityType}`);
-                console.log('refreshCategories',`${apiUrl}/api/v1/categories/?locality-id=${localityId}&locality-type=${localityType}`)
                 return await response.json();
         },
         enabled: !!localityId && !!localityType, 
@@ -107,12 +106,14 @@ export default function MenuScreen() {
           const localLocationId = await AsyncStorage.getItem('locality-id')
           const localLocationType = await AsyncStorage.getItem('locality-type')
           const response = await fetch(`${apiUrl}/api/v1/localities/get-locality-by-coordinates/?latlon=${lat},${lon}`);
+
           const data = await response.json();
           if (response.ok ) {
             if (data?.full_name !== localFullName || data?.id !== localLocationId || data?.type !== localLocationType){
               await AsyncStorage.setItem('locality-full-name', data.full_name);
               await AsyncStorage.setItem('locality-type', data.type);
               await AsyncStorage.setItem('locality-id', data.id.toString());
+              
             } else {
                 console.log('Не нашли такую локацию в бд')
             }
@@ -126,14 +127,22 @@ export default function MenuScreen() {
       const getCurrentLocation = async () => {
         try {
           const { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') return;
-    
+          if (status !== 'granted') {
+            console.log('Нет разрешения на локацию')
+            return
+          };
+          console.log('status getCurrentLocation', status)
           const { coords } = await Location.getCurrentPositionAsync();
           if (coords) {
             const { latitude, longitude } = coords;
-            setLatitude(latitude.toString());
-            setLongitude(longitude.toString());
+            const strLang = latitude.toString()
+            const strLong = longitude.toString()
+            setLatitude(strLang);
+            setLongitude(strLong);
             getServerLocation(latitude, longitude);
+            await refetchCategories()
+          } else{
+            console.log('Нет coords')
           }
         } catch (err) {
           setError('Ошибка получения текущей геолокации.');
@@ -156,6 +165,7 @@ export default function MenuScreen() {
     
     
     useEffect(() => {
+        getCurrentLocation()
         setTimeout(() => {
             setIsLoading(false);
         },2000)

@@ -10,7 +10,6 @@ type HeaderCategoryItemProps = {
 }
 export default function HeaderCategoryItem({title,handleWalletPress}:HeaderCategoryItemProps){
     const { theme } = useCustomTheme();
-    console.log('HeaderCategoryItem Rerender')
         
     return (
         <>

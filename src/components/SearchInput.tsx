@@ -12,7 +12,6 @@ const DismissKeyboard = ({ children }:any) => (
 const SearchInput = ({ data, onFilteredData, placeholder,isCategoryItem }:any) => {
     const [query, setQuery] = useState('');
     const { theme } = useCustomTheme();
-    console.log('SearchInput Rerender');
     useEffect(() => {
         if (query) {
             const filtered = data.filter((item:any) => 

@@ -38,7 +38,6 @@ export default function TaxiScreen () {
         queryKey:['taxis',localityId,localityType],
         queryFn: async () => {
                 const response = await fetch(`${apiUrl}/api/v1/taxi/get-taxis-for-locality/?locality-id=${localityId}&locality-type=${localityType}`);
-                console.log('refreshCategories',`${apiUrl}/api/v1/taxi/get-taxis-for-locality/?locality-id=${localityId}&locality-type=${localityType}`)
                 return await response.json();
         },
         enabled: !!localityId && !!localityType, 

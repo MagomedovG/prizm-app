@@ -56,22 +56,7 @@ const SharePrizm = () => {
     
         return { beforeColon, afterColon };
     }
-    const scanQrCode = async (afterColon:string | undefined) => {
-        try {
-            if (!afterColon) return;
-            const response = await fetch(`${apiUrl}/api/v1/wallet/get-data-by-public-key/?public-key=${afterColon}`)
-            const data = await response.json()
-            if (response.ok){
-                setAddressatPublicKey(data?.public_key_hex)
-                setWallet(data?.account_rs)
-                console.log('adressantpublic_key_hex',data?.public_key_hex)
-            } else {
-                console.log('Try Error to fetch qr code text')
-            }
-        } catch {
-            console.log('Error to fetch qr code text')
-        }
-    }
+    
     const loadSecretPhraseAndWallet = async () => {
         try {
             // const storedPhrase = 'await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase")await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secrawait AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");et-phrase");;'
@@ -201,16 +186,22 @@ const SharePrizm = () => {
             console.log('Ошибка при переводе:', err,`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`,transactionsBytes );
         }
     }
-    const secret = secretPhrase
     // let senderSecretPhrase = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split';
-
-    const senderPrizmWallet = new PrizmWallet(false, secret, null)
     // const { encryptedDataHex, nonceHex } = encryptedMessage.hashMessage(secretPhrase, message)
     
-    const postForm = async () => {
+    const postForm = async (publicK?: string) => {
+        const secret = secretPhrase || sid
+         const senderPrizmWallet = await new PrizmWallet(false, secret, null)
+
         setIsLoading(true);
         console.log('cew')
-        const { encryptedDataHex, nonceHex } = encryptedMessage.hashMessage(secretPhrase, message)
+        const secr = secretPhrase || 'no secret'
+        console.log('secr',secr)
+
+        let encryptedDataHex, nonceHex;
+        if (secretPhrase && message && (publicK || addressatPublicKey)) {
+            ({ encryptedDataHex, nonceHex } = encryptedMessage.hashMessage(secretPhrase, message, publicK || addressatPublicKey));
+        }
         const form = {
             sender_public_key: senderPrizmWallet.publicKeyHex,
             recipient_wallet: wallet,
@@ -239,15 +230,48 @@ const SharePrizm = () => {
             } else if (data && !data?.header) {
                 const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
                 Alert.alert(message);
-            }  
+            }  else {
+                Alert.alert(data?.header, data?.description);
+
+            }
         } catch (error) {
-            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
+            console.log('Ошибка при создании:0.1', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
         } finally {
             setIsLoading(false);
         }
     };
-    
+    const getPublicKeyFromAccountRs = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/api/v1/pzm-wallet/get-account-data?account-rs=${wallet}`)
+            //PRIZM-M6WK-ZBUJ-LKPR-8HWPR
+            const data = await response.json();
+            if (response.ok) {
+                setAddressatPublicKey(data.prizm_public_key)
+                console.log('prizm_public_key from getPublicKeyFromAccountRs',data.prizm_public_key)
+                postForm(data.prizm_public_key)
+            } else {
+                Alert.alert(data.detail)
+            }
+            console.log(data)
+        } catch(e){
+            console.log(e,'Ошибка при получении публичного ключа', `${apiUrl}/api/v1/api/v1/pzm-wallet/get-account-data?account-rs=PRIZM-M6WK-ZBUJ-LKPR-8HWPR`)
+        }
+    }
 
+    const scanQrCode = async (afterColon:string | undefined) => {
+        try {
+            if (!afterColon) return;
+            const senderAccountRs = await new PrizmWallet(false, null, afterColon)
+            setAddressatPublicKey(afterColon)
+            const accountRs = senderAccountRs.accountRs
+            if (accountRs){
+                setWallet(accountRs)
+            }
+           
+        } catch {
+            console.log('Error to fetch qr code text')
+        }
+    }
    
 
     return (
@@ -361,13 +385,12 @@ const SharePrizm = () => {
                         </View>}
                         <View style={{marginTop: 20}}>
                             <StaticButton 
-                            text={`Перевести ${count ? `${count} ` : ''}pzm`} 
-                            // disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} 
-                            onPress={()=>{
-                                // errorMessage || (!secretPhrase && !sid) || !wallet ? 
-                                // console.log('encryptedDataHex  =   ',encryptedMessage.encryptedDataHex,'nonceHex   =   ', encryptedMessage.nonceHex) : 
-                                postForm()
-                            }}/>
+                                text={`Перевести ${count ? `${count} ` : ''}pzm`} 
+                                disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} 
+                                onPress={()=>{
+                                    message ? getPublicKeyFromAccountRs() : postForm()
+                                }}
+                            />
                         </View>
                         <Text style={styles.transactionsTitle}>
                             История транзакций
