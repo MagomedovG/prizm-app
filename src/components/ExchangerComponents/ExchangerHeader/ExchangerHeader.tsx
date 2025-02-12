@@ -3,7 +3,7 @@ import { IWallet } from "@/src/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { memo, useEffect, useState } from "react";
-import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet, StatusBar } from "react-native";
+import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet, StatusBar, ActivityIndicator } from "react-native";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import {Image} from 'expo-image'
 import { useQuery } from "@tanstack/react-query";
@@ -80,6 +80,9 @@ export default function ExchangerHeaderComponent () {
     }
     const postOrder = async (transactionsBytes: string, sellerAccountRs:string) => {
         try {
+            if (loading) return; 
+
+            setLoading(true); 
             const prizm_exchange_rate = exchangeRates 
 
             const form = {
@@ -101,30 +104,36 @@ export default function ExchangerHeaderComponent () {
                     body: JSON.stringify(form),
                 }
             );
-            console.log(response)
             const data = await response.json();
+            console.log('postOrder data', data)
+
             if (!response.ok) {
                 const error = data.seller_phone_number?.[0] || data?.detail || ''
                 Alert.alert('Ошибка при создании ордера',error )
+                setLoading(false)
             } else {
                 Alert.alert(
                     'Ордер создан успешно',
                     data.detail,
                   );
                   router.replace('/(user)/menu');
-                  
+                  setLoading(false)
             }
+            
             console.log(form, data)
         } catch (error) {
             console.error("Ошибка при отправке ордера:", error);
-        }
+            setLoading(false)
+        } 
     }
 
     const secret = secretPhrase || ''
     const senderPrizmWallet = new PrizmWallet(false, secret, null)
     const postForm = async () => {
+        if (loading) return; 
+
+        setLoading(true); 
         await senderPrizmWallet._setWalletData()
-        console.log('secretPhrase',secretPhrase)
         const form = {
             sender_public_key:senderPrizmWallet.publicKeyHex,
             recipient_wallet:recipientWallet,
@@ -139,7 +148,7 @@ export default function ExchangerHeaderComponent () {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log('postForm data',form, data)
+            console.log('postForm data', data)
             
             if (response.ok){
                 const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
@@ -149,9 +158,11 @@ export default function ExchangerHeaderComponent () {
             } else if (data && !data?.header) {
                 const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] ||  data.non_field_errors?.[0] || data || '';
                 Alert.alert(message);
+                setLoading(false)
             }  
         } catch (error) {
             console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
+            setLoading(false)
         } 
     };
 
@@ -245,7 +256,6 @@ export default function ExchangerHeaderComponent () {
             }
             const data = await response.json();
             setExchangeRates(data.data.rates.RUB);
-            // console.log(data.data.rates.RUB);
         } catch (err) {
             console.error(err.message);
         }
@@ -356,11 +366,22 @@ export default function ExchangerHeaderComponent () {
                         </View>
                         <Pressable 
                             style={[styles.payContainer, theme === 'purple' ? styles.purpleBackground : styles.greenBackground,{width:'36%'}]} 
-                            disabled={!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance) || rubCount < 10} 
-                            onPress={postForm}
+                            disabled={loading || !!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance) || rubCount < 10} 
+                            onPress={() =>{
+                                postForm()
+                            }}
                         >
-                            <Text style={{color:'white', fontSize:18}}>
-                                Продать
+                            
+                            <Text 
+                                style={[
+                                    (!!errorMessage || !activeBank || !count  || !phoneNumber || Number(count) > calculateMaxTransfer(balance) || rubCount < 10) ? {color:'rgba(255,255,255,0.7)'} : {color:'white'},
+                                    {
+                                    fontSize:18
+                                    }
+                                ]}
+
+                            >
+                                {loading ? <ActivityIndicator/> : 'Продать'} 
                             </Text>
                         </Pressable>
                     </View>

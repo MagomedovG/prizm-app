@@ -147,11 +147,14 @@ const SharePrizm = () => {
         getData()
     },[])
     const sendTransactionsBytes = async (transactionsBytes: string, attachment?:any) => {
+        if (isLoading) return
+        setIsLoading(true);
+
         const form = {
             transaction_bytes:transactionsBytes,
             ...(attachment && { attachment: attachment })
         }
-        console.log(form)
+        console.log('broadcast-transaction form',form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`, {
                 method: 'POST',
@@ -161,7 +164,7 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log('data',data)
+            console.log('broadcast-transaction data',data)
 
             if (response.ok){
                 setSid('')
@@ -176,24 +179,29 @@ const SharePrizm = () => {
                     data?.detail, 
                 );
                 router.replace('/(user)/menu');
+                setIsLoading(false);
             } else {
                 Alert.alert(
                     'Ошибка при проведении транзакции', 
                     data?.detail, 
                 );
+                setIsLoading(false);
             }
         } catch (err) {
             console.log('Ошибка при переводе:', err,`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`,transactionsBytes );
+            setIsLoading(false);
         }
     }
     // let senderSecretPhrase = 'prizm squeeze treat dress nervous fright whistle spread certainly crush nobodyxhxhdbdbdbxhdbrh second taken forest serve doom split';
     // const { encryptedDataHex, nonceHex } = encryptedMessage.hashMessage(secretPhrase, message)
     
     const postForm = async (publicK?: string) => {
+        if (isLoading) return
+        setIsLoading(true);
+
         const secret = secretPhrase || sid
          const senderPrizmWallet = await new PrizmWallet(false, secret, null)
 
-        setIsLoading(true);
         console.log('cew')
         const secr = secretPhrase || 'no secret'
         console.log('secr',secr)
@@ -212,7 +220,7 @@ const SharePrizm = () => {
                 encrypted_message_nonce:nonceHex 
             })
         };
-        console.log(form)
+        console.log('sendprizm form',form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
@@ -222,28 +230,31 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
+            console.log(response.status, 'sendprizm data',data)
             if (response.ok){
                 const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
                 const attachment = data.transaction_data.transactionJSON.attachment 
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
                 sendTransactionsBytes(singTransaction,attachment)
             } else if (data && !data?.header) {
-                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data;
+                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data.prizm_amount?.[0] ||  data;
                 Alert.alert(message);
+                setIsLoading(false);
             }  else {
                 Alert.alert(data?.header, data?.description);
-
+                setIsLoading(false);
             }
         } catch (error) {
             console.log('Ошибка при создании:0.1', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
-        } finally {
             setIsLoading(false);
-        }
+        } 
     };
+    
+    //PRIZM-M6WK-ZBUJ-LKPR-8HWPR
+
     const getPublicKeyFromAccountRs = async () => {
         try {
             const response = await fetch(`${apiUrl}/api/v1/pzm-wallet/get-account-data?account-rs=${wallet}`)
-            //PRIZM-M6WK-ZBUJ-LKPR-8HWPR
             const data = await response.json();
             if (response.ok) {
                 setAddressatPublicKey(data.prizm_public_key)
@@ -327,7 +338,7 @@ const SharePrizm = () => {
                         {!errorMessage && !count && <Text style={styles.errorText}>коммисия сети 0,5% (не менее 0,05 и не более 10 pzm)</Text>}
                         {!errorMessage && count && <Text style={[styles.errorText, Number(count) > calculateMaxTransfer(balance) ? {color:'#C85557'} : {}]}>{Number(count) > calculateMaxTransfer(balance)  ? `максимальная сумма с учетом комиссии: ${calculateMaxTransfer(balance).toFixed(3)} pzm` : `коммисия сети ${parseFloat(getComission(count).toFixed(3))} pzm`}</Text>}
                          <Pressable 
-                            onPress={copySidToClipboard} 
+                            
                             style={[
                                 styles.pressable, 
                                 {
@@ -385,10 +396,15 @@ const SharePrizm = () => {
                         </View>}
                         <View style={{marginTop: 20}}>
                             <StaticButton 
+                                isLoading={isLoading}
                                 text={`Перевести ${count ? `${count} ` : ''}pzm`} 
-                                disabled={!!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || isLoading || Number(count) > calculateMaxTransfer(balance)} 
+                                disabled={isLoading || !!errorMessage || (!secretPhrase && !sid) || !count  || !wallet || Number(count) > calculateMaxTransfer(balance)} 
                                 onPress={()=>{
-                                    message ? getPublicKeyFromAccountRs() : postForm()
+                                    if (message){
+                                        getPublicKeyFromAccountRs()
+                                    }else{
+                                        postForm()
+                                    }
                                 }}
                             />
                         </View>
