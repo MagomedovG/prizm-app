@@ -273,7 +273,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
                             style={styles.headerPitopi}
                         >
                             {/* <Link href={exchanger ?? ''} style={{fontSize:14}}>Обменник</Link> */}
-                            <Link href={'/(user)/menu/exchanger'} style={{fontSize:14}}>Обменник</Link>
+                            <Link href={'/(user)/menu/pitopi'} style={{fontSize:14}}>Обменник</Link>
                         </Pressable>
                         <Pressable
                             style={styles.headerPitopi}

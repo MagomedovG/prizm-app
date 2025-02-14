@@ -299,7 +299,7 @@ const SetPinScreen = () => {
                                 войти заново. Для входа вам
                                 понадобится <Text style={{fontWeight:'bold'}}>имя пользователя</Text> и <Text style={{fontWeight:'bold'}}>ваш кошелек.</Text>
                             </Text>
-                            <Pressable onPress={() => setIsShowLogoutContent(true)} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'},Platform.OS === 'ios' ? {height:35,paddingVertical:10} : {}, {borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8}]}>
+                            <Pressable onPress={() => setIsShowLogoutContent(true)} style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'},]}>
                                 <Text style={{fontSize:18,textAlign:'center'}}>Выйти из аккаунта</Text>
                             </Pressable>
                         </> : 
@@ -322,7 +322,7 @@ const SetPinScreen = () => {
                                             editable={false}
                                         />
                                         <View style={styles.copyButtonContainer}>
-                                            <FontAwesome5 name="copy" size={15} color="gray" />
+                                            <FontAwesome5 name="copy" size={15} color="rgba(0,0,0,0.25)" />
                                         </View>
                                     </Pressable>
                                 </View>
@@ -338,7 +338,7 @@ const SetPinScreen = () => {
                                             editable={false}
                                         />
                                         <View style={styles.copyButtonContainer}>
-                                            <FontAwesome5 name="copy" size={15} color="gray" />
+                                            <FontAwesome5 name="copy" size={15} color="rgba(0,0,0,0.25)" />
                                         </View>
                                     </Pressable>
                                 </View>
@@ -347,9 +347,9 @@ const SetPinScreen = () => {
                                         logOut()
                                         setIsModal(false)
                                     }} 
-                                    style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'},Platform.OS === 'ios' ? {height:35,paddingVertical:10} : {}, {borderRadius:10, borderWidth:1, width:'100%', paddingHorizontal:8}]}
+                                    style={[{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13},theme === 'purple' ? {} : {borderColor:'#32933C'}]}
                                 >
-                                    <Text style={{fontSize:RFValue(13, 812),textAlign:'center'}}>Я сохранил</Text>
+                                    <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
                                 </Pressable>
 
                             </View>

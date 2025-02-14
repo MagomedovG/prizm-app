@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform} from "react-native";
+import { Pressable, StyleSheet, Text, View, Dimensions, Keyboard, KeyboardAvoidingView, Platform, TouchableOpacity} from "react-native";
 import {ICategory} from "@/src/types";
 import {Link, useFocusEffect, useRouter, useSegments} from "expo-router";
 import SearchInput from "@/src/components/SearchInput";
@@ -91,7 +91,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                         key={index}
                         asChild
                     >
-                        <Pressable style={Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer}>
+                        <TouchableOpacity style={Platform.OS === 'ios' ? styles.itemIosContainer : styles.itemAndroidContainer}>
 
                             <View style={{width:'100%',display:'flex', flexDirection:'row',alignItems:"center", justifyContent:'space-between', padding:16}}>
                                 <Text style={styles.text}>{item.title}</Text>
@@ -102,7 +102,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                                 />
                             </View>
 
-                        </Pressable>
+                        </TouchableOpacity>
                     </Link>
                 )) 
                 : 

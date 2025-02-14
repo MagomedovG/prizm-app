@@ -4,7 +4,7 @@
     "slug": "prizm-app",
     "version": "1.0.32",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/favicon.png",
     "scheme": "prizm",
     "userInterfaceStyle": "automatic",
     "splash": {

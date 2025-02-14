@@ -6,7 +6,7 @@ export default function MainScreen(){
     // return <Redirect href={'/(user)/menu'}/>
     // return <Redirect href={'/(user)/menu/share-prizm'}/>
     // return <Redirect href={'/pin/(create-user)/createwallet'}/>
-    // return <Redirect href={'/menu/wallet/secret-phrase'}/>
+    // return <Redirect href={'/menu/pitopi'}/>
     // return <Redirect href={'/test/createwallet'}/>
     // return <Redirect href={'/test'}/>
 

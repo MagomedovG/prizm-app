@@ -214,24 +214,24 @@ export default function MenuScreen() {
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <ModalComponent isVisible={isShowLocationList} onClose={()=> setIsShowLocationList(false)} height={400}>
                     <View style={styles.locationModalView}>
-                            <View style={{}}>
-                                <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти город, район, регион'/>
-                                <FlatList
-                                    style={{marginLeft:13, marginTop:5}}
-                                    data={filteredCountries}
-                                    renderItem={({item})=> (
-                                        <>
-                                            <Pressable onPress={()=>pressOnCity(item)}>
-                                                <Text style={[localityType === item.type && localityId === item.id.toString() ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.full_name}</Text>
-                                            </Pressable>
-                                            
-                                        </>
+                        <View style={{}}>
+                            <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти город, район, регион'/>
+                            <FlatList
+                                style={{marginLeft:13, marginTop:5}}
+                                data={filteredCountries}
+                                renderItem={({item})=> (
+                                    <>
+                                        <Pressable onPress={()=>pressOnCity(item)}>
+                                            <Text style={[localityType === item.type && localityId === item.id.toString() ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.full_name}</Text>
+                                        </Pressable>
                                         
-                                    )}
-                                    keyExtractor={(item)=> item.id + item.type}
-                                    contentContainerStyle={{ gap: 8 }}
-                                />
-                            </View>
+                                    </>
+                                    
+                                )}
+                                keyExtractor={(item)=> item.id + item.type}
+                                contentContainerStyle={{ gap: 8 }}
+                            />
+                        </View>
                     </View>
                 </ModalComponent>
                     

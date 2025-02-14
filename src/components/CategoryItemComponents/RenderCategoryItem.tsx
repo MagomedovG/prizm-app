@@ -1,6 +1,6 @@
 import { IBusiness } from "@/src/types";
 import { Link } from "expo-router";
-import { Pressable,View,Text, useWindowDimensions, StyleSheet } from "react-native";
+import { Pressable,View,Text, useWindowDimensions, StyleSheet, TouchableOpacity } from "react-native";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { Image } from "expo-image";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
@@ -11,7 +11,7 @@ export default function RenderCategoryItem ({ item, isSingleColumn}: { item: IBu
 
     return (
     <Link href={`/(user)/menu/category-item/${item.id}`} asChild >
-        <Pressable
+        <TouchableOpacity
             style={[
             styles.itemContainer,
             isSingleColumn
@@ -39,7 +39,7 @@ export default function RenderCategoryItem ({ item, isSingleColumn}: { item: IBu
             <Text style={[styles.text,isSingleColumn
                     ? { width: "100%" }
                     : { width: width / 2 - 33},]} numberOfLines={2}>{item.title || "Без названия"}</Text>
-        </Pressable>
+        </TouchableOpacity>
     </Link>
     )
 };

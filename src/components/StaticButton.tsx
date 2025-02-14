@@ -14,7 +14,7 @@ const StaticButton = forwardRef<View | null, ButtonProps>(
         return (
             <Pressable ref={ref} disabled={disabled} {...pressableProps} style={[styles.container, theme === 'purple' ? styles.purpleBackground : styles.greenBackground]}>
                 <Text style={[styles.text, {color: disabled ? '#BDBBBB' : 'white'}]}>
-                    {isLoading ? <ActivityIndicator/> : text}
+                    {isLoading ? <ActivityIndicator color='white'/> : text}
                 </Text>
             </Pressable>
         );
@@ -23,14 +23,10 @@ const StaticButton = forwardRef<View | null, ButtonProps>(
 
 const styles = StyleSheet.create({
     container: {
-        // marginHorizontal:42,
         padding: 15,
         width:'100%',
         alignItems: 'center',
         borderRadius: 13,
-        // position:'absolute',
-        // bottom:40,
-        // zIndex:9999
     },
     purpleBackground:{
         backgroundColor:'#41146D'

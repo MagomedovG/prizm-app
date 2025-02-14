@@ -151,7 +151,7 @@ export default function categoryId() {
                                             <View style={[styles.circle, theme === 'purple' ? styles.purpleCircle : styles.greenCircle]}><Text style={theme === 'purple' ? styles.purpleCircleText : styles.greenCircleText}>1</Text></View>
                                             <View style={{display:'flex', flexDirection:'row'}}>
                                                 <Text style={[styles.text]}>Перейдите в раздел </Text>
-                                                <Link href={'/(user)/menu/exchanger'}>
+                                                <Link href={'/(user)/menu/pitopi'}>
                                                     <Text style={[styles.text,{textDecorationLine:'underline',color:theme === 'purple' ? '#6F1AEC' : '#375A2C',}]}>обменник</Text>
                                                 </Link>
                                             </View>
