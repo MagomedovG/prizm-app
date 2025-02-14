@@ -85,6 +85,7 @@ return (
                 contentContainerStyle={{ gap: 11,paddingBottom: 120 }}
                 columnWrapperStyle={!isSingleColumn && { gap: 6 }}
                 key={flatListKey}
+                showsVerticalScrollIndicator={false}
                 ListHeaderComponent={()=>(
                     <HeaderCategoryItem  title={categoryList?.category?.title} handleWalletPress={handleWalletPress}/>
                 )}

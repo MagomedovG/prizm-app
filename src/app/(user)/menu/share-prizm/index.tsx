@@ -236,14 +236,12 @@ const SharePrizm = () => {
                 const attachment = data.transaction_data.transactionJSON.attachment 
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
                 sendTransactionsBytes(singTransaction,attachment)
-            } else if (data && !data?.header) {
-                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data.prizm_amount?.[0] ||  data;
-                Alert.alert(message);
+            } else {
+                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data.prizm_amount?.[0] || data?.header ||  data;
+                const description = data?.description || ''
+                Alert.alert(message, description);
                 setIsLoading(false);
-            }  else {
-                Alert.alert(data?.header, data?.description);
-                setIsLoading(false);
-            }
+            }  
         } catch (error) {
             console.log('Ошибка при создании:0.1', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
             setIsLoading(false);

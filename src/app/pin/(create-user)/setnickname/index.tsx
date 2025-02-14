@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect,useMemo,useRef, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar, ScrollView, Platform} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
@@ -11,13 +11,25 @@ const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 import {text} from '@/assets/data/text'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheetModal from '@/src/components/dialog/BottomSheetModal';
+import BottomSrollableSheetModal from '@/src/components/dialog/BottomSrollableSheetModal';
 const SetNickName = () => {
     const [name, setName] = useState<any>('');
     const router = useRouter();
     const { theme } = useCustomTheme();
     const [checked, setChecked] = useState(false);
     const [isModal, setIsModal] = useState(false)
-    
+    const modalRef = useRef(0)
+    const snapPoints = useMemo(()=>['80%'], [])
+    const [modalHeight, setmodalHeight] = useState(200)
+
+
+    const handleModalLayout = (event: any) => {
+        const { height } = event.nativeEvent.layout;
+        setmodalHeight(height);
+      };
+
     useEffect(()=> {
         const getAsyncName = async () => {
             const userName = await AsyncStorage.getItem('username');
@@ -46,84 +58,95 @@ const SetNickName = () => {
 
 
     return (
-        <View style={styles.container}>
-            <Stack.Screen options={{ title: 'SetNickName', headerShown: false }} />
-            <View style={{paddingHorizontal: 45, width: '100%'}}>
-                <Text style={styles.title}>
-                    Придумайте имя пользователя
-                </Text>
-                <View style={[styles.inputContainer, theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
-                    <TextInput
-                        placeholder="Имя пользователя"
-                        value={name}
-                        onChangeText={handleNameChange}
-                        style={styles.input}
-                        placeholderTextColor="gray"
-                    />
-                </View>
-                <Text style={styles.suggest}>
-                    Имя пользователя может содержать только буквы, цифры и символы @, _, .
-                </Text>
-                <View style={styles.checkboxContainer}>
-                        <Pressable
-                            role="checkbox"
-                            aria-checked={checked}
-                            style={[styles.checkboxBase, checked && (theme === 'purple' ? styles.checkboxPurpleChecked : styles.checkboxGreenChecked), theme === 'purple' ? {} : {borderColor:"#32933C"}]}
-                            onPress={() => setChecked(!checked)}>
-                            {checked && <Ionicons name="checkmark-sharp" size={17} color="white" />}
-                        </Pressable>
-                        <Pressable onPress={()=>setIsModal(true)}>
-                            <Text style={styles.checkboxText}>
-                                Я прочитал и согласен {''}
-                                    <Text style={theme === "purple" ? {color:'#41146D'} : {color:"#32933C"}}>
-                                        с условиями
-                                    </Text>
-                            </Text>
-                        </Pressable>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+
+       
+            <View style={styles.container}>
+
+                <Stack.Screen options={{ title: 'SetNickName', headerShown: false }} />
+                <View style={{paddingHorizontal: 45, width: '100%'}}>
+                    <Text style={styles.title}>
+                        Придумайте имя пользователя
+                    </Text>
+                    <View style={[styles.inputContainer, theme === 'purple' ? {} : {borderColor:'#32933C'}]}>
+                        <TextInput
+                            placeholder="Имя пользователя"
+                            value={name}
+                            onChangeText={handleNameChange}
+                            style={styles.input}
+                            placeholderTextColor="gray"
+                        />
                     </View>
-            </View>
-            <UIButton text='Ок' onPress={()=>!checked || !name ? console.log('') : setNickName()} disabled={!checked || !name}/>
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                animationIn={'slideInUp'}
-                isVisible={isModal}
-                onBackButtonPress={()=>setIsModal(false)}
-                animationInTiming={200}
-                animationOutTiming={300} // Уменьшите время анимации
-                backdropTransitionOutTiming={50} 
-                backdropColor='black'
-                hardwareAccelerated
-                style={styles.modal}
-                statusBarTranslucent
-            >   
-                <View style={styles.centeredView}>
-                    <View style={styles.modalViewContainer}>
+                    <Text style={styles.suggest}>
+                        Имя пользователя может содержать только буквы, цифры и символы @, _, .
+                    </Text>
+                    <View style={styles.checkboxContainer}>
+                            <Pressable
+                                role="checkbox"
+                                aria-checked={checked}
+                                style={[styles.checkboxBase, checked && (theme === 'purple' ? styles.checkboxPurpleChecked : styles.checkboxGreenChecked), theme === 'purple' ? {} : {borderColor:"#32933C"}]}
+                                onPress={() => setChecked(!checked)}>
+                                {checked && <Ionicons name="checkmark-sharp" size={17} color="white" />}
+                            </Pressable>
+                            <Pressable onPress={()=>{
+                                modalRef.current?.expand()
+                                setIsModal(true)
+                            }}>
+                                <Text style={styles.checkboxText}>
+                                    Я прочитал и согласен {''}
+                                        <Text style={theme === "purple" ? {color:'#41146D'} : {color:"#32933C"}}>
+                                            с условиями
+                                        </Text>
+                                </Text>
+                            </Pressable>
+                        </View>
+                </View>
+                <UIButton text={isModal ? 'Ознакомился' : 'Ок'} onPress={
+                    ()=>
+                        {
+                        if(isModal){
+
+                            setIsModal(false)
+                            modalRef.current?.close()
+                        }else{
+                            if(!checked || !name ){
+                                return
+                            } else{
+                                setNickName()
+                            }
+                        }
                         
-                        <ScrollView>
+                        }
+                    
+                } 
+                    disabled={isModal ? false : !checked || !name }/>
+                <BottomSrollableSheetModal bottomSheetRef={modalRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={modalHeight} staticHeight={snapPoints} backgroundColor='#f5f5f5'>
+                    <ScrollView style={styles.modalViewContainer}>
+                        
+                        <View>
                             <Text style={styles.modalTitle}>
                                 Условия обслуживания Vozvrat pzm.
                             </Text>
                             <Text style={{fontSize:16, marginBottom:120}}>
                                 {text}
                             </Text>
-                        </ScrollView>
+                        </View>
                         
-                    </View>
-                </View>
-                <UIButton text="Ознакомился" onPress={()=>setIsModal(false)}/>
+                    </ScrollView>
 
-            </Modal>
-        </View>
+                </BottomSrollableSheetModal>
+            </View>
+         </GestureHandlerRootView>
     );
+
 };
 
 export default SetNickName;
 
 const styles = StyleSheet.create({
-    centeredView: {
-        justifyContent: 'flex-end',
-    },
+    // centeredView: {
+    //     justifyContent: 'flex-end',
+    // },
     modal: {
         margin: 0,
         justifyContent: 'flex-end',
@@ -131,18 +154,7 @@ const styles = StyleSheet.create({
     },
     modalViewContainer:{
         backgroundColor: '#f5f5f5',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        shadowColor: '#000',
         width: '100%',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-        height:height - 100,
         paddingTop:26,
         paddingHorizontal:21,
     },

@@ -8,6 +8,7 @@ import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncSto
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import PrizmWallet from '@/src/utils/PrizmWallet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ModalComponent from '@/src/components/dialog/ModalComponent';
 
 const deviceWidth = Dimensions.get("window").width;
 const { width, height } = Dimensions.get('window');
@@ -31,9 +32,10 @@ const CreateWallet = () => {
     };
 
     const replaceToMenu = () => {
-        setIsModal(false);
+        
         setTimeout(() => {
             router.replace('/(user)/menu');
+            setIsModal(false);
         }, 600); 
     };
     
@@ -83,8 +85,6 @@ const CreateWallet = () => {
     };
     const createNewWallet = async () => {
         try {
-                // const w = await newWallet
-
                 setSecretPhrase(newWallet.secretPhrase)
                 setPrizmWallet(newWallet.accountRs)
                 setPublicKey(newWallet.publicKeyHex)
@@ -140,49 +140,39 @@ const CreateWallet = () => {
                         </Pressable>
                         
                     </View>
-                    <Modal
-                        deviceWidth={deviceWidth}
-                        deviceHeight={deviceHeight}
-                        animationIn={'slideInUp'}
-                        isVisible={isModal}
-                        onSwipeComplete={toggleModal}
-                        onBackdropPress={toggleModal}
-                        animationInTiming={200}
-                        animationOut='slideOutDown'
-                        backdropColor='black'
-                        hardwareAccelerated
-                        animationOutTiming={300} // Уменьшите время анимации
-                        backdropTransitionOutTiming={50} 
-                        swipeDirection={'down'}
-                        onBackButtonPress={toggleModal}
-                        style={styles.modal}
-                        statusBarTranslucent
+                    <ModalComponent 
+                        isVisible={isModal} 
+                        onClose={()=> {
+                            setIsModal(false)
+                        }} 
+                        height={310}
+                        width={deviceWidth / 1.3}
                     >
                         <View style={styles.centeredView}>
-                            <View style={styles.modalView}>
-                                <Text style={{color:'rgba(255, 49, 49, 1)', fontWeight: 500,fontSize:23, marginBottom:7}}>
-                                    Внимание!
-                                </Text>
-                                <Text style={styles.modalText}>
-                                    Обязательно сохраните парольную фразу! 
-                                    <Text style={{color:'#B81C1C', fontWeight: 500}}>
-                                        {' '}
-                                        Без нее нельзя будет обменять pzm на рубли
-                                    </Text>
-                                </Text>
+                                    <View style={styles.modalView}>
+                                        <Text style={{color:'rgba(255, 49, 49, 1)', fontWeight: 500,fontSize:23, marginBottom:7}}>
+                                            Внимание!
+                                        </Text>
+                                        <Text style={styles.modalText}>
+                                            Обязательно сохраните парольную фразу! 
+                                            <Text style={{color:'#B81C1C', fontWeight: 500}}>
+                                                {' '}
+                                                Без нее нельзя будет обменять pzm на рубли
+                                            </Text>
+                                        </Text>
 
-                                <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
-                                    <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
-                                        <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
-                                    </Pressable>
-                                    
-                                    <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
-                                        <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
-                                    </Pressable>
+                                        <View style={{display:'flex', justifyContent:'space-between',alignItems:'center', flexDirection:'column',width:'100%', gap:12}}>
+                                            <Pressable onPress={() => postForm()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                                <Text style={{fontSize:18,textAlign:'center'}}>Я сохранил</Text>
+                                            </Pressable>
+                                            
+                                            <Pressable onPress={() => toggleModal()} style={{paddingVertical:15, borderWidth:1, borderColor:'#41146D',backgroundColor:'#41146D', width:'100%', borderRadius: 13}}>
+                                                <Text style={{fontSize:18,textAlign:'center', color:'white'}}>Забыл сохранить</Text>
+                                            </Pressable>
+                                        </View>
+                                    </View>
                                 </View>
-                            </View>
-                        </View>
-                    </Modal>
+                    </ModalComponent>
                 </View>
             </ScrollView>
             <UIButton text='Я сохранил парольную фразу' onPress={()=>{toggleModal()}}/>
@@ -204,25 +194,14 @@ const styles = StyleSheet.create({
         fontSize:15
     },
     centeredView: {
-        alignItems: 'center',
-        justifyContent: 'center',
+        // alignItems: 'center',
+        // justifyContent: 'center',
     },
     modalView: {
-        backgroundColor: 'white',
-        borderRadius: 20,
-        paddingHorizontal: 27,
         paddingTop:19,
         paddingBottom:29,
         alignItems: 'center',
-        shadowColor: '#000',
-        width: '80%',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+       
     },
     pressable: {
         position: 'relative',

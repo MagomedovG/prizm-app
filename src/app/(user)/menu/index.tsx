@@ -12,8 +12,7 @@ import {
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { Colors } from '@/constants/Colors';
-import React, { useEffect, useState } from "react";
-import Modal from "react-native-modal";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import WalletItem from "@/src/components/main-page/WalletItem";
 import CategoryList from "@/src/components/main-page/CategoryList";
 import MainHeader from "@/src/components/MainHeader";
@@ -34,6 +33,9 @@ const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 import * as Location from 'expo-location';
+import ModalComponent from '@/src/components/dialog/ModalComponent';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheetModal from '@/src/components/dialog/BottomSheetModal';
 
 export default function MenuScreen() {
     const { theme } = useCustomTheme();
@@ -49,6 +51,21 @@ export default function MenuScreen() {
     const [ setLocationServicesEnabled] = useState<boolean>(false);
     const [latitude, setLatitude] = useState<string>('');
     const [longTitude, setLongitude] = useState<string>('');
+    const [chatHeight, setChatHeight] = useState(200)
+    const [themeHeight, setThemeHeight] = useState(200)
+
+    const bottomSheetChatRef = useRef(null);
+    const bottomSheetThemeRef = useRef(null);
+
+    const handleChatLayout = (event: any) => {
+        const { height } = event.nativeEvent.layout;
+        setChatHeight(height);
+      };
+
+      const handleThemeLayout = (event: any) => {
+        const { height } = event.nativeEvent.layout;
+        setThemeHeight(height);
+      };
 
     const getLocationTypeAndId = async () => {
         const localLocationId = await AsyncStorage.getItem('locality-id')
@@ -110,9 +127,12 @@ export default function MenuScreen() {
           const data = await response.json();
           if (response.ok ) {
             if (data?.full_name !== localFullName || data?.id !== localLocationId || data?.type !== localLocationType){
+              setLocalityId(data?.id)
+              setLocalityType(data?.type)
               await AsyncStorage.setItem('locality-full-name', data.full_name);
               await AsyncStorage.setItem('locality-type', data.type);
               await AsyncStorage.setItem('locality-id', data.id.toString());
+              
               
             } else {
                 console.log('Не нашли такую локацию в бд')
@@ -190,77 +210,121 @@ export default function MenuScreen() {
 
     return (
         <View style={{ flex: 1,position:'relative' }}>
-            <Stack.Screen
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                animationIn={'slideInUp'}
-                isVisible={isModal}
-                onSwipeComplete={() => setIsModal(false)}
-                onBackdropPress={() => setIsModal(false)}
-                onBackButtonPress={() => setIsModal(false)}
-                animationInTiming={200}
-                animationOut='slideOutDown'
-                backdropColor='black'
-                hardwareAccelerated
-                animationOutTiming={300} // Уменьшите время анимации
-                backdropTransitionOutTiming={50} 
-                swipeDirection={'down'}
-                style={styles.modal}
-                statusBarTranslucent
+            
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <ModalComponent isVisible={isShowLocationList} onClose={()=> setIsShowLocationList(false)} height={400}>
+                    <View style={styles.locationModalView}>
+                            <View style={{}}>
+                                <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти город, район, регион'/>
+                                <FlatList
+                                    style={{marginLeft:13, marginTop:5}}
+                                    data={filteredCountries}
+                                    renderItem={({item})=> (
+                                        <>
+                                            <Pressable onPress={()=>pressOnCity(item)}>
+                                                <Text style={[localityType === item.type && localityId === item.id.toString() ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.full_name}</Text>
+                                            </Pressable>
+                                            
+                                        </>
+                                        
+                                    )}
+                                    keyExtractor={(item)=> item.id + item.type}
+                                    contentContainerStyle={{ gap: 8 }}
+                                />
+                            </View>
+                    </View>
+                </ModalComponent>
+                    
+            
 
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Цвет оформления</Text>
-                        <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row',width:'100%'}}>
-                            <Pressable onPress={() => setTheme('green')} style={{width:'48%', aspectRatio:1}}>
-                                <LinearGradient
-                                    colors={['#BAEAAC', '#E5FEDE']}
-                                    start={{ x: 1, y: 0 }}
-                                    end={{ x: 0, y: 0 }}
-                                    style={{width:'100%', aspectRatio:1,borderRadius:10}}
-                                ></LinearGradient>
-                            </Pressable>
-                            <Pressable onPress={() => setTheme('purple')} style={{width:'48%', aspectRatio:1}}>
-                                <LinearGradient
-                                    colors={['#130347', '#852DA5']}
-                                    start={{ x: 1, y: 0 }}
-                                    end={{ x: 0, y: 0 }}
-                                    style={{borderRadius:10,width:'100%', aspectRatio:1}}
-                                ></LinearGradient>
-                            </Pressable>
-                        </View>
+                <View style={{ flex: 1 }} >
+                    <MainHeader onChatPress={() => {
+                            bottomSheetThemeRef.current?.close()
+                            bottomSheetChatRef.current?.expand()
+                            setIsChatModal(true)
+                        }}  
+                        refreshData={refreshing} 
+                        onDotsPress={() => {
+                            bottomSheetChatRef.current?.close()
+                            bottomSheetThemeRef.current?.expand()
+                            setIsModal(true)
+                        }} 
+                        isWallet={wallets?.length > 0}
+                    />
+                    <View>
+                        <LinearGradient
+                            colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
+                            start={{ x: 1, y: 0 }}
+                            end={{ x: 0, y: 0 }}
+                            style={styles.walletContainer}
+                        >
+                            
+                            <FlatList
+                                data={wallets}
+                                renderItem={({ item }) => <WalletItem wallet={item} />}
+                                contentContainerStyle={{ gap: 8 }}
+                                style={styles.flatlist}
+                                keyExtractor={(item) => item.title}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                        </LinearGradient>
+                        <ScrollView
+                            style={styles.container}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={refreshing}
+                                    onRefresh={onRefresh}
+                                />
+                            }
+                        >
+                            <CategoryList categories={categories} title="Категории" isInput={true} showModal={()=>setIsShowLocationList(true)} />
+                        </ScrollView>
+                        
                     </View>
                 </View>
-                <Pressable style={styles.closeButton} onPress={()=>setIsModal(false)}>
-                        <AntDesign name="close" size={30} color="white" />
-                    </Pressable>
-            </Modal>
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                animationIn={'slideInUp'}
-                isVisible={isChatModal}
-                onSwipeComplete={()=>setIsChatModal(false)}
-                onBackdropPress={()=>setIsChatModal(false)}
-                onBackButtonPress={()=>setIsChatModal(false)}
-                animationInTiming={200}
-                animationOut='slideOutDown'
-                animationOutTiming={300} // Уменьшите время анимации
-                backdropTransitionOutTiming={50} 
-                backdropColor='black'
-                hardwareAccelerated
-                swipeDirection={'down'}
-                style={styles.modal}
-                statusBarTranslucent
-            >
-                <View style={styles.centeredView}>
-                    <View style={[styles.chatModalViewContainer, {padding: 0}]}>
+                <View style={styles.tabBar}>
+                    <Link href='/(user)/menu/taxi' style={[styles.tabBarItem,{paddingRight:Platform.OS === 'ios' ? 30 : 0}]} asChild>
+                        <Pressable style={styles.tabBarItemContainer}>
+                            <TaxiIcon/>
+                            <Text style={{color:"#ccc",fontSize:12}}>такси</Text>
+                        </Pressable>
+                        
+                    </Link>
+                    <Link href='/(user)/menu/partners'  style={[styles.tabBarItem,{paddingLeft:Platform.OS === 'ios' ? 30 : 0}]} asChild>
+                        <Pressable style={styles.tabBarItemContainer}>
+                            <BusinessIcon/>
+                            <Text style={{color:"#ccc",fontSize:11}}>партнёрам</Text>
+                        </Pressable>
+                    </Link>
+                </View>
+                <BottomSheetModal bottomSheetRef={bottomSheetThemeRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={themeHeight}>
+                        <View style={styles.centeredView} onLayout={handleThemeLayout}>
+                            <View style={styles.modalView}>
+                                <Text style={styles.modalText}>Цвет оформления</Text>
+                                <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row',width:'100%'}}>
+                                    <Pressable onPress={() => setTheme('green')} style={{width:'48%', aspectRatio:1}}>
+                                        <LinearGradient
+                                            colors={['#BAEAAC', '#E5FEDE']}
+                                            start={{ x: 1, y: 0 }}
+                                            end={{ x: 0, y: 0 }}
+                                            style={{width:'100%', aspectRatio:1,borderRadius:10}}
+                                        ></LinearGradient>
+                                    </Pressable>
+                                    <Pressable onPress={() => setTheme('purple')} style={{width:'48%', aspectRatio:1}}>
+                                        <LinearGradient
+                                            colors={['#130347', '#852DA5']}
+                                            start={{ x: 1, y: 0 }}
+                                            end={{ x: 0, y: 0 }}
+                                            style={{borderRadius:10,width:'100%', aspectRatio:1}}
+                                        ></LinearGradient>
+                                    </Pressable>
+                                </View>
+                            </View>
+                        </View>
+                </BottomSheetModal>
+                <BottomSheetModal bottomSheetRef={bottomSheetChatRef} setIsModalVisible={setIsChatModal} isModalVisible={isChatModal} layoutHeight={chatHeight}>
+                    <View style={[styles.chatModalViewContainer, {padding: 0}]} onLayout={handleChatLayout}>
                         <Link href={chats ? chats?.youtube : '/(user)/menu/'} style={[styles.chatModalView, {paddingTop:20}]} asChild>
                             <Pressable>
                                     <View style={styles.iconAndTextContainer}>
@@ -286,105 +350,8 @@ export default function MenuScreen() {
                             </Pressable>
                         </Link>
                     </View>
-                    </View>
-                    <Pressable style={styles.closeButton} onPress={()=>setIsChatModal(false)}>
-                        <AntDesign name="close" size={30} color="white" />
-                    </Pressable>
-            </Modal>
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                onBackButtonPress={()=>setIsShowLocationList(false)} 
-                animationIn={'slideInUp'}
-                isVisible={isShowLocationList}
-                onSwipeComplete={()=>setIsShowLocationList(false)}
-                onBackdropPress={()=>setIsShowLocationList(false)}
-                animationInTiming={300}
-                animationOut='slideOutDown'
-                animationOutTiming={300} // Уменьшите время анимации
-                backdropTransitionOutTiming={50} 
-                backdropColor='black'
-                hardwareAccelerated
-                swipeDirection={'down'}
-                style={styles.locationModal}
-                statusBarTranslucent
-            >
-                <View style={{width:'80%',height:'50%'}}>
-                    <View style={styles.locationModalView}>
-                        <View style={{}}>
-                            <LocationInput data={countries} onFilteredData={handleFilteredCounties} placeholder='Найти город, район, регион'/>
-                            <FlatList
-                                style={{marginLeft:13, marginTop:5}}
-                                data={filteredCountries}
-                                renderItem={({item})=> (
-                                    <>
-                                        <Pressable onPress={()=>pressOnCity(item)}>
-                                            <Text style={[localityType === item.type && localityId === item.id.toString() ? {color:theme === 'purple' ? '#772899' : '#6A975E'} : {},{fontSize:18}]}>{item.full_name}</Text>
-                                        </Pressable>
-                                        
-                                    </>
-                                    
-                                )}
-                                keyExtractor={(item)=> item.id + item.type}
-                                contentContainerStyle={{ gap: 8 }}
-                            />
-                        </View>
-                    </View>
-                </View>
-                <Pressable style={styles.closeButton} onPress={()=>setIsShowLocationList(false)}>
-                        <AntDesign name="close" size={30} color="white" />
-                </Pressable>
-            </Modal>
-
-            <View style={{ flex: 1 }} >
-                <MainHeader onChatPress={() => setIsChatModal(true)}  refreshData={refreshing} onDotsPress={() => setIsModal(true)} isWallet={wallets?.length > 0}/>
-                <View>
-                    <LinearGradient
-                        colors={theme === 'purple' ? ['#130347', '#852DA5'] : ['#BAEAAC', '#E5FEDE']}
-                        start={{ x: 1, y: 0 }}
-                        end={{ x: 0, y: 0 }}
-                        style={styles.walletContainer}
-                    >
-                        
-                        <FlatList
-                            data={wallets}
-                            renderItem={({ item }) => <WalletItem wallet={item} />}
-                            contentContainerStyle={{ gap: 8 }}
-                            style={styles.flatlist}
-                            keyExtractor={(item) => item.title}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />
-                    </LinearGradient>
-                    <ScrollView
-                        style={styles.container}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={onRefresh}
-                            />
-                        }
-                    >
-                        <CategoryList categories={categories} title="Категории" isInput={true} showModal={()=>setIsShowLocationList(true)} />
-                    </ScrollView>
-                    
-                </View>
-            </View>
-        <View style={styles.tabBar}>
-            <Link href='/(user)/menu/taxi' style={[styles.tabBarItem,{paddingRight:Platform.OS === 'ios' ? 30 : 0}]} asChild>
-                <Pressable style={styles.tabBarItemContainer}>
-                    <TaxiIcon/>
-                    <Text style={{color:"#ccc",fontSize:12}}>такси</Text>
-                </Pressable>
-                
-            </Link>
-            <Link href='/(user)/menu/partners'  style={[styles.tabBarItem,{paddingLeft:Platform.OS === 'ios' ? 30 : 0}]} asChild>
-                <Pressable style={styles.tabBarItemContainer}>
-                    <BusinessIcon/>
-                    <Text style={{color:"#ccc",fontSize:11}}>партнёрам</Text>
-                </Pressable>
-            </Link>
-        </View>
+                </BottomSheetModal>
+            </GestureHandlerRootView>
         </View>
     );
 }
@@ -418,20 +385,9 @@ const styles = StyleSheet.create({
     },
     locationModalView: {
         backgroundColor: 'white',
-        borderRadius: 20,
-        paddingHorizontal: 18,
-        paddingTop:23,
-        paddingBottom:26,
         alignItems: 'center',
         shadowColor: '#000',
         width: '100%',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
     },
     closeButton: {
         position: 'absolute',
@@ -462,6 +418,7 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         justifyContent: 'flex-end',
+        flex:1
     },
     chatModalView:{
         display:'flex',
@@ -564,7 +521,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopWidth: 1,    
         borderTopColor: '#ccc', 
-        zIndex:999
+        // zIndex:999
     },
     tabBarItem:{
         flex:1,
@@ -574,3 +531,4 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     }
 });
+

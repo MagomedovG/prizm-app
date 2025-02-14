@@ -8,7 +8,7 @@ import { Alert, LogBox } from 'react-native';
 import CustomThemeProvider from '../providers/CustomThemeProvider';
 import QueryProvider from '../providers/QueryProvider';
 import AppStateHandler from '../components/AppStateHandler';
-
+import { Provider as PaperProvider } from 'react-native-paper';
 LogBox.ignoreAllLogs(true); 
 
 export default function RootLayout() {
@@ -37,15 +37,19 @@ export default function RootLayout() {
 
   return (
       <ThemeProvider value={CustomDefaultTheme}>
-        <QueryProvider>
-            <CustomThemeProvider>
-              <NavigationContainer>
-                <Stack screenOptions={{ headerShown: false }} />
-              </NavigationContainer>
-            </CustomThemeProvider>
-        </QueryProvider>
-        <AppStateHandler/>
+        <PaperProvider>
+          <QueryProvider>
+              <CustomThemeProvider>
+                <NavigationContainer>
+                  <Stack screenOptions={{ headerShown: false }} />
+                </NavigationContainer>
+              </CustomThemeProvider>
+          </QueryProvider>
+          <AppStateHandler/>
+        </PaperProvider>
+
       </ThemeProvider>
+
     
   );
 }

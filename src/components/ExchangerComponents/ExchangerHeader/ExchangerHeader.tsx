@@ -381,7 +381,7 @@ export default function ExchangerHeaderComponent () {
                                 ]}
 
                             >
-                                {loading ? <ActivityIndicator/> : 'Продать'} 
+                                {loading ? <ActivityIndicator size="small" color="#fff"/> : 'Продать'} 
                             </Text>
                         </Pressable>
                     </View>

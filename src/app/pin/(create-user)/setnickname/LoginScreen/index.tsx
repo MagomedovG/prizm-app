@@ -32,32 +32,6 @@ const LoginScreen = () => {
                 <Pressable onPress={routerBack} style={[styles.container,{borderWidth:1,borderColor:'#7F7F7F'}]}>
                     <Text style={[styles.text,{color:'#7F7F7F'}]}>У меня уже есть кошелек</Text>
                 </Pressable>
-            <Modal
-                deviceWidth={deviceWidth}
-                deviceHeight={deviceHeight}
-                animationIn={'slideInUp'}
-                isVisible={isModal}
-                onBackButtonPress={()=>setIsModal(false)}
-                animationInTiming={200}
-                animationOut='slideOutDown'
-                animationOutTiming={300} // Уменьшите время анимации
-                backdropTransitionOutTiming={50} 
-                backdropColor='black'
-                hardwareAccelerated
-                swipeDirection={'down'}
-                style={styles.modal}
-                statusBarTranslucent
-            >   
-                <View style={styles.centeredView}>
-                    <View style={styles.modalViewContainer}>
-                        <Text style={styles.modalTitle}>
-                            Соглашение...
-                        </Text>
-                    </View>
-                </View>
-                <UIButton text="Ознакомился" onPress={()=>setIsModal(false)}/>
-
-            </Modal>
             
         </>
     )

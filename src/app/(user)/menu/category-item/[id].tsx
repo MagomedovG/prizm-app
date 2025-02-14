@@ -31,6 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 const statusBarHeight = StatusBar.currentHeight || 0;
 
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import ModalComponent from '@/src/components/dialog/ModalComponent';
 const { width, height } = Dimensions.get('window');
 const deviceHeight = height + statusBarHeight
 const deviceWidth = width;
@@ -264,7 +265,23 @@ export default function categoryId() {
                     
                     
                 </View>
-                <Modal
+                <ModalComponent isVisible={isQrModal} onClose={closeQrModal} height={deviceWidth - 30}>
+                    <View style={{alignItems:'center',width:'100%', gap:20}}>
+                        <QRCode size={deviceWidth / 1.7} value={prizmQrCode} level={'M'} />
+                        <Pressable onPress={copyToClipboard} style={[styles.pressable, {width:deviceWidth / 1.7}]}>
+                            <TextInput
+                                ref={inputRef}
+                                style={styles.input}
+                                editable={false}
+                                value={prizmWallet}
+                            />
+                            <View style={styles.copyButtonContainer}>
+                                <FontAwesome5 name="copy" size={15} color="gray" />
+                            </View>
+                        </Pressable>
+                    </View>
+                </ModalComponent>
+                {/* <Modal
                     deviceWidth={deviceWidth}
                     deviceHeight={deviceHeight}
                     animationIn={'slideInUp'}
@@ -308,7 +325,7 @@ export default function categoryId() {
                     <Pressable style={styles.closeButton} onPress={closeQrModal}>
                             <AntDesign name="close" size={30} color="white" />
                         </Pressable>
-                </Modal>
+                </Modal> */}
 
             </View>
 
