@@ -34,7 +34,6 @@ const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 import * as Location from 'expo-location';
 import ModalComponent from '@/src/components/dialog/ModalComponent';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheetModal from '@/src/components/dialog/BottomSheetModal';
 
 export default function MenuScreen() {
@@ -211,7 +210,6 @@ export default function MenuScreen() {
     return (
         <View style={{ flex: 1,position:'relative' }}>
             
-            <GestureHandlerRootView style={{ flex: 1 }}>
                 <ModalComponent isVisible={isShowLocationList} onClose={()=> setIsShowLocationList(false)} height={400}>
                     <View style={styles.locationModalView}>
                         <View style={{}}>
@@ -351,7 +349,6 @@ export default function MenuScreen() {
                         </Link>
                     </View>
                 </BottomSheetModal>
-            </GestureHandlerRootView>
         </View>
     );
 }

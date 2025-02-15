@@ -6,14 +6,14 @@ import { AntDesign } from '@expo/vector-icons';
 const deviceWidth = Dimensions.get('window').width;
 const deviceHeight = Dimensions.get('window').height;
 
-const ModalComponent = ({ isVisible, onClose, height,width, children }: PropsWithChildren<{ isVisible: boolean; onClose: () => void; height: any; width?:number}>) => {
+const ModalComponent = ({ isVisible, onClose, height = 300,width = deviceWidth / 1.2, children }: PropsWithChildren<{ isVisible: boolean; onClose: () => void; height: any; width?:number}>) => {
     return (
         <View style={{ position: 'relative' }}>
             <Overlay 
                 isVisible={isVisible} 
                 onBackdropPress={onClose} 
                 overlayStyle={{
-                    width: width ? width : deviceWidth / 1.2,
+                    width,
                     height,
                     alignItems: 'center',
                     justifyContent: 'center',

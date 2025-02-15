@@ -31,7 +31,7 @@ const SetPinScreen = () => {
     const [prizmWallet, setPrizmWallet] = useState<string | null>(null)
     const [isShowLogoutContent, setIsShowLogoutContent]  = useState(false)
     const [modalHeight, setModalHeight] = useState(200)
-    const [modalWidth, setModalWidth] = useState(100)
+    const [modalWidth, setModalWidth] = useState(200)
 
     const handleModalLayout = (event: any) => {
         const { height } = event.nativeEvent.layout;
@@ -57,7 +57,7 @@ const SetPinScreen = () => {
         if (storedUserName) {
             setUserName(parsedUserName); 
         } else {
-            console.error('User ID не найден в asyncStorage');
+            console.log('User ID не найден в asyncStorage');
         }
     }
     fetchUserId();

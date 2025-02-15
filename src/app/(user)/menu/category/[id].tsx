@@ -111,7 +111,6 @@ export default function categoryId() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0} 
             >
-            <GestureHandlerRootView style={{ flex: 1 }}>
 
                 <View style={{ flex:1,paddingHorizontal: 10, }}>
                     <CategoryItemList id={id} onWalletPress={(value)=>{
@@ -171,7 +170,6 @@ export default function categoryId() {
                                 </View>
                     </View>
                 </BottomSheetModal>
-                </GestureHandlerRootView>
             </KeyboardAvoidingView>
             <ModalComponent isVisible={isQrModal} onClose={closeQrModal} height={deviceWidth - 30}>
                 <View style={{alignItems:'center',width:'100%', gap:20}}>

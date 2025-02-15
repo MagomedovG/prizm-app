@@ -11,7 +11,6 @@ const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
 import {text} from '@/assets/data/text'
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheetModal from '@/src/components/dialog/BottomSheetModal';
 import BottomSrollableSheetModal from '@/src/components/dialog/BottomSrollableSheetModal';
 const SetNickName = () => {
@@ -58,8 +57,6 @@ const SetNickName = () => {
 
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-
        
             <View style={styles.container}>
 
@@ -105,7 +102,6 @@ const SetNickName = () => {
                     ()=>
                         {
                         if(isModal){
-
                             setIsModal(false)
                             modalRef.current?.close()
                         }else{
@@ -120,8 +116,8 @@ const SetNickName = () => {
                     
                 } 
                     disabled={isModal ? false : !checked || !name }/>
-                <BottomSrollableSheetModal bottomSheetRef={modalRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={modalHeight} staticHeight={snapPoints} backgroundColor='#f5f5f5'>
-                    <ScrollView style={styles.modalViewContainer}>
+                {/* <BottomSrollableSheetModal bottomSheetRef={modalRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={modalHeight} staticHeight={snapPoints} backgroundColor='#f5f5f5'>
+                    <View style={styles.modalViewContainer}>
                         
                         <View>
                             <Text style={styles.modalTitle}>
@@ -132,11 +128,10 @@ const SetNickName = () => {
                             </Text>
                         </View>
                         
-                    </ScrollView>
+                    </View>
 
-                </BottomSrollableSheetModal>
+                </BottomSrollableSheetModal> */}
             </View>
-         </GestureHandlerRootView>
     );
 
 };

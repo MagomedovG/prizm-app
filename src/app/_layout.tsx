@@ -9,6 +9,8 @@ import CustomThemeProvider from '../providers/CustomThemeProvider';
 import QueryProvider from '../providers/QueryProvider';
 import AppStateHandler from '../components/AppStateHandler';
 import { Provider as PaperProvider } from 'react-native-paper';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 LogBox.ignoreAllLogs(true); 
 
 export default function RootLayout() {
@@ -37,17 +39,18 @@ export default function RootLayout() {
 
   return (
       <ThemeProvider value={CustomDefaultTheme}>
-        <PaperProvider>
-          <QueryProvider>
-              <CustomThemeProvider>
-                <NavigationContainer>
-                  <Stack screenOptions={{ headerShown: false }} />
-                </NavigationContainer>
-              </CustomThemeProvider>
-          </QueryProvider>
-          <AppStateHandler/>
-        </PaperProvider>
-
+        <GestureHandlerRootView>
+          <PaperProvider>
+            <QueryProvider>
+                <CustomThemeProvider>
+                  <NavigationContainer>
+                    <Stack screenOptions={{ headerShown: false }} />
+                  </NavigationContainer>
+                </CustomThemeProvider>
+            </QueryProvider>
+            <AppStateHandler/>
+          </PaperProvider>
+        </GestureHandlerRootView>
       </ThemeProvider>
 
     

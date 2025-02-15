@@ -153,7 +153,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
             if (storedUserId) {
                 setUserId(storedUserId); 
             } else {
-                console.error('User ID не найден в asyncStorage');
+                console.log('User ID не найден в asyncStorage');
             }
         }
         fetchUserId();

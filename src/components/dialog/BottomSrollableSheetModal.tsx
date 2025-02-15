@@ -2,7 +2,6 @@ import React, { PropsWithChildren, useMemo, useEffect,useCallback, useState } fr
 import { AntDesign } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { BackHandler, Dimensions, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const WINDOW_Height = Dimensions.get("window").height;
 
 const BottomSrollableSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalVisible,layoutHeight,staticHeight,backgroundColor, children }: PropsWithChildren<{ backgroundColor?:string,bottomSheetRef: any; isModalVisible: boolean;layoutHeight:number;staticHeight?:string[], setIsModalVisible: (val: boolean) => void;}>) => {
@@ -21,7 +20,7 @@ const BottomSrollableSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalV
     }, [isModalVisible]);
     const snapPoints = useMemo(() => {
             const sheetHeight = layoutHeight / WINDOW_Height * 100
-            console.log(layoutHeight,sheetHeight)
+            console.log([sheetHeight.toString()])
             return [sheetHeight.toString()]; 
       }, [layoutHeight]);
     return (
@@ -30,9 +29,8 @@ const BottomSrollableSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalV
             ref={bottomSheetRef}
             index={-1}
             snapPoints={staticHeight ? staticHeight : snapPoints}
-            // enablePanDownToClose
             backgroundStyle={{
-                backgroundColor:backgroundColor ? '#f5f5f5' : 'inherit',
+                backgroundColor:backgroundColor || '#f5f5f5',
             }}
             onClose={() => {
                 setIsModalVisible(false);
