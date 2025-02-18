@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DarkTheme, DefaultTheme, ThemeProvider,NavigationContainer } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
@@ -9,7 +10,6 @@ import CustomThemeProvider from '../providers/CustomThemeProvider';
 import QueryProvider from '../providers/QueryProvider';
 import AppStateHandler from '../components/AppStateHandler';
 import { Provider as PaperProvider } from 'react-native-paper';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 LogBox.ignoreAllLogs(true); 
 
@@ -38,20 +38,21 @@ export default function RootLayout() {
   
 
   return (
-      <ThemeProvider value={CustomDefaultTheme}>
-        <GestureHandlerRootView>
-          <PaperProvider>
-            <QueryProvider>
-                <CustomThemeProvider>
-                  <NavigationContainer>
-                    <Stack screenOptions={{ headerShown: false }} />
-                  </NavigationContainer>
-                </CustomThemeProvider>
-            </QueryProvider>
-            <AppStateHandler/>
-          </PaperProvider>
-        </GestureHandlerRootView>
-      </ThemeProvider>
+    <GestureHandlerRootView style={{flex:1}}>
+        <ThemeProvider value={CustomDefaultTheme}>
+            <PaperProvider>
+              <QueryProvider>
+                  <CustomThemeProvider>
+                    <NavigationContainer>
+                      <Stack screenOptions={{ headerShown: false }} />
+                    </NavigationContainer>
+                  </CustomThemeProvider>
+              </QueryProvider>
+              <AppStateHandler/>
+            </PaperProvider>
+        </ThemeProvider>
+     </GestureHandlerRootView>
+
 
     
   );

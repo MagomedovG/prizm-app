@@ -116,7 +116,7 @@ const SetNickName = () => {
                     
                 } 
                     disabled={isModal ? false : !checked || !name }/>
-                {/* <BottomSrollableSheetModal bottomSheetRef={modalRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={modalHeight} staticHeight={snapPoints} backgroundColor='#f5f5f5'>
+                <BottomSrollableSheetModal bottomSheetRef={modalRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={modalHeight} staticHeight={snapPoints} backgroundColor='#f5f5f5'>
                     <View style={styles.modalViewContainer}>
                         
                         <View>
@@ -130,7 +130,7 @@ const SetNickName = () => {
                         
                     </View>
 
-                </BottomSrollableSheetModal> */}
+                </BottomSrollableSheetModal>
             </View>
     );
 

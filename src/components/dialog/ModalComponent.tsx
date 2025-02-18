@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { View, Pressable, Dimensions, StyleSheet } from 'react-native';
+import { View, Pressable, Dimensions, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Overlay } from 'react-native-elements';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -8,7 +8,7 @@ const deviceHeight = Dimensions.get('window').height;
 
 const ModalComponent = ({ isVisible, onClose, height = 300,width = deviceWidth / 1.2, children }: PropsWithChildren<{ isVisible: boolean; onClose: () => void; height: any; width?:number}>) => {
     return (
-        <View style={{ position: 'relative' }}>
+        <KeyboardAvoidingView style={{ position: 'relative' }}>
             <Overlay 
                 isVisible={isVisible} 
                 onBackdropPress={onClose} 
@@ -28,7 +28,7 @@ const ModalComponent = ({ isVisible, onClose, height = 300,width = deviceWidth /
                 </Pressable>
             </Overlay>
             
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -37,7 +37,6 @@ export default ModalComponent;
 const styles = StyleSheet.create({
     closeButton: {
         position: 'absolute',
-        // top: -40, // Расположение крестика сверху
         right: -30, // Расположение крестика справа
         zIndex: 110, // Убедитесь, что крестик находится над оверлеем
     },

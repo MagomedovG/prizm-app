@@ -25,7 +25,6 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import ModalComponent from '@/src/components/dialog/ModalComponent';
 import BottomSheetModal from '@/src/components/dialog/BottomSheetModal';
 // const statusBarHeight = StatusBar.currentHeight
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const deviceHeight = Dimensions.get('window').height;
 

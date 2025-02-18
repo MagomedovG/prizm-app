@@ -296,7 +296,7 @@ export default function MenuScreen() {
                         </Pressable>
                     </Link>
                 </View>
-                <BottomSheetModal bottomSheetRef={bottomSheetThemeRef} setIsModalVisible={setIsModal} isModalVisible={isModal} layoutHeight={themeHeight}>
+                <BottomSheetModal bottomSheetRef={bottomSheetThemeRef} setIsModalVisible={setIsModal} isModalVisible={isModal}  layoutHeight={themeHeight}>
                         <View style={styles.centeredView} onLayout={handleThemeLayout}>
                             <View style={styles.modalView}>
                                 <Text style={styles.modalText}>Цвет оформления</Text>
@@ -455,15 +455,8 @@ const styles = StyleSheet.create({
         paddingTop:16,
         paddingBottom:26,
         alignItems: 'center',
-        shadowColor: '#000',
         width: '100%',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        
     },
     container: {
         backgroundColor: 'white',

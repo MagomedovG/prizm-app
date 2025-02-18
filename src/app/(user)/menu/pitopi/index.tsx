@@ -1,6 +1,7 @@
 import StaticButton from "@/src/components/StaticButton";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import React from "react";
 import { forwardRef, useEffect, useState } from "react";
 import { View, Image, StyleSheet, Dimensions, Linking, Pressable, Text, ActivityIndicator, Alert } from "react-native";
 const { width } = Dimensions.get("window");
@@ -34,7 +35,7 @@ export default function PiToPiScreen() {
             if (response.ok) {
                 console.log(data);
 
-                const isAvailable = data?.is_p2p_available === true;
+                const isAvailable = data?.is_p2p_available;
                 const url = data?.p2p_url;
                 const isValidUrl = typeof url === "string" && url.startsWith("http");
 
@@ -46,9 +47,11 @@ export default function PiToPiScreen() {
         }
     };
 
-    useEffect(() => {
-        getSettings();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            getSettings();
+        }, [])
+    )
 
     const handleP2PPress = () => {
         if (isP2PAvailable && p2pUrl) {

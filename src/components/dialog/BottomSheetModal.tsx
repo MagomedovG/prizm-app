@@ -3,7 +3,7 @@ import { AntDesign } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { BackHandler, Dimensions, View } from 'react-native';
 const WINDOW_Height = Dimensions.get("window").height;
-
+// import { BottomSheet } from '@rneui/themed';
 const BottomSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalVisible,layoutHeight,staticHeight,scroll = false, children }: PropsWithChildren<{ bottomSheetRef: any; isModalVisible: boolean;layoutHeight:number;staticHeight?:string[], setIsModalVisible: (val: boolean) => void;scroll?:boolean }>) => {
     useEffect(() => {
         const handleBackPress = () => {
@@ -20,8 +20,8 @@ const BottomSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalVisible,la
     }, [isModalVisible]);
     const snapPoints = useMemo(() => {
             const sheetHeight = layoutHeight / WINDOW_Height * 100
-            console.log(layoutHeight,sheetHeight)
-            return [sheetHeight.toString()]; 
+            console.log([`${sheetHeight}%`, '60%'])
+            return [ '10%']; 
       }, [layoutHeight]);
     return (
 
@@ -36,12 +36,6 @@ const BottomSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalVisible,la
             }}
         >
             {
-                scroll ? 
-                <BottomSheetScrollView style={{ height: '100%' }} >
-                     <View style={{ padding: 20 }}>
-                        {children}
-                    </View>
-                </BottomSheetScrollView> :
                 <BottomSheetView style={{ flex: 1 }} >
                     {children}
                 </BottomSheetView>
