@@ -33,7 +33,7 @@ export default function ExchangerScreen (){
                 nextLink || `${apiUrl}/api/v1/pzm-orders/?user-account-rs=${wallet}`
             );
             const data = await response.json();
-            console.log(data.results.length)
+            console.log(data?.results.length)
             console.log(`${apiUrl}/api/v1/pzm-orders/?user-account-rs=${wallet}/`)
             if (data?.next){
                 setNextLink(data.next)
@@ -43,7 +43,7 @@ export default function ExchangerScreen (){
             if (nextLink){
                 console.log('nextLink',nextLink)
             }
-            setOrders((prevOrders) => prevOrders ? [...prevOrders, ...data.results] : data.results);
+            setOrders((prevOrders) => prevOrders ? [...prevOrders, ...data?.results] : data?.results);
         } catch (error) {
             console.error('Ошибка загрузки данных:', error);
         } finally {

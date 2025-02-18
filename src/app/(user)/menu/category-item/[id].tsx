@@ -78,7 +78,7 @@ export default function categoryId() {
                 `${apiUrl}/api/v1/business/${id}/`,
             );
             const data = await response.json();
-            const business = data.business;
+            const business = data?.business;
             return business;
         },
     });

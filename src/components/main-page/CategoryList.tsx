@@ -85,7 +85,7 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
                 </View>
                 
 
-                {filteredData?.length ? filteredData.map((item:any, index:number) => (
+                {filteredData?.length ? filteredData?.map((item:any, index:number) => (
                     <Link
                         href={`/(user)/menu/category/${item.id}`}
                         key={index}

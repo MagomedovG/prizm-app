@@ -232,12 +232,12 @@ const SharePrizm = () => {
             const data = await response.json();
             console.log(response.status, 'sendprizm data',data)
             if (response.ok){
-                const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
-                const attachment = data.transaction_data.transactionJSON.attachment 
+                const unsignedTransactionsBytes = data?.transaction_data?.unsignedTransactionBytes
+                const attachment = data?.transaction_data?.transactionJSON?.attachment 
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
                 sendTransactionsBytes(singTransaction,attachment)
             } else {
-                const message = data.secret_phrase?.[0] || data.sender_public_key?.[0] || data.recipient_public_key?.[0] || data.prizm_amount?.[0] || data?.header ||  data;
+                const message = data?.secret_phrase?.[0] || data?.sender_public_key?.[0] || data?.recipient_public_key?.[0] || data?.prizm_amount?.[0] || data?.header ||  data;
                 const description = data?.description || ''
                 Alert.alert(message, description);
                 setIsLoading(false);

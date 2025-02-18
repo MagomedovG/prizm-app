@@ -66,9 +66,9 @@ export default function ExchangerHeaderComponent () {
             const response = await fetch(`${apiUrl}/api/v1/utils/settings/is-exchanger-available`)
             const data = await response.json()
             if (response.ok){
-                setExchargerFee(data.exchanger_fee)
+                setExchargerFee(data?.exchanger_fee)
             } else {
-                Alert.alert(data.detail,'',[{ text: "На главную" ,
+                Alert.alert(data?.detail,'',[{ text: "На главную" ,
                     onPress: () => {
                         router.replace('/(user)/menu')
                     }
@@ -114,7 +114,7 @@ export default function ExchangerHeaderComponent () {
             } else {
                 Alert.alert(
                     'Ордер создан успешно',
-                    data.detail,
+                    data?.detail,
                   );
                   router.replace('/(user)/menu');
                   setLoading(false)
@@ -151,8 +151,8 @@ export default function ExchangerHeaderComponent () {
             console.log('postForm data', data)
             
             if (response.ok){
-                const unsignedTransactionsBytes = data.transaction_data.unsignedTransactionBytes
-                const sellerAccountRs = data.transaction_data.transactionJSON.senderRS
+                const unsignedTransactionsBytes = data?.transaction_data?.unsignedTransactionBytes
+                const sellerAccountRs = data?.transaction_data?.transactionJSON.senderRS
                 const singTransaction = signBytes(unsignedTransactionsBytes, secret);
                 postOrder(singTransaction, sellerAccountRs)
             } else if (data && !data?.header) {
@@ -171,7 +171,7 @@ export default function ExchangerHeaderComponent () {
             const response = await fetch(`${apiUrl}/api/v1/utils/settings/?ids=pzm_sell_order_buyer_wallet`);
             const data = await response.json();
             if (response.ok){
-                setRecipientWallet(data.pzm_sell_order_buyer_wallet)
+                setRecipientWallet(data?.pzm_sell_order_buyer_wallet)
             }
             console.log(data)
         } catch(error) {
@@ -255,7 +255,7 @@ export default function ExchangerHeaderComponent () {
             throw new Error(`Error: ${response.status}`);
             }
             const data = await response.json();
-            setExchangeRates(data.data.rates.RUB);
+            setExchangeRates(data?.data?.rates.RUB);
         } catch (err) {
             console.error(err.message);
         }

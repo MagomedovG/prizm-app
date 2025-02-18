@@ -22,10 +22,8 @@ export default function PartnersScreen() {
             );
             const data = await response.json();
             if (response.ok){
-                setText(data.for_partners)
+                setText(data?.for_partners)
             }
-            console.log(data.for_partners)
-            // console.log(data)
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/userId/wallet-data/`);
         }
@@ -63,7 +61,7 @@ export default function PartnersScreen() {
 
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
             <View>
                 <Text>
                     {text}
@@ -102,7 +100,7 @@ export default function PartnersScreen() {
                 </>
                 : <Text style={{fontWeight:600, fontSize:17, color:'rgba(0, 0, 0, 0.6)'}}>Нет контактов</Text>
             }
-        </View>
+        </ScrollView>
     )
 }
 const styles = StyleSheet.create({

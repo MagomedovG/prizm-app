@@ -20,6 +20,10 @@
       }
     },
     "production": {
+      "distribution": "store", 
+      "android": {
+        "buildType": "apk" 
+      },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://backend.vozvrat-pzm.ru"
       }

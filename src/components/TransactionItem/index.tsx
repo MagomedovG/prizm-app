@@ -26,28 +26,28 @@ export default function TransactionItem({item}:TransactionItem) {
             title:'Отправлено'
         },
     }
-    const typeData = transactionType[item.type]; 
+    const typeData = transactionType[item?.type]; 
     return (
         <View style={styles.container}>
             <View style={styles.infoContainer}>
                 <View style={styles.titleContainer}>
-                    <Text style={[styles.title,  { color: typeData.color }]}>
-                        {typeData.title}
+                    <Text style={[styles.title,  { color: typeData?.color }]}>
+                        {typeData?.title}
                         <Text style={styles.dateTime}>
-                            {'   ' + item.datetime}
+                            {'   ' + item?.datetime}
                         </Text>
                     </Text>
                 </View>
                 <Text style={styles.recipient}>
-                    {item.type === 'sent' ? 'Получатель:' : 'Отправитель'} {item.type === 'sent' ? item.recipient : item.sender}
+                    {item?.type === 'sent' ? 'Получатель:' : 'Отправитель'} {item?.type === 'sent' ? item?.recipient : item?.sender}
                 </Text>
                 <Text style={styles.comission}>
-                    Комиссия сети: {item.fee}
+                    Комиссия сети: {item?.fee}
                 </Text>
             </View>
             <View style={styles.sumContainer}>
-                <Text style={[styles.sum, { color: typeData.color }]}>
-                    {item.type === 'sent' ? '-' : '+'}{parseFloat(item.amount.toString())}
+                <Text style={[styles.sum, { color: typeData?.color }]}>
+                    {item.type === 'sent' ? '-' : '+'}{parseFloat(item?.amount.toString())}
                 </Text>
             </View>
         </View>
