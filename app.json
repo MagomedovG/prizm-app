@@ -2,13 +2,13 @@
   "expo": {
     "name": "Vozvrat",
     "slug": "prizm-app",
-    "version": "1.0.4",
+    "version": "1.0.41",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "prizm",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/favicon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

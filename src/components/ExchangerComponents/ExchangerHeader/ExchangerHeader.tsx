@@ -527,6 +527,7 @@ export default function ExchangerHeaderComponent () {
         right: 0,
         top: 1,
         bottom: 1,
+        display:"flex",
         flexDirection: 'row',
         alignItems: 'center',
         borderLeftWidth: 1,

@@ -9,10 +9,7 @@ import { useState, useEffect  } from "react";
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
-export default function PartnersScreen() {
-    const [localityType, setLocalityType] = useState('')
-    const [localityId, setLocalityId] = useState('')
+const PartnerHeader = () => {
     const [text, setText] = useState('')
     const getText = async () => {
         try {
@@ -28,6 +25,25 @@ export default function PartnersScreen() {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/userId/wallet-data/`);
         }
     }
+    useEffect(()=>{
+        getText()
+    },[])
+    return(
+        <>
+            <View>
+                <Text>
+                    {text}
+                </Text>
+            </View>
+            <Text style={styles.subTitle}>Контакты:</Text>
+        </>
+
+    )
+}
+export default function PartnersScreen() {
+    const [localityType, setLocalityType] = useState('')
+    const [localityId, setLocalityId] = useState('')
+    
     const getLocationTypeAndId = async () => {
         const localLocationId = await AsyncStorage.getItem('locality-id')
         const localLocationType = await AsyncStorage.getItem('locality-type')
@@ -41,9 +57,7 @@ export default function PartnersScreen() {
             getLocationTypeAndId()
         }, [])
     )
-    useEffect(()=>{
-        getText()
-    },[])
+    
     const { data: partners, isLoading: isPartnersLoading } = useQuery({
         queryKey: ['partners'],
         queryFn: async () => {
@@ -61,17 +75,13 @@ export default function PartnersScreen() {
 
 
     return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            <View>
-                <Text>
-                    {text}
-                </Text>
-            </View>
-            <Text style={styles.subTitle}>Контакты:</Text>
+        <View style={styles.container} >
+            
             {partners && partners?.length > 0 ?
                 <>
                     <FlatList
                         data={partners}
+                        ListHeaderComponent={PartnerHeader}
                         columnWrapperStyle={partners?.length > 1 ? styles.row : undefined} 
                         contentContainerStyle={styles.listContainer} 
                         renderItem={({item}) => (
@@ -95,12 +105,18 @@ export default function PartnersScreen() {
                         numColumns={numColumnsToContacs} 
                         key={numColumnsToContacs?.toString()}
                         keyExtractor={(item) => item.value}
-                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+
                     />
                 </>
-                : <Text style={{fontWeight:600, fontSize:17, color:'rgba(0, 0, 0, 0.6)'}}>Нет контактов</Text>
+                : (
+                    <>
+                        <PartnerHeader/>
+                        <Text style={{fontWeight:600, fontSize:17, color:'rgba(0, 0, 0, 0.6)'}}>Нет контактов</Text>
+                    </>
+                )
             }
-        </ScrollView>
+        </View>
     )
 }
 const styles = StyleSheet.create({

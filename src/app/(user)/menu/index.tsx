@@ -106,15 +106,15 @@ export default function MenuScreen() {
         enabled: !!localityId && !!localityType, 
     });
 
-    const checkIfLocationEnabled = async () => {
-        try {
-          const enabled = await Location.hasServicesEnabledAsync();
-          setLocationServicesEnabled(enabled);
-        } catch (err) {
-          setError('Ошибка проверки доступности геолокации.');
-          console.error(err);
-        }
-      };
+    // const checkIfLocationEnabled = async () => {
+    //     try {
+    //       const enabled = await Location.hasServicesEnabledAsync();
+    //       setLocationServicesEnabled(enabled);
+    //     } catch (err) {
+    //       setError('Ошибка проверки доступности геолокации.');
+    //       console.error(err);
+    //     }
+    //   };
     
       const getServerLocation = async (lat: number, lon: number) => {
         try {

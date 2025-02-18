@@ -90,6 +90,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginHorizontal: 60,
+        display:"flex",
+
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
@@ -99,6 +101,7 @@ const styles = StyleSheet.create({
         height: (width - 120) * 1.15, 
     },
     buttonContainer: {
+        display:"flex",
         flexDirection: 'row',
         width: '100%',
         justifyContent: 'space-between',

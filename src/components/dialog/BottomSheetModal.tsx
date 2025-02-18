@@ -28,7 +28,7 @@ const BottomSheetModal = ({ bottomSheetRef, isModalVisible, setIsModalVisible,la
         <BottomSheet
             ref={bottomSheetRef}
             index={-1}
-            snapPoints={staticHeight ? staticHeight : snapPoints}
+            // snapPoints={staticHeight ? staticHeight : snapPoints}
             enablePanDownToClose
             onClose={() => {
                 setIsModalVisible(false);
