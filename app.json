@@ -2,7 +2,7 @@
   "expo": {
     "name": "Vozvrat",
     "slug": "prizm-app",
-    "version": "1.0.41",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/favicon.png",
     "scheme": "prizm",
@@ -25,9 +25,7 @@
       "package": "com.magomedovg.prizmapp",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -47,9 +45,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Разрешите Vozvrat prizm использовать вашу камеру",
-          "microphonePermission": "Разрешите Vozvrat prizm использовать ваш микрофон",
-          "recordAudioAndroid": true
+          "cameraPermission": "Разрешите Vozvrat prizm использовать вашу камеру"
         }
       ],
       "expo-font"
