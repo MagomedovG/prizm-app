@@ -18,7 +18,6 @@ const LocationInput = ({ data, onFilteredData, placeholder }:any) => {
         if (query) {
             onFilteredData(filteredCountries);
         }
-        console.log(filteredCountries)
     }, [filteredCountries]);
 
     return (

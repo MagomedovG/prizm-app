@@ -2,7 +2,6 @@ import React, {useEffect,useMemo,useRef, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Pressable, Dimensions, StatusBar, ScrollView, Platform} from "react-native";
 import {Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import { Ionicons } from '@expo/vector-icons';
 import Modal from "react-native-modal";
@@ -13,6 +12,7 @@ const deviceHeight = height + statusBarHeight
 import {text} from '@/assets/data/text'
 import BottomSheetModal from '@/src/components/dialog/BottomSheetModal';
 import BottomSrollableSheetModal from '@/src/components/dialog/BottomSrollableSheetModal';
+import * as SecureStore from 'expo-secure-store';
 const SetNickName = () => {
     const [name, setName] = useState<any>('');
     const router = useRouter();
@@ -31,8 +31,9 @@ const SetNickName = () => {
 
     useEffect(()=> {
         const getAsyncName = async () => {
-            const userName = await AsyncStorage.getItem('username');
-            const parsedUserName = userName ? userName: '';
+            const userName = await SecureStore.getItemAsync('username');
+            const parsedUserName = userName ? JSON.parse(userName) : '';
+            //JSON.stringify(userName)
             if (userName){
                 setName(parsedUserName);
             }
@@ -44,7 +45,7 @@ const SetNickName = () => {
         if (name?.length === 0) {
             return
         }
-        await AsyncStorage.setItem('username', name);
+        await SecureStore.setItemAsync('username', name);
         router.push('/pin/setnickname/LoginScreen')
     }
     

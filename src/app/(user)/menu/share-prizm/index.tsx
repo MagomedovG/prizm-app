@@ -4,12 +4,11 @@ import {Stack, useRouter} from "expo-router";
 import {borderColor} from "@/assets/data/colors";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { Ionicons } from '@expo/vector-icons';
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import * as SecureStore from 'expo-secure-store';
 import { useCustomTheme } from '@/src/providers/CustomThemeProvider';
 import StaticButton from '@/src/components/StaticButton';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import TransactionItem from '@/src/components/TransactionItem';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 const { height } = Dimensions.get('window');
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
@@ -59,9 +58,8 @@ const SharePrizm = () => {
     
     const loadSecretPhraseAndWallet = async () => {
         try {
-            // const storedPhrase = 'await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase")await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secrawait AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");await AsyncStorage.getItem("secret-phrase");et-phrase");;'
-            const storedPhrase = await AsyncStorage.getItem("secret-phrase");
-            const storedWallet = await AsyncStorage.getItem("prizm_wallet");
+            const storedPhrase = await SecureStore.getItemAsync("secret-phrase");
+            const storedWallet = await SecureStore.getItemAsync("prizm_wallet");
             if (storedPhrase) {
                 setSecretPhrase(storedPhrase);
             } else {
@@ -84,7 +82,6 @@ const SharePrizm = () => {
         setIsScanner(false)
         const result = splitQrText(data)
         scanQrCode(result?.afterColon)
-        console.log(result, result.afterColon, result.beforeColon);
     };
     const copySidToClipboard = () => {
         Clipboard.setString(sid);
@@ -129,7 +126,7 @@ const SharePrizm = () => {
         setCount(normalizedValue);  
     };
     async function getData() {
-        const userId = await asyncStorage.getItem('user_id')
+        const userId = await SecureStore.getItemAsync('user_id')
         try {
             
             const response = await fetch(
@@ -154,7 +151,6 @@ const SharePrizm = () => {
             transaction_bytes:transactionsBytes,
             ...(attachment && { attachment: attachment })
         }
-        console.log('broadcast-transaction form',form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`, {
                 method: 'POST',
@@ -164,16 +160,15 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log('broadcast-transaction data',data)
 
             if (response.ok){
+                if (checked && sid){
+                    await SecureStore.setItemAsync('secret-phrase',sid.trim())
+                }
                 setSid('')
                 setCount(null)
                 setWallet('')
                 setMessage('')
-                if (checked && sid){
-                    await AsyncStorage.setItem('secret-phrase',sid)
-                }
                 Alert.alert(
                     'Транзакция прошла успешно', 
                     data?.detail, 
@@ -188,7 +183,6 @@ const SharePrizm = () => {
                 setIsLoading(false);
             }
         } catch (err) {
-            console.log('Ошибка при переводе:', err,`${apiUrl}/api/v1/pzm-wallet/broadcast-transaction`,transactionsBytes );
             setIsLoading(false);
         }
     }
@@ -199,12 +193,10 @@ const SharePrizm = () => {
         if (isLoading) return
         setIsLoading(true);
 
-        const secret = secretPhrase || sid
+        const secret = secretPhrase || sid.trim()
          const senderPrizmWallet = await new PrizmWallet(false, secret, null)
 
-        console.log('cew')
         const secr = secretPhrase || 'no secret'
-        console.log('secr',secr)
 
         let encryptedDataHex, nonceHex;
         if (secretPhrase && message && (publicK || addressatPublicKey)) {
@@ -220,7 +212,6 @@ const SharePrizm = () => {
                 encrypted_message_nonce:nonceHex 
             })
         };
-        console.log('sendprizm form',form)
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/send-prizm/`, {
                 method: 'POST',
@@ -230,7 +221,6 @@ const SharePrizm = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log(response.status, 'sendprizm data',data)
             if (response.ok){
                 const unsignedTransactionsBytes = data?.transaction_data?.unsignedTransactionBytes
                 const attachment = data?.transaction_data?.transactionJSON?.attachment 
@@ -243,7 +233,6 @@ const SharePrizm = () => {
                 setIsLoading(false);
             }  
         } catch (error) {
-            console.log('Ошибка при создании:0.1', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
             setIsLoading(false);
         } 
     };
@@ -256,14 +245,13 @@ const SharePrizm = () => {
             const data = await response.json();
             if (response.ok) {
                 setAddressatPublicKey(data.prizm_public_key)
-                console.log('prizm_public_key from getPublicKeyFromAccountRs',data.prizm_public_key)
                 postForm(data.prizm_public_key)
             } else {
                 Alert.alert(data.detail)
             }
             console.log(data)
         } catch(e){
-            console.log(e,'Ошибка при получении публичного ключа', `${apiUrl}/api/v1/api/v1/pzm-wallet/get-account-data?account-rs=PRIZM-M6WK-ZBUJ-LKPR-8HWPR`)
+            console.log(e,'Ошибка при получении публичного ключа')
         }
     }
 

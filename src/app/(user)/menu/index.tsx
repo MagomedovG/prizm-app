@@ -24,7 +24,7 @@ import {AutocompleteResponse,ILocation} from "@/src/types";
 import Loader from '@/src/components/Loader';
 import { useQuery } from '@tanstack/react-query';
 import LocationInput from '@/src/components/LocationInput';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import TaxiIcon from '@/src/components/Icons/TaxiIcon';
 import BusinessIcon from '@/src/components/Icons/BusinessIcon';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -67,11 +67,10 @@ export default function MenuScreen() {
       };
 
     const getLocationTypeAndId = async () => {
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
+        const localLocationId = await SecureStore.getItemAsync('locality-id')
+        const localLocationType = await SecureStore.getItemAsync('locality-type')
         setLocalityId(localLocationId ? localLocationId : '')
         setLocalityType(localLocationType ? localLocationType : '')
-        // console.log(localLocationId, localLocationType, 'local')
     }
 
     useFocusEffect(
@@ -99,28 +98,18 @@ export default function MenuScreen() {
         queryKey:['wallets',localityId,localityType],
         queryFn:async () => {
             const response = await fetch(`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`);
-            console.log('fund',`${apiUrl}/api/v1/funds/?locality-id=${localityId}&locality-type=${localityType}`)
             
             return response.json();
         },
         enabled: !!localityId && !!localityType, 
     });
 
-    // const checkIfLocationEnabled = async () => {
-    //     try {
-    //       const enabled = await Location.hasServicesEnabledAsync();
-    //       setLocationServicesEnabled(enabled);
-    //     } catch (err) {
-    //       setError('Ошибка проверки доступности геолокации.');
-    //       console.error(err);
-    //     }
-    //   };
-    
+
       const getServerLocation = async (lat: number, lon: number) => {
         try {
-          const localFullName = await AsyncStorage.getItem('locality-full-name')
-          const localLocationId = await AsyncStorage.getItem('locality-id')
-          const localLocationType = await AsyncStorage.getItem('locality-type')
+          const localFullName = await SecureStore.getItemAsync('locality-full-name')
+          const localLocationId = await SecureStore.getItemAsync('locality-id')
+          const localLocationType = await SecureStore.getItemAsync('locality-type')
           const response = await fetch(`${apiUrl}/api/v1/localities/get-locality-by-coordinates/?latlon=${lat},${lon}`);
 
           const data = await response.json();
@@ -128,11 +117,9 @@ export default function MenuScreen() {
             if (data?.full_name !== localFullName || data?.id !== localLocationId || data?.type !== localLocationType){
               setLocalityId(data?.id)
               setLocalityType(data?.type)
-              await AsyncStorage.setItem('locality-full-name', data.full_name);
-              await AsyncStorage.setItem('locality-type', data.type);
-              await AsyncStorage.setItem('locality-id', data.id.toString());
-              
-              
+              await SecureStore.setItemAsync('locality-full-name', data.full_name);
+              await SecureStore.setItemAsync('locality-type', data.type);
+              await SecureStore.setItemAsync('locality-id', data.id.toString());
             } else {
                 console.log('Не нашли такую локацию в бд')
             }
@@ -150,7 +137,6 @@ export default function MenuScreen() {
             console.log('Нет разрешения на локацию')
             return
           };
-          console.log('status getCurrentLocation', status)
           const { coords } = await Location.getCurrentPositionAsync();
           if (coords) {
             const { latitude, longitude } = coords;
@@ -170,9 +156,9 @@ export default function MenuScreen() {
       };
 
     const pressOnCity = (location: ILocation)=> {
-        AsyncStorage.setItem('locality-type',location.type)
-        AsyncStorage.setItem('locality-id',location.id.toString())
-        AsyncStorage.setItem('locality-full-name', location.full_name);
+        SecureStore.setItemAsync('locality-type',location.type)
+        SecureStore.setItemAsync('locality-id',location.id.toString())
+        SecureStore.setItemAsync('locality-full-name', location.full_name);
         setIsShowLocationList(false)
         setLocalityId(location.id.toString())
         setLocalityType(location.type)

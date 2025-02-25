@@ -11,14 +11,13 @@ import {
     Clipboard,
     ScrollView
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from 'expo-secure-store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import UIButton from "@/src/components/UIButton";
 import { useRouter } from "expo-router";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import StaticButton from "@/src/components/StaticButton";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 export default function SecretPhrase() {
     const router = useRouter();
@@ -30,7 +29,7 @@ export default function SecretPhrase() {
 
     const loadSecretPhrase = async () => {
         try {
-            const storedPhrase = await AsyncStorage.getItem("secret-phrase");
+            const storedPhrase = await SecureStore.getItemAsync("secret-phrase");
             if (storedPhrase) {
                 setSecretPhrase(storedPhrase);
             } else {
@@ -43,8 +42,8 @@ export default function SecretPhrase() {
 
     const saveSecretPhrase = async () => {
         try {
-            await AsyncStorage.setItem("secret-phrase", newPhrase);
-            setSecretPhrase(newPhrase);
+            await SecureStore.setItemAsync("secret-phrase", newPhrase.trim());
+            setSecretPhrase(newPhrase.trim());
             setNewPhrase("");
             setIsEditable(false);
             Alert.alert("Парольная фраза сохранена!");
@@ -73,7 +72,7 @@ export default function SecretPhrase() {
     return (
         <>
             <ScrollView  contentContainerStyle={{ flexGrow: 1,}}>
-                <View style={{height: height - 84, paddingTop: height / 3.9 }}>
+                <View style={{height: height / 1.2 , paddingTop: height / 3.9 }}>
                     
                 
                     <Text style={styles.title} numberOfLines={2}>

@@ -1,5 +1,5 @@
 import {Text, View, Pressable, StyleSheet, ScrollView, TextInput, Dimensions, StatusBar, Alert, Platform,FlatList, ActivityIndicator} from 'react-native'
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from 'expo-secure-store';
 import { Stack, useRouter } from 'expo-router';
 import { useCustomTheme } from '@/src/providers/CustomThemeProvider';
 import {Image} from 'expo-image'
@@ -33,15 +33,10 @@ export default function ExchangerScreen (){
                 nextLink || `${apiUrl}/api/v1/pzm-orders/?user-account-rs=${wallet}`
             );
             const data = await response.json();
-            console.log(data?.results.length)
-            console.log(`${apiUrl}/api/v1/pzm-orders/?user-account-rs=${wallet}/`)
             if (data?.next){
                 setNextLink(data.next)
             } else {
                 setHasMore(false)
-            }
-            if (nextLink){
-                console.log('nextLink',nextLink)
             }
             setOrders((prevOrders) => prevOrders ? [...prevOrders, ...data?.results] : data?.results);
         } catch (error) {
@@ -62,7 +57,7 @@ export default function ExchangerScreen (){
 
       useEffect(() => {
         const getWallet = async () => {
-            const prizmWallet = await AsyncStorage.getItem('prizm_wallet')
+            const prizmWallet = await SecureStore.getItemAsync('prizm_wallet')
             if(prizmWallet){
                 fetchOrders(prizmWallet);
             } else {

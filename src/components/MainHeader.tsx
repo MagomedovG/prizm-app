@@ -9,6 +9,7 @@ import {Link, useRouter} from "expo-router";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
+import * as SecureStore from 'expo-secure-store';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import prizm from '@/src/utils/prizmparacalc'
 import Modal from 'react-native-modal';
@@ -16,6 +17,7 @@ const {width, height} = Dimensions.get("window");
 const deviceWidth = width
 const statusBarHeight = StatusBar.currentHeight || 0;
 const deviceHeight = height + statusBarHeight
+
 type IWallet = {
     balance_in_pzm:number;
     balance_in_rub:number;
@@ -53,18 +55,27 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
     const router = useRouter();
     const [userNumber, setUserNumber] = useState('') 
     const { width } = useWindowDimensions();
-    const logOut = () => {
-        AsyncStorage.clear()
+    const logOut = async () => {
+        await AsyncStorage.clear()
+        await SecureStore.deleteItemAsync('locality-full-name')
+        await SecureStore.deleteItemAsync('locality-type')
+        await SecureStore.deleteItemAsync('locality-id')
+        await SecureStore.deleteItemAsync('userPinCode')
+        await SecureStore.deleteItemAsync('prizm_wallet')
+        await SecureStore.deleteItemAsync('secret-phrase')
+        await SecureStore.deleteItemAsync('username')
+        await SecureStore.deleteItemAsync('is_superuser')
+        await SecureStore.deleteItemAsync('user_id')
+        await SecureStore.deleteItemAsync('public_key_hex')
         router.replace('/pin/setpinscreen')
     }
     async function checkUser() {
         try {
-            const userId = await AsyncStorage.getItem('user_id')
+            const userId = await SecureStore.getItemAsync('user_id')
             const response = await fetch(
                 `${apiUrl}/api/v1/users/${userId}/check/`,{
                 }
             );
-            // console.log(response.status)
             if (response.status === 403) {
                 Alert.alert('Ваш аккаунт был заблокирован','',[{ text: "OK" ,
                     onPress: () => {
@@ -98,15 +109,15 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
     }
     async function getData() {
         try {
-            const userId = await AsyncStorage.getItem('user_id')
+            const userId = await SecureStore.getItemAsync('user_id')
             const response = await fetch(
                 `${apiUrl}/api/v1/users/${userId}/wallet-data/`,{
                 }
             );
             const data = await response.json();
             setInfo(data);
-            await AsyncStorage.setItem('prizm_qr_code_url', data?.prizm_qr_code_url)
-            await AsyncStorage.setItem('prizm_wallet', data?.prizm_wallet)
+            await SecureStore.setItemAsync('prizm_qr_code_url', data?.prizm_qr_code_url)
+            await SecureStore.setItemAsync('prizm_wallet', data?.prizm_wallet)
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/${userId}/wallet-data/`);
         }
@@ -149,7 +160,7 @@ const MainHeader = ({ onChatPress,refreshData,onDotsPress,isWallet }:MainHeaderP
 
     useEffect(() => {
         async function fetchUserId() {
-            const storedUserId = await AsyncStorage.getItem('user_id');
+            const storedUserId = await SecureStore.getItemAsync('user_id');
             if (storedUserId) {
                 setUserId(storedUserId); 
             } else {

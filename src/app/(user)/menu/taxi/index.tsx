@@ -2,7 +2,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React from 'react';
 import { useState } from 'react';
 import { Pressable, ScrollView } from 'react-native';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from 'expo-secure-store';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 import { Text, View, StyleSheet, StatusBar, Dimensions } from 'react-native';
@@ -43,13 +43,12 @@ export default function TaxiScreen () {
         enabled: !!localityId && !!localityType, 
     });
     const getLocationTypeAndId = async () => {
-        const localLocationName = await AsyncStorage.getItem('locality-full-name')
+        const localLocationName = await SecureStore.getItemAsync('locality-full-name')
         setLocalityName(localLocationName ? localLocationName : 'не указано местоположение')
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
+        const localLocationId = await SecureStore.getItemAsync('locality-id')
+        const localLocationType = await SecureStore.getItemAsync('locality-type')
         setLocalityId(localLocationId ? localLocationId : '')
         setLocalityType(localLocationType ? localLocationType : '')
-        console.log( localLocationName, 'local')
     }
     useFocusEffect(
         React.useCallback(() => {

@@ -7,7 +7,7 @@ const ITEM_WIDTH = width - 25;
 import {Image} from 'expo-image'
 import { useState, useEffect  } from "react";
 import React from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from 'expo-secure-store';
 
 const PartnerHeader = () => {
     const [text, setText] = useState('')
@@ -45,8 +45,8 @@ export default function PartnersScreen() {
     const [localityId, setLocalityId] = useState('')
     
     const getLocationTypeAndId = async () => {
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
+        const localLocationId = await SecureStore.getItemAsync('locality-id')
+        const localLocationType = await SecureStore.getItemAsync('locality-type')
         setLocalityId(localLocationId ? localLocationId : '')
         setLocalityType(localLocationType ? localLocationType : '')
         console.log(localLocationId, localLocationType, 'local')
@@ -72,7 +72,10 @@ export default function PartnersScreen() {
     });
 
     const numColumnsToContacs = !!partners ? (partners?.length > 2 ? 3 : partners.length) : undefined
-
+    const filteredPartners = partners.filter(item => 
+        item.contact_type.contact_value_type === 'phone_number' || 
+        /^https?:\/\/\S+$/.test(item.value) // Проверка на URL
+      );
 
     return (
         <View style={styles.container} >
@@ -80,7 +83,7 @@ export default function PartnersScreen() {
             {partners && partners?.length > 0 ?
                 <>
                     <FlatList
-                        data={partners}
+                        data={filteredPartners}
                         ListHeaderComponent={PartnerHeader}
                         columnWrapperStyle={partners?.length > 1 ? styles.row : undefined} 
                         contentContainerStyle={styles.listContainer} 

@@ -33,8 +33,6 @@ export default function PiToPiScreen() {
             const response = await fetch(`${apiUrl}/api/v1/utils/settings/?ids=is_p2p_available,p2p_url`);
             const data = await response.json();
             if (response.ok) {
-                console.log(data);
-
                 const isAvailable = data?.is_p2p_available;
                 const url = data?.p2p_url;
                 const isValidUrl = typeof url === "string" && url.startsWith("http");

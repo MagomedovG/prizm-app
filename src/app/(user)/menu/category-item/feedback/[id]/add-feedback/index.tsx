@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import UIButton from "@/src/components/UIButton";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import * as SecureStore from 'expo-secure-store';
 import {useLocalSearchParams, useRouter} from "expo-router";
 import { defaultLogo} from "@/assets/data/categories";
 const { width } = Dimensions.get('window');
@@ -46,7 +46,7 @@ export default function AddFeedback() {
     }, []);
 
     const postComment = async () => {
-        const userId = await asyncStorage.getItem('user_id');
+        const userId = await SecureStore.getItemAsync('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null
         try {
             const response = await fetch(`${apiUrl}/api/v1/feedbacks/`,{
@@ -68,7 +68,7 @@ export default function AddFeedback() {
     }
     async function getMyFeedback() {
         try {
-            const userId = await asyncStorage.getItem('user_id');
+            const userId = await SecureStore.getItemAsync('user_id');
             const response = await fetch(
                 `${apiUrl}/api/v1/ratings/?created_by=${userId}&business=${id}`,
             );

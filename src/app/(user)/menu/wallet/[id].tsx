@@ -18,11 +18,10 @@ import {
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Link, Stack, useLocalSearchParams, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { AntDesign } from '@expo/vector-icons';
 import HeaderLink from "@/src/components/HeaderLink";
 import QRCode from "react-qr-code";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { IFund } from '@/src/types';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -76,7 +75,7 @@ export default function walletId() {
     const { data: wallet, isLoading: isWalletLoading } = useQuery<IFund>({
         queryKey: ['wallet', id],
         queryFn: async () => {
-            const userId = await asyncStorage.getItem('user_id')
+            const userId = await SecureStore.getItemAsync('user_id')
             const response = await fetch(
                 id !== 'user' ?
                 `${apiUrl}/api/v1/funds/${id}/`
@@ -96,7 +95,7 @@ export default function walletId() {
         }
     },[wallet])
     const updateUserWallet = async () => {
-        const userId = await AsyncStorage.getItem('user_id');
+        const userId = await SecureStore.getItemAsync('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null;
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/${parsedUserId}/`, {
@@ -112,7 +111,7 @@ export default function walletId() {
             if (!response.ok) {
                 Alert.alert('Введен некорректный кошелек')
             } else {
-                await asyncStorage.setItem('prizm_wallet', prizmWallet)
+                await SecureStore.setItemAsync('prizm_wallet', prizmWallet)
                 
             }
         } catch (e) {

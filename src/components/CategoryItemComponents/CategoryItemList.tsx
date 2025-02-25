@@ -14,7 +14,7 @@ import React, { useState } from "react";
 import { IBusiness, IBusinessInCategory } from "@/src/types";
 import { useQuery } from "@tanstack/react-query";
 import SearchInput from "../SearchInput";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from 'expo-secure-store';
 import HeaderCategoryItem from "./CategoryItemHeader";
 import RenderCategoryItem from "./RenderCategoryItem";
 
@@ -38,11 +38,10 @@ export default function CategoryItemList({
     }, []);
 
     const getLocationTypeAndId = async () => {
-        const localLocationId = await AsyncStorage.getItem('locality-id')
-        const localLocationType = await AsyncStorage.getItem('locality-type')
+        const localLocationId = await SecureStore.getItemAsync('locality-id')
+        const localLocationType = await SecureStore.getItemAsync('locality-type')
         setLocalityId(localLocationId ? localLocationId : '')
         setLocalityType(localLocationType ? localLocationType : '')
-        // console.log(localLocationId, localLocationType, 'local category')
     }
     useFocusEffect(
         React.useCallback(() => {
@@ -59,7 +58,6 @@ export default function CategoryItemList({
                 `${apiUrl}/api/v1/categories/${id}/get-businesses/?locality-id=${localityId}&locality-type=${localityType}`,
             );
             const data = await response.json();
-            // console.log('category',data);
             return data;
         },
         enabled: !!localityId && !!localityType

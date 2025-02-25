@@ -8,8 +8,7 @@ import {
     Dimensions,
     FlatList, RefreshControl, 
 } from "react-native";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
-
+import * as SecureStore from 'expo-secure-store';
 import { Stack, useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import {  defaultLogo } from "@/assets/data/categories";
 import HeaderLink from "@/src/components/HeaderLink";
@@ -57,14 +56,12 @@ export default function feedbackId() {
 
     async function getMyFeedback() {
         try {
-            const userId = await asyncStorage.getItem('user_id');
+            const userId = await SecureStore.getItemAsync('user_id');
             const response = await fetch(
                 `${apiUrl}/api/v1/feedbacks/?created_by=${userId}&business=${id}`,
             );
             let data = await response.json();
             setIsMineFeedbacks(data)
-            console.log('my feedback', data);
-            
         } catch (error) {
             console.error("Ошибка при загрузке данных моего отзыва:", error);
         }
@@ -86,7 +83,7 @@ export default function feedbackId() {
 
     async function getBusiness() {
         try {
-            const userId = await asyncStorage.getItem('user_id');
+            const userId = await SecureStore.getItemAsync('user_id');
             const response = await fetch(
                 `${apiUrl}/api/v1/business/${id}/?rating-created-by=${userId}`,
             );

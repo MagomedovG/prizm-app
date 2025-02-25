@@ -12,16 +12,15 @@ type StarRatingProps = {
   initialStars: number;
 };
 import { useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
+import * as SecureStore from 'expo-secure-store';
 
 const PostRating: React.FC<StarRatingProps> = ({ id, markSize, color = 'white', inactiveColor = 'white',refreshBusiness, initialStars }) => {
     const [activeStars, setActiveStars] = useState<number>(0);
     
     const postRating = async (rating: number) => {
         setActiveStars(rating);
-        const userId = await AsyncStorage.getItem('user_id');
+        const userId = await SecureStore.getItemAsync('user_id');
         const parsedUserId = userId ? JSON.parse(userId) : null;
         try {
             const response = await fetch(`${apiUrl}/api/v1/ratings/update-or-create/`, {

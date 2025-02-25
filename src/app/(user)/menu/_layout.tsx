@@ -7,9 +7,6 @@ import React from "react";
 export default function MenuStack() {
     const pathname = usePathname();
     
-    // Показываем Tabs только на (user)/menu
-    // const shouldShowTabs = pathname === "/menu";
-    // console.log(shouldShowTabs,pathname)
     const shouldShowTabs = false
     return shouldShowTabs ? (
         <Tabs

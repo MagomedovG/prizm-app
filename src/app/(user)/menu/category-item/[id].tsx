@@ -13,7 +13,6 @@ import {
     FlatList,
 } from "react-native";
 import { Clipboard } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Link, Stack, useLocalSearchParams} from "expo-router";
 import {defaultLogo} from "@/assets/data/categories";
 import { AntDesign } from '@expo/vector-icons';
@@ -29,7 +28,7 @@ import QRCode from 'react-qr-code';
 import Modal from "react-native-modal";
 import { useQuery } from '@tanstack/react-query';
 const statusBarHeight = StatusBar.currentHeight || 0;
-
+import * as SecureStore from 'expo-secure-store';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import ModalComponent from '@/src/components/dialog/ModalComponent';
 const { width, height } = Dimensions.get('window');
@@ -85,8 +84,8 @@ export default function categoryId() {
     useEffect(() => {
         const getWallet = async () => {
             try {
-                const url = await AsyncStorage.getItem('prizm_wallet');
-                const qr = await AsyncStorage.getItem('prizm_qr_code_url');       
+                const url = await SecureStore.getItemAsync('prizm_wallet');
+                const qr = await SecureStore.getItemAsync('prizm_qr_code_url');       
                 setPrizmWallet(url || '');
                 setPrizmQrCode(qr || '');
             } catch (error) {
@@ -112,7 +111,11 @@ export default function categoryId() {
     const isSingleColumn = !!business?.contacts && business?.contacts?.length <= 7;
     const numColumnsToContacs = !!business?.contacts ? (business?.contacts?.length > 2 ? 3 : business?.contacts.length) : undefined
 
-    
+    const filteredContacts = business?.contacts.filter(item => 
+        item.contact_type.contact_value_type === 'phone_number' || 
+        /^https?:\/\/\S+$/.test(item.value) // Проверка на URL
+      );
+
     return (
         <ScrollView style={[{  flex:1}, Platform.OS === "ios" ? {paddingTop: 173} : {}]}>
             <View style={[{width:'100%', position:'absolute'}, Platform.OS === "ios" ? {top: -173} : {top: 0}]}>
@@ -195,20 +198,20 @@ export default function categoryId() {
                         </>
                         }
                         <Text style={styles.subTitle}>Контакты:</Text>
-                        {business?.contacts.length && business?.contacts.length >= 1 ?
+                        {filteredContacts?.length && filteredContacts?.length >= 1 ?
                             <>
                                 
                                 <FlatList
-                                    data={business?.contacts}
-                                    columnWrapperStyle={business?.contacts.length > 1 ? styles.row : undefined} // Стили для строки
+                                    data={filteredContacts}
+                                    columnWrapperStyle={filteredContacts.length > 1 ? styles.row : undefined} // Стили для строки
                                     contentContainerStyle={styles.listContainer} 
                                     renderItem={({item}) => (
                                         <Link href={item.contact_type.contact_value_type === 'phone_number' ? `tel:${item.value}` : item.value} style={[styles.contactContainer,{backgroundColor:`#${item.contact_type.background_color}`}]} asChild>
                                             <Pressable>
-                                                <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},business?.contacts.length > 2 ? {gap:7} : {gap:10}]}>
+                                                <View style={[{display: 'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',margin:0, padding:0},filteredContacts.length > 2 ? {gap:7} : {gap:10}]}>
                                                     <Image
                                                         // cacheKey={`${id}-business-contact-logo-${item.contact_type.contact_value_type}-${item.contact_type.name}`} 
-                                                        style={{width:business?.contacts?.length > 2 ? 23 : 27, height:business?.contacts && business?.contacts?.length > 2 ? 23 : 27, borderRadius:50}}
+                                                        style={{width:filteredContacts.length > 2 ? 23 : 27, height:business?.contacts && business?.contacts?.length > 2 ? 23 : 27, borderRadius:50}}
                                                         source={{uri: `${apiUrl}/${item.contact_type.logo}`}}
                                                         cachePolicy={'memory-disk'}
                                                     />
@@ -281,52 +284,7 @@ export default function categoryId() {
                         </Pressable>
                     </View>
                 </ModalComponent>
-                {/* <Modal
-                    deviceWidth={deviceWidth}
-                    deviceHeight={deviceHeight}
-                    animationIn={'slideInUp'}
-                    isVisible={isQrModal}
-                    onSwipeComplete={closeQrModal}
-                    onBackdropPress={closeQrModal}
-                    animationInTiming={300}
-                    animationOut='slideOutDown'
-                    animationOutTiming={300} // Уменьшите время анимации
-                    backdropTransitionOutTiming={50} 
-                    onBackButtonPress={closeQrModal}
-                    backdropColor='black'
-                    hardwareAccelerated
-                    swipeDirection={'down'}
-                    style={styles.qrModal}
-                    statusBarTranslucent
-                >
-                    <View style={styles.centeredQrView}>
-                        <View style={styles.qrModalView}>
-                            <View style={styles.qrimage}>
-                                <QRCode
-                                    size={deviceWidth / 1.8}
-                                    value={prizmQrCode}
-                                    level={'M'}
-                                />
-                            </View>
-                            <Pressable onPress={copyToClipboard} style={styles.pressable}>
-                                <TextInput
-                                    ref={inputRef}
-                                    style={styles.input}
-                                    editable={false}
-                                    value={prizmWallet}
-                                />
-                                <View style={styles.copyButtonContainer}>
-                                    <FontAwesome5 name="copy" size={15} color="gray" />
-                                </View>
-                            </Pressable>
-
-                        </View>
-                    </View>
-                    <Pressable style={styles.closeButton} onPress={closeQrModal}>
-                            <AntDesign name="close" size={30} color="white" />
-                        </Pressable>
-                </Modal> */}
-
+       
             </View>
 
             <Modal

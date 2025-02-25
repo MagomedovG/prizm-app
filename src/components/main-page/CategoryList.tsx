@@ -5,12 +5,11 @@ import SearchInput from "@/src/components/SearchInput";
 import React, {useEffect, useState} from "react";
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
 import {Image} from 'expo-image'
-import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get('window');
 const ITEM_WIDTH = width / 3 - 20;
 const ITEM_HEIGHT = height / 2 -30
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'
-
+import * as SecureStore from 'expo-secure-store';
 
 type CategoryListProps = {
     title?:string,
@@ -46,9 +45,8 @@ export default function CategoryList ({categories, title, isInput, isAdminFond, 
         };
     }, []);
     const getLocationTypeAndId = async () => {
-        const localLocationName = await AsyncStorage.getItem('locality-full-name')
+        const localLocationName = await SecureStore.getItemAsync('locality-full-name')
         setLocalityName(localLocationName ? localLocationName : 'не указано местоположение')
-        console.log( localLocationName, 'local')
     }
     useFocusEffect(
         React.useCallback(() => {

@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions, Animated, Pressable, StatusBar, TextInput,Clipboard, Platform } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication';
 import * as Crypto from 'expo-crypto';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Stack, useRouter } from 'expo-router';
 import { AntDesign, FontAwesome5, FontAwesome6 } from '@expo/vector-icons';
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import NetInfo from '@react-native-community/netinfo';
-import * as Location from 'expo-location';
-import Modal from 'react-native-modal';
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 import { RFValue } from "react-native-responsive-fontsize";
 import ModalComponent from '@/src/components/dialog/ModalComponent';
 const {width, height} = Dimensions.get("window");
@@ -40,17 +36,25 @@ const SetPinScreen = () => {
         setModalWidth(width);
       };
 
-    const logOut = () => {
-        AsyncStorage.clear()
+      const logOut = async () => {
+        await SecureStore.deleteItemAsync('locality-full-name')
+        await SecureStore.deleteItemAsync('locality-type')
+        await SecureStore.deleteItemAsync('locality-id')
+        await SecureStore.deleteItemAsync('userPinCode')
+        await SecureStore.deleteItemAsync('prizm_wallet')
+        await SecureStore.deleteItemAsync('secret-phrase')
+        await SecureStore.deleteItemAsync('username')
+        await SecureStore.deleteItemAsync('is_superuser')
+        await SecureStore.deleteItemAsync('user_id')
+        await SecureStore.deleteItemAsync('public_key_hex')
         router.replace('/pin/setpinscreen')
     }
 
   useEffect(() => {
     async function fetchUserId() {
-        const storedUserName = await AsyncStorage.getItem('username');
+        const storedUserName = await SecureStore.getItemAsync('username');
         const parsedUserName = storedUserName ? JSON.parse(storedUserName) : null
-        const storedPrizmWallet = await AsyncStorage.getItem('prizm_wallet');
-        console.log(storedUserName)
+        const storedPrizmWallet = await SecureStore.getItemAsync('prizm_wallet');
         if (storedPrizmWallet) {
             setPrizmWallet(storedPrizmWallet); 
         } 
@@ -82,15 +86,15 @@ const SetPinScreen = () => {
     const shakeAnimation = useRef(new Animated.Value(0)).current;
     useEffect(()=> {
         const getAsyncName = async () => {
-            const userName = await AsyncStorage.getItem('username');
-            const walletName = await AsyncStorage.getItem('prizm_wallet');
-            const userId = await AsyncStorage.getItem('user_id');
+            const userName = await SecureStore.getItemAsync('username');
+            const walletName = await SecureStore.getItemAsync('prizm_wallet');
+            const userId = await SecureStore.getItemAsync('user_id');
             // if (!userName && !walletName && !userId) {
             //     router.replace('/pin/setnickname')
             // }
         };
         const getStoredPinHash = async () => {
-            const pinHash = await AsyncStorage.getItem('userPinCode');
+            const pinHash = await SecureStore.getItemAsync('userPinCode');
             setStoredPinHash(pinHash);
         };
 
@@ -126,9 +130,9 @@ const SetPinScreen = () => {
     },[pin])
 
     const handlePinComplete = async (inputPin:any) => {
-        const userName = await AsyncStorage.getItem('username');
-        const walletName = await AsyncStorage.getItem('prizm_wallet');
-        const userId = await AsyncStorage.getItem('user_id');
+        const userName = await SecureStore.getItemAsync('username');
+        const walletName = await SecureStore.getItemAsync('prizm_wallet');
+        const userId = await SecureStore.getItemAsync('user_id');
         if (storedPinHash === null) {
             if (!confirming) {
                 setInitialPin(inputPin);
@@ -137,7 +141,7 @@ const SetPinScreen = () => {
             } else {
                 if (inputPin === initialPin) {
                     const inputPinHash = await hashPin(inputPin);
-                    await AsyncStorage.setItem('userPinCode', inputPinHash);
+                    await SecureStore.setItemAsync('userPinCode', inputPinHash);
                     // Alert.alert('PIN установлен');
                     if (!userName || !walletName || !userId) {
                         router.replace('/pin/setnickname');
@@ -189,31 +193,7 @@ const SetPinScreen = () => {
         ]).start(() => setIsError(false));
     };
 
-    const handleBiometricAuth = async () => {
-        const hasHardware = await LocalAuthentication.hasHardwareAsync();
-        if (!hasHardware) {
-            Alert.alert('Ваше устройство не поддерживает биометрическую аутентификацию');
-            return;
-        }
 
-        const isBiometricSupported = await LocalAuthentication.isEnrolledAsync();
-        if (!isBiometricSupported) {
-            Alert.alert('Биометрическая аутентификация не настроена');
-            return;
-        }
-
-        const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: 'Войдите с помощью биометрии',
-            fallbackLabel: 'Использовать PIN-код'
-        });
-
-        if (result.success) {
-            router.replace('/(user)/menu'); 
-            Alert.alert('Аутентификация успешна');
-        } else {
-            Alert.alert('Аутентификация не удалась');
-        }
-    };
     const copyWalletToClipboard = () => {
         if (prizmWallet && typeof prizmWallet === "string" ) {
             Clipboard.setString(prizmWallet);

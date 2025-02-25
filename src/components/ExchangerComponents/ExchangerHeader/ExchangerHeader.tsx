@@ -1,6 +1,5 @@
 import { useCustomTheme } from "@/src/providers/CustomThemeProvider";
 import { IWallet } from "@/src/types";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { memo, useEffect, useState } from "react";
 import { Alert, Pressable, View, Text, TextInput, Platform, StyleSheet, StatusBar, ActivityIndicator } from "react-native";
@@ -10,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import signBytes from "@/src/utils/transactions";
 import PrizmWallet from "@/src/utils/PrizmWallet";
 const statusBarHeight = StatusBar.currentHeight || 0;
-
+import * as SecureStore from 'expo-secure-store';
 type BankItem = {
     // item:{
         name:string,
@@ -45,7 +44,7 @@ export default function ExchangerHeaderComponent () {
         
     const fetchWalletData = async () =>{
         try {
-            const userId = await AsyncStorage.getItem('user_id')
+            const userId = await SecureStore.getItemAsync('user_id')
             const response = await fetch(
                 `${apiUrl}/api/v1/users/${userId}/wallet-data/`
             );
@@ -53,8 +52,6 @@ export default function ExchangerHeaderComponent () {
             setWalletInfo(data);
             setBalance(data?.balance_in_pzm);
             setPrizmWallet(data?.prizm_wallet)
-            console.log(data.prizm_wallet)
-            // console.log(data?.balance_in_pzm * 0.005, 'balance * 0.005')
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error,`${apiUrl}/api/v1/users/userId/wallet-data/`);
         }
@@ -93,7 +90,6 @@ export default function ExchangerHeaderComponent () {
                 seller_account_rs:sellerAccountRs,
                 prizm_exchange_rate,
             }
-            console.log('sellerAccountRs', sellerAccountRs, 'form:', form)
             const response = await fetch(
                 `${apiUrl}/api/v1/pzm-orders/`,
                 {
@@ -105,7 +101,6 @@ export default function ExchangerHeaderComponent () {
                 }
             );
             const data = await response.json();
-            console.log('postOrder data', data)
 
             if (!response.ok) {
                 const error = data.seller_phone_number?.[0] || data?.detail || ''
@@ -120,7 +115,6 @@ export default function ExchangerHeaderComponent () {
                   setLoading(false)
             }
             
-            console.log(form, data)
         } catch (error) {
             console.error("Ошибка при отправке ордера:", error);
             setLoading(false)
@@ -148,7 +142,6 @@ export default function ExchangerHeaderComponent () {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log('postForm data', data)
             
             if (response.ok){
                 const unsignedTransactionsBytes = data?.transaction_data?.unsignedTransactionBytes
@@ -161,7 +154,7 @@ export default function ExchangerHeaderComponent () {
                 setLoading(false)
             }  
         } catch (error) {
-            console.log('Ошибка при создании:', error,`${apiUrl}/api/v1/users/send-prizm/`,form );
+            console.log('Ошибка при создании:', error );
             setLoading(false)
         } 
     };
@@ -173,13 +166,12 @@ export default function ExchangerHeaderComponent () {
             if (response.ok){
                 setRecipientWallet(data?.pzm_sell_order_buyer_wallet)
             }
-            console.log(data)
         } catch(error) {
             console.log(error)
         }
     }
     const getSecretPhrase = async () => {
-        const storedPhrase = await AsyncStorage.getItem("secret-phrase");
+        const storedPhrase = await SecureStore.getItemAsync("secret-phrase");
         if (storedPhrase) {
             setSecretPhrase(storedPhrase);
         } 
@@ -222,8 +214,6 @@ export default function ExchangerHeaderComponent () {
         }
     
         const maxTransferAmount = commission;
-        // console.log(balance * 0.005, 'balance * 0.005')
-        // return typeof balance
         return maxTransferAmount > 0 ? maxTransferAmount : 0;
     }
 

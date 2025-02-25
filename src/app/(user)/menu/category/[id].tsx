@@ -14,7 +14,7 @@ import {
     StatusBar,
     ScrollView
 } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Link, useLocalSearchParams} from "expo-router";
 import CategoryItemList from "@/src/components/CategoryItemComponents/CategoryItemList";
 import {lightColor} from "@/assets/data/colors";
@@ -92,8 +92,8 @@ export default function categoryId() {
     useEffect(() => {
         const getWallet = async () => {
             try {
-                const url = await AsyncStorage.getItem('prizm_wallet');
-                const qr = await AsyncStorage.getItem('prizm_qr_code_url');
+                const url = await SecureStore.getItemAsync('prizm_wallet');
+                const qr = await SecureStore.getItemAsync('prizm_qr_code_url');
                 setPrizmWallet(url || '');
                 setPrizmQrCode(qr || '');
             } catch (error) {

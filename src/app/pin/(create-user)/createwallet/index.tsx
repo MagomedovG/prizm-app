@@ -4,12 +4,10 @@ import {Link, Stack, useRouter} from "expo-router";
 import UIButton from "@/src/components/UIButton";
 import {AntDesign} from "@expo/vector-icons";
 import Modal from "react-native-modal";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import PrizmWallet from '@/src/utils/PrizmWallet';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ModalComponent from '@/src/components/dialog/ModalComponent';
-
+import * as SecureStore from 'expo-secure-store';
 const deviceWidth = Dimensions.get("window").width;
 const { width, height } = Dimensions.get('window');
 
@@ -46,13 +44,12 @@ const CreateWallet = () => {
     };
 
     const postForm = async () => {
-        const username = await AsyncStorage.getItem('username');
+        const username = await SecureStore.getItemAsync('username');
         const form = {
             username: username,
             prizm_wallet: prizmWallet,
             public_key_hex: publicKey 
         };
-        console.log(form,)
         try {
             
             const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
@@ -63,8 +60,6 @@ const CreateWallet = () => {
                 body: JSON.stringify(form),
             });
             const data = await response.json();
-            console.log('dd',data)
-
             if (!response.ok) {
                 const result = data.username?.[0] || data.prizm_wallet?.[0] || 'Ошибка'
                 Alert.alert(result)
@@ -72,11 +67,11 @@ const CreateWallet = () => {
                 throw new Error('Ошибка сети');
             } else {
                 setIsModal(false);
-                await asyncStorage.setItem('username', JSON.stringify(data?.username))
-                await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
-                await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
-                await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
-                await asyncStorage.setItem("secret-phrase", secretPhrase);
+                await SecureStore.setItemAsync('username', JSON.stringify(data?.username))
+                await SecureStore.setItemAsync('prizm_wallet', JSON.stringify(data?.prizm_wallet))
+                await SecureStore.setItemAsync('is_superuser', JSON.stringify(data?.is_superuser));
+                await SecureStore.setItemAsync('user_id', JSON.stringify(data?.id))
+                await SecureStore.setItemAsync("secret-phrase", secretPhrase);
                 replaceToMenu() 
             }
         } catch (error) {
@@ -89,10 +84,9 @@ const CreateWallet = () => {
                 setPrizmWallet(newWallet.accountRs)
                 setPublicKey(newWallet.publicKeyHex)
                 
-                console.log(newWallet,prizmWallet, publicKey, secretPhrase )
-                await asyncStorage.setItem('secret-phrase', newWallet.secretPhrase || '')
-                await asyncStorage.setItem('prizm_wallet', newWallet.accountRs && typeof newWallet.accountRs === 'string' ? newWallet.accountRs : '')
-                await asyncStorage.setItem('public_key_hex', newWallet.publicKeyHex || '')
+                await SecureStore.setItemAsync('secret-phrase', newWallet.secretPhrase || '')
+                await SecureStore.setItemAsync('prizm_wallet', newWallet.accountRs && typeof newWallet.accountRs === 'string' ? newWallet.accountRs : '')
+                await SecureStore.setItemAsync('public_key_hex', newWallet.publicKeyHex || '')
         } catch (error) {
             console.log(error)
         }

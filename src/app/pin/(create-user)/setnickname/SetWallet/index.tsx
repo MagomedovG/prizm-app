@@ -2,12 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, Text, TextInput, Alert, Pressable} from "react-native";
 import {Stack, useRouter, Link} from "expo-router";
 import UIButton from "@/src/components/UIButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-import { useFocusEffect } from '@react-navigation/native';
 import {useCustomTheme} from "@/src/providers/CustomThemeProvider";
-
+import * as SecureStore from 'expo-secure-store';
 const SetWallet = () => {
 
     const [name, setName] = useState('');
@@ -17,17 +14,17 @@ const SetWallet = () => {
         router.back()
     }
     const postForm = async () => {
-        const username = await asyncStorage.getItem('username')
-        const public_key_hex = await asyncStorage.getItem('public_key_hex')
+        const username = await SecureStore.getItemAsync('username')
+        const public_key_hex = await SecureStore.getItemAsync('public_key_hex')
         const prizm_wallet = name
-        const walletName = await AsyncStorage.getItem('prizm_wallet');
+        const walletName = await SecureStore.getItemAsync('prizm_wallet');
         const isUpdatedName = walletName ? JSON.parse(walletName) !== name : true
-        
         const form = {
             username,
             prizm_wallet,
             ...(public_key_hex && !isUpdatedName && { public_key_hex: JSON.parse(public_key_hex) })
         };
+
         try {
             const response = await fetch(`${apiUrl}/api/v1/users/get-or-create/`, {
                 method: 'POST',
@@ -41,18 +38,20 @@ const SetWallet = () => {
             
             if (response.ok) {
                 router.replace('/(user)/menu');
-                await asyncStorage.setItem('username', JSON.stringify(data?.username))
-                await asyncStorage.setItem('prizm_wallet', JSON.stringify(data?.prizm_wallet))
-                await asyncStorage.setItem('is_superuser', JSON.stringify(data?.is_superuser));
-                await asyncStorage.setItem('user_id', JSON.stringify(data?.id))
+                await SecureStore.setItemAsync('username', JSON.stringify(data?.username))
+                await SecureStore.setItemAsync('prizm_wallet', JSON.stringify(data?.prizm_wallet))
+                await SecureStore.setItemAsync('is_superuser', JSON.stringify(data?.is_superuser));
+                await SecureStore.setItemAsync('user_id', JSON.stringify(data?.id))
             } else {
                 const result = data?.username ? data?.username[0] : data?.prizm_wallet ? data?.prizm_wallet[0] : 'Ошибка'
                 Alert.alert(result)
+
                 throw new Error('Ошибка сети');
             }
         } catch (error) {
-            await AsyncStorage.removeItem('username')
-            await AsyncStorage.removeItem('prizm_wallet')
+            console.log(error)
+            await SecureStore.deleteItemAsync('username')
+            await SecureStore.deleteItemAsync('prizm_wallet')
             router.replace('/pin/setnickname');
         }
     };
